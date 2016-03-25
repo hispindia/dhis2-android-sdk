@@ -26,33 +26,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.hisp.dhis.client.sdk.android.optionset;
+package org.hisp.dhis.client.sdk.core.common.network;
 
-import com.raizlabs.android.dbflow.sql.language.Select;
+import org.hisp.dhis.client.sdk.core.dataelement.IDataElementApiClient;
+import org.hisp.dhis.client.sdk.core.event.IEventApiClient;
+import org.hisp.dhis.client.sdk.core.optionset.IOptionSetApiClient;
+import org.hisp.dhis.client.sdk.core.organisationunit.IOrganisationUnitApiClient;
+import org.hisp.dhis.client.sdk.core.program.IProgramApiClient;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageApiClient;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageDataElementApiClient;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageSectionApiClient;
+import org.hisp.dhis.client.sdk.core.systeminfo.ISystemInfoApiClient;
+import org.hisp.dhis.client.sdk.core.user.IUserApiClient;
 
-import org.hisp.dhis.client.sdk.android.api.persistence.flow.OptionFlow;
-import org.hisp.dhis.client.sdk.android.api.persistence.flow.OptionFlow_Table;
-import org.hisp.dhis.client.sdk.android.common.AbsIdentifiableObjectStore;
-import org.hisp.dhis.client.sdk.android.common.IMapper;
-import org.hisp.dhis.client.sdk.core.optionset.IOptionStore;
-import org.hisp.dhis.client.sdk.models.optionset.Option;
-import org.hisp.dhis.client.sdk.models.optionset.OptionSet;
+public interface INetworkModule {
+    ISystemInfoApiClient getSystemInfoApiClient();
 
-import java.util.List;
+    IUserApiClient getUserApiClient();
 
-public final class OptionStore extends AbsIdentifiableObjectStore<Option, OptionFlow> implements
-        IOptionStore {
+    IOrganisationUnitApiClient getOrganisationUnitApiClient();
 
-    public OptionStore() {
-        super(OptionFlow.MAPPER);
-    }
+    IProgramApiClient getProgramApiClient();
 
-    @Override
-    public List<Option> query(OptionSet optionSet) {
-        List<OptionFlow> optionFlows = new Select()
-                .from(OptionFlow.class)
-                .where(OptionFlow_Table.optionset.is(optionSet.getUId()))
-                .queryList();
-        return getMapper().mapToModels(optionFlows);
-    }
+    IProgramStageApiClient getProgramStageApiClient();
+
+    IProgramStageSectionApiClient getProgramStageSectionApiClient();
+
+    IEventApiClient getEventApiClient();
+
+    IDataElementApiClient getDataElementApiClient();
+
+    IProgramStageDataElementApiClient getProgramStageDataElementApiClient();
+
+    IOptionSetApiClient getOptionSetApiClient();
 }

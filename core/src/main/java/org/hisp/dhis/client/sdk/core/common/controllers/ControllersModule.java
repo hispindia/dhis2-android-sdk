@@ -28,56 +28,212 @@
 
 package org.hisp.dhis.client.sdk.core.common.controllers;
 
+import org.hisp.dhis.client.sdk.core.common.network.INetworkModule;
+import org.hisp.dhis.client.sdk.core.common.persistence.IPersistenceModule;
+import org.hisp.dhis.client.sdk.core.common.preferences.IPreferencesModule;
 import org.hisp.dhis.client.sdk.core.dataelement.DataElementController;
+import org.hisp.dhis.client.sdk.core.dataelement.IDataElementController;
 import org.hisp.dhis.client.sdk.core.event.EventController;
+import org.hisp.dhis.client.sdk.core.event.IEventController;
+import org.hisp.dhis.client.sdk.core.optionset.IOptionSetController;
 import org.hisp.dhis.client.sdk.core.optionset.OptionSetController;
+import org.hisp.dhis.client.sdk.core.organisationunit.IOrganisationUnitController;
 import org.hisp.dhis.client.sdk.core.organisationunit.OrganisationUnitController;
+import org.hisp.dhis.client.sdk.core.program.IProgramController;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageController;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageDataElementController;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageSectionController;
 import org.hisp.dhis.client.sdk.core.program.ProgramController;
-import org.hisp.dhis.client.sdk.core.program.ProgramIndicatorController;
-import org.hisp.dhis.client.sdk.core.program.ProgramRuleActionController;
-import org.hisp.dhis.client.sdk.core.program.ProgramRuleController;
-import org.hisp.dhis.client.sdk.core.program.ProgramRuleVariableController;
 import org.hisp.dhis.client.sdk.core.program.ProgramStageController;
 import org.hisp.dhis.client.sdk.core.program.ProgramStageDataElementController;
 import org.hisp.dhis.client.sdk.core.program.ProgramStageSectionController;
+import org.hisp.dhis.client.sdk.core.systeminfo.ISystemInfoController;
 import org.hisp.dhis.client.sdk.core.systeminfo.SystemInfoController;
-import org.hisp.dhis.client.sdk.core.trackedentity.TrackedEntityAttributeController;
-import org.hisp.dhis.client.sdk.core.user.AssignedOrganisationUnitsController;
+import org.hisp.dhis.client.sdk.core.user.AssignedOrganisationUnitController;
 import org.hisp.dhis.client.sdk.core.user.AssignedProgramsController;
+import org.hisp.dhis.client.sdk.core.user.IAssignedOrganisationUnitsController;
+import org.hisp.dhis.client.sdk.core.user.IAssignedProgramsController;
+import org.hisp.dhis.client.sdk.core.user.IUserAccountController;
 import org.hisp.dhis.client.sdk.core.user.UserAccountController;
 
-public interface ControllersModule {
-    SystemInfoController getSystemInfoController();
+import static org.hisp.dhis.client.sdk.models.utils.Preconditions.isNull;
 
-    UserAccountController getUserAccountController();
+public class ControllersModule implements IControllersModule {
+    private final ISystemInfoController systemInfoController;
+    private final IUserAccountController userAccountController;
+    private final IProgramController programController;
+    private final IProgramStageController programStageController;
+    private final IProgramStageSectionController programStageSectionController;
+    private final IOrganisationUnitController organisationUnitController;
+    private final IAssignedProgramsController assignedProgramsController;
+    private final IAssignedOrganisationUnitsController assignedOrganisationUnitsController;
+    private final IEventController eventController;
+    private final IDataElementController dataElementController;
+    private final IProgramStageDataElementController programStageDataElementController;
+    private final IOptionSetController optionSetController;
 
-    ProgramController getProgramController();
+    public ControllersModule(INetworkModule networkModule,
+                             IPersistenceModule persistenceModule,
+                             IPreferencesModule preferencesModule) {
+        isNull(networkModule, "networkModule must not be null");
+        isNull(persistenceModule, "persistenceModule must not be null");
+        isNull(preferencesModule, "preferencesModule must not be null");
 
-    ProgramStageController getProgramStageController();
+        systemInfoController = new SystemInfoController(
+                networkModule.getSystemInfoApiClient(),
+                preferencesModule.getSystemInfoPreferences(),
+                preferencesModule.getLastUpdatedPreferences());
 
-    ProgramStageSectionController getProgramStageSectionController();
+        programController = new ProgramController(networkModule.getProgramApiClient(),
+                networkModule.getUserApiClient(), persistenceModule.getProgramStore(),
+                systemInfoController, persistenceModule.getTransactionManager(),
+                preferencesModule.getLastUpdatedPreferences());
 
-    OrganisationUnitController getOrganisationUnitController();
+        programStageController = new ProgramStageController(
+                networkModule.getSystemInfoApiClient(),
+                networkModule.getProgramStageApiClient(),
+                persistenceModule.getProgramStageStore(),
+                programController, persistenceModule.getTransactionManager(),
+                preferencesModule.getLastUpdatedPreferences());
 
-    AssignedProgramsController getAssignedProgramsController();
+        optionSetController = new OptionSetController(
+                networkModule.getOptionSetApiClient(),
+                persistenceModule.getOptionStore(),
+                persistenceModule.getOptionSetStore(),
+                systemInfoController,
+                preferencesModule.getLastUpdatedPreferences(),
+                persistenceModule.getTransactionManager());
 
-    AssignedOrganisationUnitsController getAssignedOrganisationUnitsController();
+        dataElementController = new DataElementController(
+                networkModule.getDataElementApiClient(),
+                preferencesModule.getLastUpdatedPreferences(),
+                persistenceModule.getDataElementStore(),
+                systemInfoController,
+                optionSetController,
+                persistenceModule.getTransactionManager());
 
-    EventController getEventController();
 
-    DataElementController getDataElementController();
+        programStageDataElementController = new ProgramStageDataElementController(
+                networkModule.getSystemInfoApiClient(),
+                networkModule.getProgramStageDataElementApiClient(),
+                persistenceModule.getProgramStageDataElementStore(),
+                dataElementController,
+                persistenceModule.getTransactionManager(),
+                preferencesModule.getLastUpdatedPreferences());
 
-    ProgramStageDataElementController getProgramStageDataElementController();
+        programStageSectionController = new ProgramStageSectionController(
+                networkModule.getProgramStageSectionApiClient(),
+                persistenceModule.getProgramStageSectionStore(),
+                programStageController,
+                programStageDataElementController,
+                systemInfoController,
+                persistenceModule.getTransactionManager(),
+                preferencesModule.getLastUpdatedPreferences());
 
-    ProgramRuleController getProgramRuleController();
+        assignedProgramsController = new AssignedProgramsController(
+                networkModule.getUserApiClient(), programController);
 
-    ProgramRuleActionController getProgramRuleActionController();
+        organisationUnitController = new OrganisationUnitController(
+                networkModule.getOrganisationUnitApiClient(),
+                networkModule.getUserApiClient(),
+                persistenceModule.getOrganisationUnitStore(),
+                preferencesModule.getLastUpdatedPreferences(), systemInfoController,
+                persistenceModule.getTransactionManager());
 
-    ProgramRuleVariableController getProgramRuleVariableController();
+        assignedOrganisationUnitsController = new AssignedOrganisationUnitController(
+                networkModule.getUserApiClient(), organisationUnitController);
 
-    ProgramIndicatorController getProgramIndicatorController();
+        userAccountController = new UserAccountController(
+                networkModule.getUserApiClient(),
+                persistenceModule.getUserAccountStore());
 
-    TrackedEntityAttributeController getTrackedEntityAttributeController();
+        eventController = new EventController(
+                networkModule.getEventApiClient(),
+                networkModule.getSystemInfoApiClient(),
+                preferencesModule.getLastUpdatedPreferences(),
+                persistenceModule.getTransactionManager(),
+                null, //persistenceModule.getStateStore(),
+                persistenceModule.getEventStore(),
+                null, //persistenceModule.getTrackedEntityDataValueStore(),
+                persistenceModule.getOrganisationUnitStore(),
+                persistenceModule.getProgramStore(),
+                null //persistenceModule.getFailedItemStore()
+        );
 
-    OptionSetController getOptionSetController();
+
+
+
+        /*
+
+        IEventApiClient eventApiClient,
+                   ISystemInfoApiClient systemInfoApiClient,
+                   ILastUpdatedPreferences lastUpdatedPreferences,
+                   ITransactionManager transactionManager,
+                   IStateStore stateStore, IEventStore eventStore,
+                   ITrackedEntityDataValueStore trackedEntityDataValueStore,
+                   IOrganisationUnitStore organisationUnitStore, IProgramStore programStore,
+                   IFailedItemStore failedItemStore)
+         */
+
+    }
+
+    @Override
+    public ISystemInfoController getSystemInfoController() {
+        return systemInfoController;
+    }
+
+    @Override
+    public IUserAccountController getUserAccountController() {
+        return userAccountController;
+    }
+
+    @Override
+    public IProgramController getProgramController() {
+        return programController;
+    }
+
+    @Override
+    public IProgramStageController getProgramStageController() {
+        return programStageController;
+    }
+
+    @Override
+    public IProgramStageSectionController getProgramStageSectionController() {
+        return programStageSectionController;
+    }
+
+    @Override
+    public IOrganisationUnitController getOrganisationUnitController() {
+        return organisationUnitController;
+    }
+
+    @Override
+    public IAssignedProgramsController getAssignedProgramsController() {
+        return assignedProgramsController;
+    }
+
+    @Override
+    public IAssignedOrganisationUnitsController getAssignedOrganisationUnitsController() {
+        return assignedOrganisationUnitsController;
+    }
+
+    @Override
+    public IEventController getEventController() {
+        return eventController;
+    }
+
+    @Override
+    public IDataElementController getDataElementController() {
+        return dataElementController;
+    }
+
+    @Override
+    public IProgramStageDataElementController getProgramStageDataElementController() {
+        return programStageDataElementController;
+    }
+
+    @Override
+    public IOptionSetController getOptionSetController() {
+        return optionSetController;
+    }
 }

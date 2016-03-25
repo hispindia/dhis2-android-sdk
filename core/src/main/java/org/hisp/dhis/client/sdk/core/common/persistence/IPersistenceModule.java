@@ -26,33 +26,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.hisp.dhis.client.sdk.android.optionset;
+package org.hisp.dhis.client.sdk.core.common.persistence;
 
-import com.raizlabs.android.dbflow.sql.language.Select;
-
-import org.hisp.dhis.client.sdk.android.api.persistence.flow.OptionFlow;
-import org.hisp.dhis.client.sdk.android.api.persistence.flow.OptionFlow_Table;
-import org.hisp.dhis.client.sdk.android.common.AbsIdentifiableObjectStore;
-import org.hisp.dhis.client.sdk.android.common.IMapper;
+import org.hisp.dhis.client.sdk.core.dataelement.IDataElementStore;
+import org.hisp.dhis.client.sdk.core.event.IEventStore;
+import org.hisp.dhis.client.sdk.core.optionset.IOptionSetStore;
 import org.hisp.dhis.client.sdk.core.optionset.IOptionStore;
-import org.hisp.dhis.client.sdk.models.optionset.Option;
-import org.hisp.dhis.client.sdk.models.optionset.OptionSet;
+import org.hisp.dhis.client.sdk.core.organisationunit.IOrganisationUnitStore;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageDataElementStore;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageSectionStore;
+import org.hisp.dhis.client.sdk.core.program.IProgramStageStore;
+import org.hisp.dhis.client.sdk.core.program.IProgramStore;
+import org.hisp.dhis.client.sdk.core.user.IUserAccountStore;
 
-import java.util.List;
+public interface IPersistenceModule {
 
-public final class OptionStore extends AbsIdentifiableObjectStore<Option, OptionFlow> implements
-        IOptionStore {
+    ITransactionManager getTransactionManager();
 
-    public OptionStore() {
-        super(OptionFlow.MAPPER);
-    }
+    IUserAccountStore getUserAccountStore();
 
-    @Override
-    public List<Option> query(OptionSet optionSet) {
-        List<OptionFlow> optionFlows = new Select()
-                .from(OptionFlow.class)
-                .where(OptionFlow_Table.optionset.is(optionSet.getUId()))
-                .queryList();
-        return getMapper().mapToModels(optionFlows);
-    }
+    IProgramStore getProgramStore();
+
+    IProgramStageStore getProgramStageStore();
+
+    IProgramStageSectionStore getProgramStageSectionStore();
+
+    IProgramStageDataElementStore getProgramStageDataElementStore();
+
+    IOrganisationUnitStore getOrganisationUnitStore();
+
+    IEventStore getEventStore();
+
+    IDataElementStore getDataElementStore();
+
+    IOptionSetStore getOptionSetStore();
+
+    IOptionStore getOptionStore();
+
+    boolean deleteAllTables();
 }

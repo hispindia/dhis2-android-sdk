@@ -28,31 +28,21 @@
 
 package org.hisp.dhis.client.sdk.android.optionset;
 
-import com.raizlabs.android.dbflow.sql.language.Select;
-
-import org.hisp.dhis.client.sdk.android.api.persistence.flow.OptionFlow;
-import org.hisp.dhis.client.sdk.android.api.persistence.flow.OptionFlow_Table;
-import org.hisp.dhis.client.sdk.android.common.AbsIdentifiableObjectStore;
-import org.hisp.dhis.client.sdk.android.common.IMapper;
-import org.hisp.dhis.client.sdk.core.optionset.IOptionStore;
-import org.hisp.dhis.client.sdk.models.optionset.Option;
 import org.hisp.dhis.client.sdk.models.optionset.OptionSet;
+import org.hisp.dhis.client.sdk.models.program.ProgramStageSection;
 
 import java.util.List;
+import java.util.Map;
 
-public final class OptionStore extends AbsIdentifiableObjectStore<Option, OptionFlow> implements
-        IOptionStore {
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
-    public OptionStore() {
-        super(OptionFlow.MAPPER);
-    }
+public interface IOptionSetApiClientRetrofit {
 
-    @Override
-    public List<Option> query(OptionSet optionSet) {
-        List<OptionFlow> optionFlows = new Select()
-                .from(OptionFlow.class)
-                .where(OptionFlow_Table.optionset.is(optionSet.getUId()))
-                .queryList();
-        return getMapper().mapToModels(optionFlows);
-    }
+    @GET("optionSets")
+    Call<Map<String, List<OptionSet>>> getOptionSets(
+            @QueryMap Map<String, String> queryMap, @Query("filter") List<String> filters);
 }
