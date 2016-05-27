@@ -28,4 +28,10 @@
   ~  */
   -->
 
-<manifest package="org.hisp.dhis.android.sdk" />
+<manifest package="org.hisp.dhis.android.sdk"
+    >
+<!--<uses-sdk-->
+<!--xmlns:tools="http://schemas.android.com/tools"-->
+<!--tools:overrideLibrary="android.support.v7.recyclerview,android.support.v4,android.support.v7.preference"-->
+    <!--/>-->
+</manifest>
