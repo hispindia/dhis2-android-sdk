@@ -43,6 +43,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -118,6 +119,9 @@ public abstract class AbsHomeActivity extends BaseActivity
                 isAppInstalled(APPS_TRACKER_CAPTURE_PACKAGE));
         navigationView.getMenu().findItem(R.id.drawer_item_tracker_capture_reports).setVisible(
                 isAppInstalled(APPS_TRACKER_CAPTURE_REPORTS_PACKAGE));
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
     }
 
@@ -263,7 +267,7 @@ public abstract class AbsHomeActivity extends BaseActivity
 
     protected boolean removeMenuItem(int menuItemId) {
         MenuItem menuItem = getNavigationView().getMenu().findItem(menuItemId);
-        if(menuItem != null) {
+        if (menuItem != null) {
             getNavigationView().getMenu().removeItem(menuItem.getItemId());
             return true;
         }
