@@ -39,6 +39,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
+        multiDexEnabled true
     }
 
     packagingOptions {
@@ -89,7 +90,7 @@ dependencies {
     // dhis-core dependencies.
     compile 'jep:jep:2.24'
     compile 'org.apache.commons:commons-lang3:3.3.2'
-
+    compile 'com.android.support:multidex:1.0.1'
     //stetho
     compile 'com.facebook.stetho:stetho:1.3.1'
     compile 'com.facebook.stetho:stetho-okhttp:1.3.1'
