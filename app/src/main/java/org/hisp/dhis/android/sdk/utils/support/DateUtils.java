@@ -48,7 +48,7 @@ import java.util.TimeZone;
 public class DateUtils {
     public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
     public static final SimpleDateFormat[] SUPPORTED_DATE_FORMATS = new SimpleDateFormat[]{
-            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm"),
@@ -105,7 +105,7 @@ public class DateUtils {
             return null;
         }
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return simpleDateFormat.format(date);
     }
