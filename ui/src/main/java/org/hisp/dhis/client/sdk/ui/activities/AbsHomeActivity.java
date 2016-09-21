@@ -28,6 +28,7 @@
 
 package org.hisp.dhis.client.sdk.ui.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -49,6 +50,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.hisp.dhis.android.sdk.controllers.DhisController;
+import org.hisp.dhis.android.sdk.controllers.DhisService;
+import org.hisp.dhis.android.sdk.utils.UiUtils;
 import org.hisp.dhis.client.sdk.ui.R;
 import org.hisp.dhis.client.sdk.ui.SettingPreferences;
 import org.hisp.dhis.client.sdk.ui.fragments.AboutFragment;
@@ -140,11 +144,32 @@ public abstract class AbsHomeActivity extends BaseActivity
             isSelected = openApp(APPS_TRACKER_CAPTURE_PACKAGE);
         } else if (menuItemId == R.id.drawer_item_tracker_capture_reports) {
             isSelected = openApp(APPS_TRACKER_CAPTURE_REPORTS_PACKAGE);
-        } else if (menuItemId == R.id.drawer_item_profile) {
-            attachFragmentDelayed(getProfileFragment());
+        } else if (menuItemId == R.id.drawer_item_reports) {
+            showMainFragment();
             isSelected = true;
         } else if (menuItemId == R.id.drawer_item_settings) {
-            attachFragmentDelayed(getSettingsFragment());
+            UiUtils.showConfirmDialog(this, getString(R.string.logout_title), getString(R.string.logout_message),
+                    getString(R.string.logout_option), getString(R.string.cancel_option), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            if (DhisController.hasUnSynchronizedDatavalues) {
+                                //show error dialog
+                                UiUtils.showErrorDialog(AbsHomeActivity.this, getString(R.string.error_message),
+                                        getString(R.string.unsynchronized_data_values),
+                                        new DialogInterface.OnClickListener() {
+
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                            } else {
+                                DhisService.logOutUser(AbsHomeActivity.this);
+                                AbsHomeActivity.this.finish();
+                            }
+                        }
+                    });
             isSelected = true;
         }
         /*else if (menuItemId == R.id.drawer_item_help) {
@@ -299,13 +324,6 @@ public abstract class AbsHomeActivity extends BaseActivity
         return usernameLetter;
     }
 
-    protected void setSynchronizedMessage(@NonNull CharSequence message) {
-        String formattedMessage = String.format(getString(
-                R.string.drawer_item_synchronized), message);
-        navigationView.getMenu().findItem(R.id.drawer_item_synchronized)
-                .setTitle(formattedMessage);
-    }
-
     @NonNull
     protected Fragment getHelpFragment() {
         return WrapperFragment.newInstance(HelpFragment.class,
@@ -325,4 +343,6 @@ public abstract class AbsHomeActivity extends BaseActivity
     protected abstract Fragment getSettingsFragment();
 
     protected abstract boolean onItemSelected(@NonNull MenuItem item);
+
+    protected abstract void showMainFragment();
 }

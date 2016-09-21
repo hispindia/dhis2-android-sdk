@@ -174,5 +174,7 @@
 
     <string name="no_organisation_units">You are not assigned to any Organisation Units. Please contact system administrator.</string>
     <string name="no_programs">You do not have any programs assigned to Organisation unit or you do not have the sufficient user roles. Please contact system administrator</string>
+    <string name="reports">Reports</string>
+    <string name="delete_all_local_data_and_log_out">Delete all local data and log out</string>
 
 </resources>
