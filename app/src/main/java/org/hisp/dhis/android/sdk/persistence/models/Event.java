@@ -41,19 +41,14 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
 
-import org.hisp.dhis.android.sdk.controllers.DhisController;
 import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Database;
 import org.hisp.dhis.android.sdk.utils.api.CodeGenerator;
-import org.hisp.dhis.android.sdk.utils.support.DateUtils;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author Simen Skogly Russnes on 23.02.15.
@@ -217,9 +212,21 @@ public class Event extends BaseSerializableModel {
     }
 
     @JsonProperty("coordinate")
-    public void setCoordinate(Map<String, Object> coordinate) {
-        this.latitude = (double) coordinate.get("latitude");
-        this.longitude = (double) coordinate.get("longitude");
+    public void setCoordinate(Map<String, String> coordinate) {
+        if (coordinate.get("latitude") == null || "0".equals(coordinate.get("latitude"))) {
+            this.latitude = 0.0;
+        } else {
+            this.latitude = Double.valueOf(coordinate.get("latitude"));
+        }
+        if (coordinate.get("longitude") == null || "0".equals(coordinate.get("longitude"))) {
+            this.longitude = 0.0;
+        } else {
+            this.longitude = Double.valueOf(coordinate.get("longitude"));
+        }
+
+        //this.latitude = (double) coordinate.get("latitude");
+        //this.longitude = (double) coordinate.get("longitude");
+
     }
 
     @JsonProperty("coordinate")

@@ -134,6 +134,8 @@ public final class DhisController {
         TrackerController.clearDataValueLoadedFlags();
         MetaDataController.wipe();
         LoadingController.clearLoadFlags(context);
+
+        getInstance().dhisApi = null;
     }
 
     public static boolean isUserLoggedIn() {
