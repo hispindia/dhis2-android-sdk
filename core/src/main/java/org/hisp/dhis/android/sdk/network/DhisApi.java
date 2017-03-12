@@ -80,7 +80,7 @@ public interface DhisApi {
     @GET("/system/info/")
     SystemInfo getSystemInfo();
 
-    @GET("/me/")
+    @GET("/23/me/")
     UserAccount getCurrentUserAccount(@QueryMap Map<String, String> queryParams);
 
 
@@ -217,8 +217,13 @@ public interface DhisApi {
     @GET("/me?fields=organisationUnits[id,displayName,programs[id]],userCredentials[userRoles[programs[id]]],teiSearchOrganisationUnits")
     UserAccount getUserAccount();
 
+
+
     @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "?paging=false")
     Map<String,List<OrganisationUnit>> getOrganisationUnits(@QueryMap(encodeValues = false) Map<String,String> queryMap);
+
+    @GET("/organisationUnits/{id}"+"?paging=false")
+    OrganisationUnit getOrganisationUnitParent(@Path("id") String id, @QueryMap Map<String, String> queryMap);
 
     @GET("/" + ApiEndpointContainer.PROGRAMS + "/{programUid}")
     Program getProgram(@Path("programUid") String programUid, @QueryMap Map<String, String> queryMap);
