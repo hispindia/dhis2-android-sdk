@@ -50,6 +50,23 @@
                         android:orderInCategory="200"
                         android:title="@string/drawer_item_dashboard"/>
                     <item
+                        android:id="@+id/drawer_item_lab_reports"
+                        android:icon="@drawable/ic_event_capture"
+                        android:title="@string/drawer_item_labreports"/>
+                    <item
+                        android:id="@+id/drawer_item_lab_reports_apex"
+                        android:icon="@drawable/ic_event_capture"
+                        android:title="@string/drawer_item_labreports_apex"/>
+                    <item
+                        android:id="@+id/drawer_item_lab_reports_ames"
+                        android:icon="@drawable/ic_event_capture"
+                        android:title="@string/drawer_item_labreports_ames"/>
+                    <item
+                        android:id="@+id/drawer_item_lab_reports_apex_ames"
+                        android:icon="@drawable/ic_event_capture"
+                        android:title="@string/drawer_item_labreports_apex_ames"/>
+
+                    <item
                         android:id="@+id/drawer_item_data_capture"
                         android:icon="@drawable/ic_data_capture"
                         android:orderInCategory="200"

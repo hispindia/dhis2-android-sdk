@@ -37,6 +37,10 @@
     <string name="drawer_item_profile">Profile</string>
     <string name="drawer_item_settings">Settings</string>
     <string name="drawer_item_dashboard">Dashboard</string>
+    <string name="drawer_item_labreports">Aes District Lab Report</string>
+    <string name="drawer_item_labreports_ames">Ames District Lab Report</string>
+    <string name="drawer_item_labreports_apex">Aes Apex Lab Report</string>
+    <string name="drawer_item_labreports_apex_ames">Ames Apex Lab Report</string>
     <string name="drawer_item_data_capture">Data capture</string>
     <string name="drawer_item_event_capture">Event capture</string>
     <string name="drawer_item_tracker_capture">Tracker capture</string>
