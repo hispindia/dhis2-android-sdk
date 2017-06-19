@@ -83,4 +83,5 @@ public final class RowValueChangedEvent {
     public void setRow(Row row) {
         this.row = row;
     }
+
 }

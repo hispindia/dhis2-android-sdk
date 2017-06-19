@@ -35,7 +35,6 @@ import android.util.Log;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
-
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.ApiEndpointContainer;
 import org.hisp.dhis.android.sdk.controllers.DhisController;
@@ -50,6 +49,7 @@ import org.hisp.dhis.android.sdk.persistence.models.Attribute;
 import org.hisp.dhis.android.sdk.persistence.models.Attribute$Table;
 import org.hisp.dhis.android.sdk.persistence.models.AttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.AttributeValue$Table;
+import org.hisp.dhis.android.sdk.persistence.models.Cascading;
 import org.hisp.dhis.android.sdk.persistence.models.Constant;
 import org.hisp.dhis.android.sdk.persistence.models.Constant$Table;
 import org.hisp.dhis.android.sdk.persistence.models.DataElement;
@@ -63,6 +63,7 @@ import org.hisp.dhis.android.sdk.persistence.models.Option$Table;
 import org.hisp.dhis.android.sdk.persistence.models.OptionSet;
 import org.hisp.dhis.android.sdk.persistence.models.OptionSet$Table;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnit;
+import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitforcascading;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnit$Table;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitProgramRelationship;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitProgramRelationship$Table;
@@ -106,9 +107,11 @@ import org.hisp.dhis.android.sdk.utils.UiUtils;
 import org.hisp.dhis.android.sdk.utils.api.ProgramType;
 import org.joda.time.DateTime;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -180,6 +183,10 @@ public final class MetaDataController extends ResourceController {
         Log.d(CLASS_TAG, "Meta data is loaded!");
         return true;
     }
+    public static List<Cascading> getCascaded(){
+        return new Select().from(Cascading.class).queryList();
+    }
+
 
     public static List<RelationshipType> getRelationshipTypes() {
         return new Select().from(RelationshipType.class).queryList();
@@ -414,6 +421,18 @@ public final class MetaDataController extends ResourceController {
         return new Select().from(OrganisationUnit.class).where(Condition.column(OrganisationUnit$Table.ID).is(id)).querySingle();
     }
 
+    public static OrganisationUnit getOrganisationUnitID(String id) {
+        return new Select().from(OrganisationUnit.class).where(Condition.column(OrganisationUnit$Table.DISPLAYNAME).is(id)).querySingle();
+    }
+
+    public static OrganisationUnitforcascading getOrganisationUnitID1(String id) {
+        return new Select().from(OrganisationUnitforcascading.class).where(Condition.column(OrganisationUnit$Table.DISPLAYNAME).is(id)).querySingle();
+    }
+
+    public static OrganisationUnit getOrganisationUnitIDParentLevel8(String id) {
+        return new Select().from(OrganisationUnit.class).where(Condition.column(OrganisationUnit$Table.DISPLAYNAME).is(id)).and(Condition.column(OrganisationUnit$Table.LEVEL).is(8)).querySingle();
+    }
+
     public static SystemInfo getSystemInfo() {
         return new Select().from(SystemInfo.class).querySingle();
     }
@@ -434,6 +453,232 @@ public final class MetaDataController extends ResourceController {
                 .where(Condition.column(OrganisationUnit$Table.TYPE).eq(OrganisationUnit.TYPE.ASSIGNED))
                 .queryList();
         return organisationUnits;
+    }
+
+    public static List<OrganisationUnit> getorganisationUnitsLevelWise(int level) {
+        List<OrganisationUnit> organisationUnitsLevel = new Select().from(OrganisationUnit.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(level))
+                .queryList();
+        return organisationUnitsLevel;
+    }
+
+    public static List<OrganisationUnitforcascading> getorganisationUnitsLevelWise1(int level) {
+        List<OrganisationUnitforcascading> organisationUnitsLevel = new Select().from(OrganisationUnitforcascading.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(level))
+                .queryList();
+        return organisationUnitsLevel;
+    }
+
+    public static List<OrganisationUnit> getLevel5OrgUnitWithParentLevel3(String parentuid) {
+        List<OrganisationUnit> organisationUnitsLevel4 = new Select().from(OrganisationUnit.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(4))
+                .and(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(parentuid))
+                .queryList();
+
+        Iterator<OrganisationUnit> iterator = organisationUnitsLevel4.iterator();
+        List<OrganisationUnit> orgUnitLevel5 = new ArrayList<OrganisationUnit>();
+
+        while(iterator.hasNext()){
+            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator.next().getId()))
+                    .queryList();
+
+            orgUnitLevel5.addAll(ous);
+        }
+
+        return orgUnitLevel5;
+    }
+
+    public static List<OrganisationUnitforcascading> getLevel5OrgUnitWithParentLevel31(String parentuid) {
+        List<OrganisationUnitforcascading> organisationUnitsLevel4 = new Select().from(OrganisationUnitforcascading.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(4))
+                .and(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(parentuid))
+                .queryList();
+
+        Iterator<OrganisationUnitforcascading> iterator = organisationUnitsLevel4.iterator();
+        List<OrganisationUnitforcascading> orgUnitLevel5 = new ArrayList<OrganisationUnitforcascading>();
+
+        while(iterator.hasNext()){
+            List<OrganisationUnitforcascading> ous = new Select().from(OrganisationUnitforcascading.class)
+                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator.next().getId()))
+                    .queryList();
+
+            orgUnitLevel5.addAll(ous);
+        }
+
+        return orgUnitLevel5;
+    }
+    public static List<OrganisationUnit> getLevel6OrgUnitWithParentLevel5(String parentuid) {
+        List<OrganisationUnit> organisationUnitsLevel6 = new Select().from(OrganisationUnit.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(6))
+                .and(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(parentuid))
+                .queryList();
+
+//        Iterator<OrganisationUnit> iterator = organisationUnitsLevel6.iterator();
+//        List<OrganisationUnit> orgUnitLevel7 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel7.addAll(ous);
+//        }
+//
+//        Iterator<OrganisationUnit> iterator7 = orgUnitLevel7.iterator();
+//        List<OrganisationUnit> orgUnitLevel8 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator7.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator7.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel8.addAll(ous);
+//        }
+
+
+        return organisationUnitsLevel6;
+    }
+
+    public static List<OrganisationUnitforcascading> getLevel6OrgUnitWithParentLevel51(String parentuid) {
+        List<OrganisationUnitforcascading> organisationUnitsLevel6 = new Select().from(OrganisationUnitforcascading.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(6))
+                .and(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(parentuid))
+                .queryList();
+
+//        Iterator<OrganisationUnit> iterator = organisationUnitsLevel6.iterator();
+//        List<OrganisationUnit> orgUnitLevel7 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel7.addAll(ous);
+//        }
+//
+//        Iterator<OrganisationUnit> iterator7 = orgUnitLevel7.iterator();
+//        List<OrganisationUnit> orgUnitLevel8 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator7.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator7.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel8.addAll(ous);
+//        }
+
+
+        return organisationUnitsLevel6;
+    }
+
+    public static List<OrganisationUnit> getLevel7OrgUnitWithParentLevel6(String parentuid) {
+        List<OrganisationUnit> organisationUnitsLevel7 = new Select().from(OrganisationUnit.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(7))
+                .and(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(parentuid))
+                .queryList();
+
+//        Iterator<OrganisationUnit> iterator = organisationUnitsLevel6.iterator();
+//        List<OrganisationUnit> orgUnitLevel7 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel7.addAll(ous);
+//        }
+//
+//        Iterator<OrganisationUnit> iterator7 = orgUnitLevel7.iterator();
+//        List<OrganisationUnit> orgUnitLevel8 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator7.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator7.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel8.addAll(ous);
+//        }
+
+
+        return organisationUnitsLevel7;
+    }
+
+    public static List<OrganisationUnitforcascading> getLevel7OrgUnitWithParentLevel61(String parentuid) {
+        List<OrganisationUnitforcascading> organisationUnitsLevel7 = new Select().from(OrganisationUnitforcascading.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(7))
+                .and(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(parentuid))
+                .queryList();
+
+//        Iterator<OrganisationUnit> iterator = organisationUnitsLevel6.iterator();
+//        List<OrganisationUnit> orgUnitLevel7 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel7.addAll(ous);
+//        }
+//
+//        Iterator<OrganisationUnit> iterator7 = orgUnitLevel7.iterator();
+//        List<OrganisationUnit> orgUnitLevel8 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator7.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator7.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel8.addAll(ous);
+//        }
+
+
+        return organisationUnitsLevel7;
+    }
+//    public static List<OrganisationUnit> getLevel7OrgUnitWithParentLevel5(String parentuid) {
+//        List<OrganisationUnit> organisationUnitsLevel6 = new Select().from(OrganisationUnit.class)
+//                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(6))
+//                .and(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(parentuid))
+//                .queryList();
+//
+//        Iterator<OrganisationUnit> iterator = organisationUnitsLevel6.iterator();
+//        List<OrganisationUnit> orgUnitLevel7 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel7.addAll(ous);
+//        }
+//
+//        Iterator<OrganisationUnit> iterator7 = orgUnitLevel7.iterator();
+//        List<OrganisationUnit> orgUnitLevel8 = new ArrayList<OrganisationUnit>();
+//
+//        while(iterator7.hasNext()){
+//            List<OrganisationUnit> ous = new Select().from(OrganisationUnit.class)
+//                    .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(iterator7.next().getId()))
+//                    .queryList();
+//
+//            orgUnitLevel8.addAll(ous);
+//        }
+//
+//
+//        return orgUnitLevel7;
+//    }
+    public static List<OrganisationUnit> getLevel9OrgUnitWithParentLevel8(String parentuid) {
+        List<OrganisationUnit> organisationUnitsLevel9 = new Select().from(OrganisationUnit.class)
+                .where(Condition.column(OrganisationUnit$Table.LEVEL).eq(9))
+                .and(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(parentuid))
+                .queryList();
+        return organisationUnitsLevel9;
+    }
+
+    public static List<OrganisationUnit> getorganisationUnitsParentWise(String uid) {
+        List<OrganisationUnit> organisationUnitsParent = new Select().from(OrganisationUnit.class)
+                .where(Condition.column(OrganisationUnit$Table.PARENT_PARENT).eq(uid))
+                .queryList();
+        return organisationUnitsParent;
     }
 
     public static List<OrganisationUnitProgramRelationship> getOrganisationUnitProgramRelationships() {
@@ -579,6 +824,7 @@ public final class MetaDataController extends ResourceController {
                 RelationshipType.class,
                 Relationship.class,
                 Attribute.class,
+                Cascading.class,
                 AttributeValue.class);
 
         /**  * Delete.tables(  Attribute.class,  AttributeValue.class,  Constant.class,  Conflict.class,  Dashboard.class,  DashboardElement.class,  DashboardItem.class,  DashboardItemContent.class,  DataElement.class,  DataValue.class,  Enrollment.class,  Event.class,  FailedItem.class,  ImportCount.class,  ImportSummary.class,  Interpretation.class,  InterpretationComment.class,  InterpretationElement.class,  Option.class,  OptionSet.class,  OrganisationUnit.class,  OrganisationUnitProgramRelationship.class,  Program.class,  ProgramIndicator.class,  ProgramIndicatorToSectionRelationship.class,  ProgramStage.class,  ProgramStageDataElement.class,  ProgramStageSection.class,  ProgramTrackedEntityAttribute.class,  RelationshipType.class,  Relationship.class,  SystemInfo.class,  TrackedEntity.class,  TrackedEntityAttribute.class,  TrackedEntityAttributeGeneratedValue.class,  TrackedEntityAttributeValue.class,  TrackedEntityInstance.class,  User.class,  UserAccount.class  );  */
@@ -592,9 +838,44 @@ public final class MetaDataController extends ResourceController {
     public static void loadMetaData(Context context, DhisApi dhisApi, boolean forceSync) throws APIException {
         Log.d(CLASS_TAG, "loadMetaData");
         UiUtils.postProgressMessage(context.getString(R.string.loading_metadata));
+
+        //here im string all orgunits into local db
+
+        OrganisationUnitforcascading organization = new OrganisationUnitforcascading();
+        Map<String, List<OrganisationUnitforcascading>> levelOrganisations = null;
+        Map<String, List<OrganisationUnitforcascading>> levelOrganisations1 = null;
+        List<OrganisationUnitforcascading> organisationslevel = null;
+        List<OrganisationUnitforcascading> organisationsParent = null;
+        List<OrganisationUnitforcascading> organisationsChildren = null;
+        Map<String, String> queryMap1 = new HashMap<>();
+        Map<String, String> queryMap2 = new HashMap<>();
+
+        int abc = MetaDataController
+               .getorganisationUnitsLevelWise(7).size();
+        if(abc<30)
+        {
+            queryMap2.put("fields", "id,displayName,level,parent[id,name]&order=level:asc");
+            levelOrganisations = dhisApi.getOrganisationUnitscascading(queryMap2);
+// so it store 17k orgunits onebyone into localdb and takes a time around 8-10 minutes
+            //i will run now and you can see the time it will take
+            organisationslevel = levelOrganisations.get("organisationUnits");
+            for (int i = 0; i < organisationslevel.size(); i++) {
+                organization.setId(organisationslevel.get(i).getId());
+                organization.setLabel(organisationslevel.get(i).getLabel());
+                organization.setLevel(organisationslevel.get(i).getLevel());
+                organization.setParent(organisationslevel.get(i).getParent());
+                organization.save();
+            }
+        }
+        else
+        {
+            Log.d("no new data","No new");
+        }
+
         updateMetaDataItems(context, dhisApi, forceSync);
     }
 
+    //    private static
     private static void updateTrackedDataItems(Context context, DhisApi dhisApi, DateTime serverDateTime) {
         if (dhisApi == null) {
             dhisApi = DhisController.getInstance().getDhisApi();
@@ -603,8 +884,6 @@ public final class MetaDataController extends ResourceController {
             }
 
         }
-
-
     }
 
     /**
@@ -622,6 +901,29 @@ public final class MetaDataController extends ResourceController {
         DateTime serverDateTime = serverSystemInfo.getServerDate();
         //some items depend on each other. Programs depend on AssignedPrograms because we need
         //the ids of programs to load.
+
+
+//        OrganisationUnit organization = new OrganisationUnit();
+//        Map<String, List<OrganisationUnit>> levelOrganisations = null;
+//        List<OrganisationUnit> organisationslevel = null;
+//        List<OrganisationUnit> organisationsParent = null;
+//        List<OrganisationUnit> organisationsChildren = null;
+//        Map<String, String> queryMap1 = new HashMap<>();
+//        queryMap1.put("fields", "[id,displayName,level]&level=5");
+//        levelOrganisations = dhisApi.getOrganisationUnits(queryMap1);
+//        organisationslevel = levelOrganisations.get("organisationUnits");
+////        organisationsParent = levelOrganisations.get("parent");
+////        organisationsChildren = levelOrganisations.get("children");
+//
+//        for (int i = 0; i < organisationslevel.size(); i++) {
+//            organization.setId(organisationslevel.get(i).getId());
+//            organization.setLabel(organisationslevel.get(i).getLabel());
+//            organization.setLevel(organisationslevel.get(i).getLevel());
+//            organization.setParent(organisationsParent.get(i).getParent());
+//            organization.save();
+//            System.out.println(organization.getLabel());
+//            System.out.println(organization.getParent());
+//        }
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.ASSIGNEDPROGRAMS)) {
             if (shouldLoad(serverDateTime, ResourceType.ASSIGNEDPROGRAMS)) {
                 getAssignedProgramsDataFromServer(dhisApi, serverDateTime);
@@ -684,7 +986,6 @@ public final class MetaDataController extends ResourceController {
     }
 
     private static void getAssignedProgramsDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {
-        Log.d(CLASS_TAG, "getAssignedProgramsDataFromServer");
         DateTime lastUpdated = DateTimeManager.getInstance()
                 .getLastUpdated(ResourceType.ASSIGNEDPROGRAMS);
         UserAccount userAccount = dhisApi.getUserAccount();

@@ -29,13 +29,11 @@
 
 package org.hisp.dhis.android.sdk.ui.fragments.selectprogram;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -52,7 +50,6 @@ import com.squareup.otto.Subscribe;
 
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.DhisService;
-import org.hisp.dhis.android.sdk.events.OnTeiDownloadedEvent;
 import org.hisp.dhis.android.sdk.events.UiEvent;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.ui.activities.SynchronisationStateHandler;
@@ -61,7 +58,6 @@ import org.hisp.dhis.android.sdk.ui.dialogs.AutoCompleteDialogFragment;
 import org.hisp.dhis.android.sdk.ui.dialogs.OrgUnitDialogFragment;
 import org.hisp.dhis.android.sdk.ui.dialogs.ProgramDialogFragment;
 import org.hisp.dhis.android.sdk.ui.dialogs.UpcomingEventsDialogFilter;
-import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RefreshListViewEvent;
 import org.hisp.dhis.android.sdk.ui.views.CardTextViewButton;
 import org.hisp.dhis.android.sdk.utils.api.ProgramType;
 import org.hisp.dhis.client.sdk.ui.fragments.BaseFragment;
@@ -81,8 +77,12 @@ public abstract class SelectProgramFragment extends BaseFragment
     protected AbsAdapter mAdapter;
 
     protected CardTextViewButton mOrgUnitButton;
+    //    protected CardTextViewButton mOrgUnitButton1;
+//    protected CardTextViewButton mOrgUnitButton2;
+//    protected CardTextViewButton mOrgUnitButton3;
+//    protected CardTextViewButton mOrgUnitButton4;
     protected CardTextViewButton mProgramButton;
-
+    private static String enrollcall;
     protected SelectProgramFragmentState mState;
     protected SelectProgramFragmentPreferences mPrefs;
 
@@ -95,10 +95,17 @@ public abstract class SelectProgramFragment extends BaseFragment
         LOADER_ID = loaderId;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        Bundle bundle = this.getArguments();
+        if(bundle!=null){
+
+
+        }
     }
 
     @Override
@@ -118,11 +125,9 @@ public abstract class SelectProgramFragment extends BaseFragment
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
         mListView = (ListView) view.findViewById(R.id.event_listview);
-
-
-
         mAdapter = getAdapter(savedInstanceState);
         View header = getListViewHeader(savedInstanceState);
+
         setStandardButtons(header);
         mListView.addHeaderView(header, TAG, false);
         mListView.setAdapter(mAdapter);
@@ -158,6 +163,11 @@ public abstract class SelectProgramFragment extends BaseFragment
         onRestoreState(true);
     }
 
+
+
+
+
+
     @Override
     public abstract void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo);
 
@@ -165,6 +175,7 @@ public abstract class SelectProgramFragment extends BaseFragment
     public abstract boolean onContextItemSelected(MenuItem item);
 
     protected abstract AbsAdapter getAdapter(Bundle savedInstanceState);
+
 
     protected View getListViewHeader(Bundle savedInstanceState) {
         View header = getLayoutInflater(savedInstanceState).inflate(
@@ -177,6 +188,11 @@ public abstract class SelectProgramFragment extends BaseFragment
         mProgressBar = (ProgressBar) header.findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.GONE);
         mOrgUnitButton = (CardTextViewButton) header.findViewById(R.id.select_organisation_unit);
+//        mOrgUnitButton1 = (CardTextViewButton) header.findViewById(R.id.select_district);
+//        mOrgUnitButton2 = (CardTextViewButton) header.findViewById(R.id.select_taluk);
+//        mOrgUnitButton3 = (CardTextViewButton) header.findViewById(R.id.select_village);
+//        mOrgUnitButton4 = (CardTextViewButton) header.findViewById(R.id.select_habitation);
+//
         mProgramButton = (CardTextViewButton) header.findViewById(R.id.select_program);
 
         mOrgUnitButton.setOnClickListener(new View.OnClickListener() {
@@ -188,6 +204,48 @@ public abstract class SelectProgramFragment extends BaseFragment
                 fragment.show(getChildFragmentManager());
             }
         });
+//        mOrgUnitButton1.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                OrgUnitDialogFragment1 fragment1 = OrgUnitDialogFragment1
+//                        .newInstance1(SelectProgramFragment.this,
+//                                getProgramTypes());
+//                fragment1.show(getChildFragmentManager());
+//            }
+//        });
+//
+//        mOrgUnitButton2.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                OrgUnitDialogFragment2 fragment2 = OrgUnitDialogFragment2
+//                        .newInstance(SelectProgramFragment.this,
+//                                getProgramTypes());
+//                fragment2.show(getChildFragmentManager());
+//
+//
+//            }
+//        });
+//
+//        mOrgUnitButton3.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                OrgUnitDialogFragment3 fragment2 = OrgUnitDialogFragment3
+//                        .newInstance(SelectProgramFragment.this,
+//                                getProgramTypes());
+//                fragment2.show(getChildFragmentManager());
+//            }
+//        });
+//
+//        mOrgUnitButton4.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                OrgUnitDialogFragment4 fragment2 = OrgUnitDialogFragment4
+//                        .newInstance(SelectProgramFragment.this,
+//                                getProgramTypes());
+//                fragment2.show(getChildFragmentManager());
+//            }
+//        });
+
         mProgramButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -199,7 +257,11 @@ public abstract class SelectProgramFragment extends BaseFragment
         });
 
         mOrgUnitButton.setEnabled(true);
-        mProgramButton.setEnabled(false);
+//        mOrgUnitButton1.setEnabled(false);
+//        mOrgUnitButton2.setEnabled(false);
+//        mOrgUnitButton3.setEnabled(false);
+//        mOrgUnitButton4.setEnabled(false);
+
     }
 
     protected abstract ProgramType[] getProgramTypes();
@@ -242,12 +304,26 @@ public abstract class SelectProgramFragment extends BaseFragment
                 onUnitSelected(id, name);
                 break;
             }
+//            case OrgUnitDialogFragment1.ID: {
+//                onUnitSelected1(id, name);
+//                break;
+//            } case OrgUnitDialogFragment2.ID: {
+//                onUnitSelected2(id, name);
+//                break;
+//            } case OrgUnitDialogFragment3.ID: {
+//                onUnitSelected3(id, name);
+//                break;
+//            } case OrgUnitDialogFragment4.ID: {
+//                onUnitSelected4(id, name);
+//                break;
+//            }
             case ProgramDialogFragment.ID: {
                 onProgramSelected(id, name);
                 break;
             }
         }
     }
+
 
     @Override
     public abstract Loader<SelectProgramFragmentForm> onCreateLoader(int id, Bundle args);
@@ -293,6 +369,10 @@ public abstract class SelectProgramFragment extends BaseFragment
 
     public void onRestoreState(boolean hasUnits) {
         mOrgUnitButton.setEnabled(hasUnits);
+//        mOrgUnitButton1.setEnabled(hasUnits);
+//        mOrgUnitButton2.setEnabled(hasUnits);
+//        mOrgUnitButton3.setEnabled(hasUnits);
+//        mOrgUnitButton4.setEnabled(hasUnits);
         if (!hasUnits) {
             return;
         }
@@ -316,8 +396,82 @@ public abstract class SelectProgramFragment extends BaseFragment
 
     public void onUnitSelected(String orgUnitId, String orgUnitLabel) {
         mOrgUnitButton.setText(orgUnitLabel);
-        mProgramButton.setEnabled(true);
 
+//        OrgUnitDialogFragment2 ldf = new OrgUnitDialogFragment2();
+//        Bundle args = new Bundle();
+//        args.putString("orgid", orgUnitId);
+//        ldf.setArguments(args);
+//
+////Inflate the fragment
+//        getFragmentManager().beginTransaction().add(R.id.select_taluk, ldf).commit();
+
+        mProgramButton.setEnabled(true);
+        mState.setOrgUnit(orgUnitId, orgUnitLabel);
+        mState.resetProgram();
+
+        mPrefs.putOrgUnit(new Pair<>(orgUnitId, orgUnitLabel));
+        mPrefs.putProgram(null);
+
+        handleViews(0);
+    }
+
+    public void onUnitSelected1(String orgUnitId, String orgUnitLabel) {
+
+//        mOrgUnitButton2.setEnabled(true);
+//        mOrgUnitButton3.setEnabled(false);
+//        mOrgUnitButton4.setEnabled(false);
+
+//        OrgUnitDialogFragment2 ldf = new OrgUnitDialogFragment2();
+//        Bundle args = new Bundle();
+//        args.putString("orgid", orgUnitId);
+//        ldf.setArguments(args);
+//        getFragmentManager().beginTransaction().add(R.id.select_taluk, ldf).commit();
+
+//        mOrgUnitButton1.setText(orgUnitLabel);
+        mState.setOrgUnit(orgUnitId, orgUnitLabel);
+        mState.resetProgram();
+
+        mPrefs.putOrgUnit(new Pair<>(orgUnitId, orgUnitLabel));
+        mPrefs.putProgram(null);
+
+        handleViews(0);
+    }
+    public void onUnitSelected2(String orgUnitId, String orgUnitLabel) {
+//        mOrgUnitButton3.setEnabled(true);
+//        mOrgUnitButton4.setEnabled(false);
+//
+//        OrgUnitDialogFragment3 ldf = new OrgUnitDialogFragment3();
+//        Bundle args = new Bundle();
+//        args.putString("orgid", orgUnitId);
+//        ldf.setArguments(args);
+//        getFragmentManager().beginTransaction().add(R.id.select_village, ldf).commit();
+
+
+//        mOrgUnitButton2.setText(orgUnitLabel);
+        mState.setOrgUnit(orgUnitId, orgUnitLabel);
+        mState.resetProgram();
+
+        mPrefs.putOrgUnit(new Pair<>(orgUnitId, orgUnitLabel));
+        mPrefs.putProgram(null);
+
+        handleViews(0);
+    }
+
+    public void onUnitSelected3(String orgUnitId, String orgUnitLabel) {
+
+//        mOrgUnitButton3.setText(orgUnitLabel);
+        mState.setOrgUnit(orgUnitId, orgUnitLabel);
+        mState.resetProgram();
+
+        mPrefs.putOrgUnit(new Pair<>(orgUnitId, orgUnitLabel));
+        mPrefs.putProgram(null);
+
+        handleViews(0);
+    }
+
+    public void onUnitSelected4(String orgUnitId, String orgUnitLabel) {
+
+//        mOrgUnitButton4.setText(orgUnitLabel);
         mState.setOrgUnit(orgUnitId, orgUnitLabel);
         mState.resetProgram();
 

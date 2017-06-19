@@ -39,7 +39,31 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
         app:hint="@string/choose_organisation_unit" />
+    <!--<org.hisp.dhis.android.sdk.ui.views.CardTextViewButton-->
+        <!--android:id="@+id/select_district"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginBottom="6dp"-->
+        <!--app:hint="Choose District" />-->
 
+    <!--<org.hisp.dhis.android.sdk.ui.views.CardTextViewButton-->
+        <!--android:id="@+id/select_taluk"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginBottom="6dp"-->
+        <!--app:hint="Choose Taluk" />-->
+    <!--<org.hisp.dhis.android.sdk.ui.views.CardTextViewButton-->
+        <!--android:id="@+id/select_village"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginBottom="6dp"-->
+        <!--app:hint="Choose Village" />-->
+    <!--<org.hisp.dhis.android.sdk.ui.views.CardTextViewButton-->
+        <!--android:id="@+id/select_habitation"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginBottom="6dp"-->
+        <!--app:hint="Choose Habitation" />-->
     <org.hisp.dhis.android.sdk.ui.views.CardTextViewButton
         android:id="@+id/select_program"
         android:layout_width="match_parent"

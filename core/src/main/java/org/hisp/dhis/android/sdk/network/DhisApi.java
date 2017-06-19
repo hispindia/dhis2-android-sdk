@@ -43,6 +43,7 @@ import org.hisp.dhis.android.sdk.persistence.models.Event;
 import org.hisp.dhis.android.sdk.persistence.models.Interpretation;
 import org.hisp.dhis.android.sdk.persistence.models.OptionSet;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnit;
+import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnitforcascading;
 import org.hisp.dhis.android.sdk.persistence.models.Program;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramRule;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramRuleAction;
@@ -217,8 +218,16 @@ public interface DhisApi {
     @GET("/me?fields=organisationUnits[id,displayName,programs[id]],userCredentials[userRoles[programs[id]]],teiSearchOrganisationUnits")
     UserAccount getUserAccount();
 
+
+
     @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "?paging=false")
     Map<String,List<OrganisationUnit>> getOrganisationUnits(@QueryMap(encodeValues = false) Map<String,String> queryMap);
+
+    @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "?paging=false")
+    Map<String,List<OrganisationUnitforcascading>> getOrganisationUnitscascading(@QueryMap(encodeValues = false) Map<String,String> queryMap);
+
+    @GET("/organisationUnits/{id}"+"?paging=false")
+    OrganisationUnit getOrganisationUnitParent(@Path("id") String id, @QueryMap Map<String, String> queryMap);
 
     @GET("/" + ApiEndpointContainer.PROGRAMS + "/{programUid}")
     Program getProgram(@Path("programUid") String programUid, @QueryMap Map<String, String> queryMap);

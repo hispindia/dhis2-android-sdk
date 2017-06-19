@@ -32,7 +32,7 @@ public class SyncDateWrapper {
         NEVER_SYNCED = context.getString(R.string.never);
         MIN_AGO = context.getString(R.string.min_ago);
         HOURS = context.getString(R.string.hours);
-        NOW = context.getString(R.string.now);
+        NOW = context.getString(R.string.sync_now);
     }
 
     public void setLastSyncedNow() {

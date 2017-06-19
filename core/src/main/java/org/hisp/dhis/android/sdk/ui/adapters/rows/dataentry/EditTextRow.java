@@ -35,7 +35,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +66,9 @@ public class EditTextRow extends Row {
                 !DataEntryRowTypes.INTEGER_NEGATIVE.equals(rowType) &&
                 !DataEntryRowTypes.INTEGER_ZERO_OR_POSITIVE.equals(rowType) &&
                 !DataEntryRowTypes.PHONE_NUMBER.equals(rowType) &&
+                !DataEntryRowTypes.PINCODE.equals(rowType) &&
+                !DataEntryRowTypes.PATIENTNAME.equals(rowType) &&
+                !DataEntryRowTypes.AGE.equals(rowType) &&
                 !DataEntryRowTypes.INTEGER_POSITIVE.equals(rowType)) {
             throw new IllegalArgumentException("Unsupported row type");
         }
@@ -123,6 +125,9 @@ public class EditTextRow extends Row {
                 editText.setHint(R.string.enter_positive_integer_or_zero);
                 editText.setFilters(new InputFilter[]{new PosOrZeroFilter()});
                 editText.setSingleLine(true);
+                InputFilter[] filterArray = new InputFilter[1];
+                filterArray[0] = new InputFilter.LengthFilter(2);
+                editText.setFilters(filterArray);
             } else if (DataEntryRowTypes.INTEGER_POSITIVE.equals(mRowType)) {
                 editText.setInputType(InputType.TYPE_CLASS_NUMBER);
                 editText.setHint(R.string.enter_positive_integer);
@@ -130,8 +135,62 @@ public class EditTextRow extends Row {
                 editText.setSingleLine(true);
             }
             else if(DataEntryRowTypes.PHONE_NUMBER.equals(mRowType)) {
+                System.out.println("dataentryrowtype:"+DataEntryRowTypes.PHONE_NUMBER);
                 editText.setInputType(InputType.TYPE_CLASS_PHONE);
                 editText.setHint(R.string.enter_phone_number);
+                editText.setSingleLine(true);
+                InputFilter[] filterArray = new InputFilter[1];
+                filterArray[0] = new InputFilter.LengthFilter(10);
+                editText.setFilters(filterArray);
+            }
+
+            else if(DataEntryRowTypes.PINCODE.equals(mRowType)) {
+                System.out.println("dataentryrowtype:"+DataEntryRowTypes.PINCODE);
+                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editText.setHint(R.string.enter_pincode);
+                editText.setSingleLine(true);
+                InputFilter[] filterArray = new InputFilter[1];
+                filterArray[0] = new InputFilter.LengthFilter(6);
+                editText.setFilters(filterArray);
+            }
+
+            else if(DataEntryRowTypes.PATIENTNAME.equals(mRowType)) {
+                System.out.println("dataentryrowtype:"+DataEntryRowTypes.PINCODE);
+                editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
+                editText.setHint(R.string.enter_person);
+                editText.setSingleLine(true);
+
+                editText.setFilters(new InputFilter[] {
+                        new InputFilter() {
+                            @Override
+                            public CharSequence filter(CharSequence cs, int start,
+                                                       int end, Spanned spanned, int dStart, int dEnd) {
+                                // TODO Auto-generated method stub
+                                if(cs.equals("")){ // for backspace
+                                    return cs;
+                                }
+                                if(cs.toString().matches("[a-zA-Z ]+")){
+                                    return cs;
+                                }
+                                return "";
+                            }
+                        }
+                });
+            }
+            else if(DataEntryRowTypes.AGE.equals(mRowType)) {
+                System.out.println("dataentryrowtype:"+DataEntryRowTypes.AGE);
+                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editText.setHint(R.string.enter_age1);
+                editText.setSingleLine(true);
+                InputFilter[] filterArray = new InputFilter[1];
+                filterArray[0] = new InputFilter.LengthFilter(2);
+
+                editText.setFilters(filterArray);
+            }
+            else if(DataEntryRowTypes.ORGANISATION_UNIT.equals(mRowType)) {
+                editText.setInputType(InputType.TYPE_CLASS_PHONE);
+                editText.setHint(R.string.organisation_unit_select);
                 editText.setSingleLine(true);
             }
 

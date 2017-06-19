@@ -41,15 +41,13 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import org.hisp.dhis.android.sdk.persistence.Dhis2Database;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Simen Skogly Russnes on 17.02.15.
  */
 @Table(databaseName = Dhis2Database.NAME)
-public class OrganisationUnit extends BaseModel {
+public class OrganisationUnitforcascading extends BaseModel {
 
     @JsonProperty("id")
     @Column(name = "id")
@@ -70,17 +68,17 @@ public class OrganisationUnit extends BaseModel {
             @ForeignKeyReference(columnName = "parent",
                     columnType = String.class, foreignColumnName = "id")
     },saveForeignKeyModel = false)
-    OrganisationUnit parent;
+    OrganisationUnitforcascading parent;
 
 
-    @JsonProperty("programs")
-    List<Program> programs;
+//    @JsonProperty("programs")
+//    List<Program> programs;
+//
+//    @JsonIgnore
+//    @Column(name = "type")
+//    OrganisationUnitforcascading.TYPE type;
 
-    @JsonIgnore
-    @Column(name = "type")
-    OrganisationUnit.TYPE type;
-
-    public OrganisationUnit() {
+    public OrganisationUnitforcascading() {
     }
 
     @JsonAnySetter
@@ -88,11 +86,11 @@ public class OrganisationUnit extends BaseModel {
         // do something: put to a Map; log a warning, whatever
     }
 
-    public OrganisationUnit getParent() {
+    public OrganisationUnitforcascading getParent() {
         return parent;
     }
 
-    public void setParent(OrganisationUnit parent) {
+    public void setParent(OrganisationUnitforcascading parent) {
         this.parent = parent;
     }
 
@@ -120,21 +118,21 @@ public class OrganisationUnit extends BaseModel {
         this.level = level;
     }
 
-    public List<Program> getPrograms() {
-        return programs;
-    }
-
-    public TYPE getType() {
-        return type;
-    }
-
-    public void setType(TYPE type) {
-        this.type = type;
-    }
-
-    public void setPrograms(List<Program> programs) {
-        this.programs = programs;
-    }
+//    public List<Program> getPrograms() {
+//        return programs;
+//    }
+//
+//    public TYPE getType() {
+//        return type;
+//    }
+//
+//    public void setType(TYPE type) {
+//        this.type = type;
+//    }
+//
+//    public void setPrograms(List<Program> programs) {
+//        this.programs = programs;
+//    }
 
     public enum TYPE {
         ASSIGNED,

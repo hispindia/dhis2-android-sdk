@@ -308,13 +308,18 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                 showErrorAndDisableEditing("No event present");
             } else {
                 OrganisationUnit eventOrganisationUnit = MetaDataController.getOrganisationUnit(form.getEvent().getOrganisationUnitId());
+
+                System.out.println("eventorg:"+ eventOrganisationUnit);
+                System.out.println("eventorg: int"+ form.getEvent().getOrganisationUnitId());
                 if (eventOrganisationUnit == null) {
                     showErrorAndDisableEditing("Missing Organisation Unit");
-                } else if (!OrganisationUnit.TYPE.ASSIGNED.equals(eventOrganisationUnit.getType())) { // if user is not assigned to the event's OrgUnit. Disable data entry screen
+                }
+
+                else if (!OrganisationUnit.TYPE.ASSIGNED.equals(eventOrganisationUnit.getType())) { // if user is not assigned to the event's OrgUnit. Disable data entry screen
                     setEditableDataEntryRows(form, false, false);
                 }
                 if (Event.STATUS_COMPLETED.equals(form.getEvent().getStatus()) && form.getStage().isBlockEntryForm()) { // if event is completed and should be blocked. Disable data entry screen
-                    setEditableDataEntryRows(form, false, true);
+                    setEditableDataEntryRows(form, false, false);
                 }
             }
 
