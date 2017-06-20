@@ -881,8 +881,6 @@ public final class MetaDataController extends ResourceController {
         //@nhancv TODO: retrieve org from local
         List<ROrganisationUnit> organisationUnitList = ROrganisationHelper.getAllOrgFromLocal();
         Log.e(TAG, "loadMetaData: " + organisationUnitList.size());
-        RealmHelper.exportRealmFile(context);
-
 
 
         //update meta data items
