@@ -46,6 +46,7 @@ import org.hisp.dhis.android.sdk.persistence.migrations.MigrationUtil;
 import org.hisp.dhis.android.sdk.utils.MainThreadBus;
 
 import io.fabric.sdk.android.Fabric;
+import io.realm.Realm;
 
 /**
  * Application for initiating the DbFlow Back end
@@ -63,7 +64,7 @@ public abstract class Dhis2Application extends Application {
     public void onCreate() {
         super.onCreate();
         FlowManager.init(this);
-
+        Realm.init(this);
         dhisController = new DhisController(this);
         bus.register(dhisController);
         Stetho.initializeWithDefaults(this);
