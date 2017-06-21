@@ -119,6 +119,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.hisp.dhis.android.sdk.controllers.realm.ROrganisationHelper.getOrgFromLocalByLevel;
 import static org.hisp.dhis.android.sdk.utils.NetworkUtils.unwrapResponse;
 
 /**
@@ -880,8 +881,10 @@ public final class MetaDataController extends ResourceController {
         }
         //@nhancv TODO: retrieve org from local
         List<ROrganisationUnit> organisationUnitList = ROrganisationHelper.getAllOrgFromLocal();
-        Log.e(TAG, "loadMetaData: " + organisationUnitList.size());
+        Log.e(TAG, "organisationUnitList: " + organisationUnitList.size());
 
+        List<ROrganisationUnit> organisationUnitListTest = ROrganisationHelper.getOrgFromLocalByLevel(3, 5);
+        Log.e(TAG, "organisationUnitListTest: " + organisationUnitListTest.size());
 
         //update meta data items
         updateMetaDataItems(context, dhisApi, forceSync);

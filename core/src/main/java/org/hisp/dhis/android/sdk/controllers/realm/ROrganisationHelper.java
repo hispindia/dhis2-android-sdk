@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
+
+import static org.hisp.dhis.android.sdk.controllers.realm.RealmHelper.query;
 
 /**
  * Created by nhancao on 6/20/17.
@@ -48,7 +51,7 @@ public class ROrganisationHelper {
      * Check data on local is exist or not
      */
     public static boolean isEmpty() {
-        Long count = RealmHelper.query(new RealmHelper.RealmQuery<Long>() {
+        Long count = query(new RealmHelper.RealmQuery<Long>() {
             @Override
             public Long query(Realm realm) {
                 return realm.where(ROrganisationUnit.class).count();
@@ -61,7 +64,7 @@ public class ROrganisationHelper {
      * Get all organisation from local
      */
     public static List<ROrganisationUnit> getAllOrgFromLocal() {
-        return RealmHelper.query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
+        return query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
             @Override
             public List<ROrganisationUnit> query(Realm realm) {
                 RealmResults<ROrganisationUnit> realmResults = realm.where(ROrganisationUnit.class)
@@ -76,7 +79,7 @@ public class ROrganisationHelper {
      * Get organisation from local by level
      */
     public static List<ROrganisationUnit> getOrgFromLocalByLevel(final int level) {
-        return RealmHelper.query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
+        return query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
             @Override
             public List<ROrganisationUnit> query(Realm realm) {
                 RealmResults<ROrganisationUnit> realmResults = realm.where(ROrganisationUnit.class)
@@ -88,10 +91,53 @@ public class ROrganisationHelper {
     }
 
     /**
+     * Get organisation from local by top level and lower level
+     */
+    public static List<ROrganisationUnit> getOrgFromLocalByLevel(final int topLevel, final int lowerLevel) {
+
+        final List<ROrganisationUnit> res = new ArrayList<>();
+        final List<String> parentIds = new ArrayList<>();
+
+        for (int i = topLevel; i <= lowerLevel; i++) {
+            final int finalI = i;
+            List<ROrganisationUnit> listLevel = RealmHelper
+                    .query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
+                        @Override
+                        public List<ROrganisationUnit> query(Realm realm) {
+                            RealmResults<ROrganisationUnit> realmResults;
+                            RealmQuery<ROrganisationUnit> query = realm.where(ROrganisationUnit.class)
+                                                                       .equalTo("level", finalI);
+                            if (finalI == topLevel) {
+                                realmResults = query.findAll();
+                            } else {
+                                realmResults = query.in("parent", parentIds.toArray(new String[0]))
+                                                    .findAll();
+                            }
+                            return realm.copyFromRealm(realmResults);
+                        }
+                    });
+
+            if (listLevel == null) {
+                return res;
+            } else if (finalI == lowerLevel) {
+                return listLevel;
+            }
+
+            parentIds.clear();
+            for (ROrganisationUnit rOrganisationUnit : listLevel) {
+                parentIds.add(rOrganisationUnit.getId());
+            }
+
+        }
+        return res;
+
+    }
+
+    /**
      * Get organisation from local by parent id
      */
     public static List<ROrganisationUnit> getOrgFromLocalByParent(final String parent) {
-        return RealmHelper.query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
+        return query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
             @Override
             public List<ROrganisationUnit> query(Realm realm) {
                 RealmResults<ROrganisationUnit> realmResults = realm.where(ROrganisationUnit.class)
