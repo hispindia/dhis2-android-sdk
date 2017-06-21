@@ -95,7 +95,7 @@ public class ROrganisationHelper {
      */
     public static List<ROrganisationUnit> getOrgFromLocalByLevel(final int topLevel, final int lowerLevel) {
 
-        final List<ROrganisationUnit> res = new ArrayList<>();
+        final List<ROrganisationUnit> empty = new ArrayList<>();
         final List<String> parentIds = new ArrayList<>();
 
         for (int i = topLevel; i <= lowerLevel; i++) {
@@ -118,7 +118,7 @@ public class ROrganisationHelper {
                     });
 
             if (listLevel == null) {
-                return res;
+                return empty;
             } else if (finalI == lowerLevel) {
                 return listLevel;
             }
@@ -129,7 +129,61 @@ public class ROrganisationHelper {
             }
 
         }
-        return res;
+        return empty;
+
+    }
+
+    /**
+     * Get all org from local by parentId and skip to lower level
+     */
+    public static List<ROrganisationUnit> getOrgFromLocalByLevel(final String parentId, final int lowerLevel) {
+
+        final List<ROrganisationUnit> empty = new ArrayList<>();
+        final List<String> parentIds = new ArrayList<>();
+
+        final ROrganisationUnit parent = RealmHelper
+                .query(new RealmHelper.RealmQuery<ROrganisationUnit>() {
+                    @Override
+                    public ROrganisationUnit query(Realm realm) {
+                        return realm.copyFromRealm(
+                                realm.where(ROrganisationUnit.class).equalTo("id", parentId).findFirst());
+                    }
+                });
+        if (parent == null) return empty;
+
+        final int topLevel = parent.getLevel() + 1;
+        for (int i = topLevel; i <= lowerLevel; i++) {
+            final int finalI = i;
+            List<ROrganisationUnit> listLevel = RealmHelper
+                    .query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
+                        @Override
+                        public List<ROrganisationUnit> query(Realm realm) {
+                            RealmResults<ROrganisationUnit> realmResults;
+                            RealmQuery<ROrganisationUnit> query = realm.where(ROrganisationUnit.class)
+                                                                       .equalTo("level", finalI);
+                            if (finalI == topLevel) {
+                                realmResults = query.equalTo("parent", parentId).findAll();
+                            } else {
+                                realmResults = query.in("parent", parentIds.toArray(new String[0]))
+                                                    .findAll();
+                            }
+                            return realm.copyFromRealm(realmResults);
+                        }
+                    });
+
+            if (listLevel == null) {
+                return empty;
+            } else if (finalI == lowerLevel) {
+                return listLevel;
+            }
+
+            parentIds.clear();
+            for (ROrganisationUnit rOrganisationUnit : listLevel) {
+                parentIds.add(rOrganisationUnit.getId());
+            }
+
+        }
+        return empty;
 
     }
 
