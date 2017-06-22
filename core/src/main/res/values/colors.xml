@@ -53,6 +53,7 @@
     <color name="stage_skipped">#d5cbc1</color>
 
     <color name="white">#FFFFFFFF</color>
+    <color name="dark_grey">#A7A7A7</color>
     <color name="orange">#FF9900</color>
     <color name="black">#FF000000</color>
     <color name="grey">#8a000000</color>

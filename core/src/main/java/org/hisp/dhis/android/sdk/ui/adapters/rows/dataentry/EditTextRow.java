@@ -35,6 +35,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,12 +43,25 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.realm.ROrganisationHelper;
+import org.hisp.dhis.android.sdk.controllers.realm.ROrganisationUnit;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.AbsTextWatcher;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
+import org.hisp.dhis.android.sdk.ui.nhancv.ItemClickListener;
+import org.hisp.dhis.android.sdk.ui.nhancv.Model;
+import org.hisp.dhis.android.sdk.ui.nhancv.OptionDialog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EditTextRow extends Row {
+    private static final String TAG = EditTextRow.class.getSimpleName();
+    public static String ORG_LEVEL_3 = "";
+    public static String ORG_LEVEL_5 = "";
+    public static String ORG_LEVEL_6 = "";
+
     private static final String EMPTY_FIELD = "";
     private static int LONG_TEXT_LINE_COUNT = 3;
     private static String rowTypeTemp;
@@ -69,7 +83,8 @@ public class EditTextRow extends Row {
                 !DataEntryRowTypes.PINCODE.equals(rowType) &&
                 !DataEntryRowTypes.PATIENTNAME.equals(rowType) &&
                 !DataEntryRowTypes.AGE.equals(rowType) &&
-                !DataEntryRowTypes.INTEGER_POSITIVE.equals(rowType)) {
+                !DataEntryRowTypes.INTEGER_POSITIVE.equals(rowType) &&
+                !DataEntryRowTypes.ORGANISATION_UNIT.equals(rowType)) {
             throw new IllegalArgumentException("Unsupported row type");
         }
         checkNeedsForDescriptionButton();
@@ -77,7 +92,7 @@ public class EditTextRow extends Row {
     }
 
     @Override
-    public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
+    public View getView(final FragmentManager fragmentManager, LayoutInflater inflater,
                         View convertView, ViewGroup container) {
         View view;
         final ValueEntryHolder holder;
@@ -92,7 +107,7 @@ public class EditTextRow extends Row {
             TextView mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
             TextView warningLabel = (TextView) root.findViewById(R.id.warning_label);
             TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
-            EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
+            final EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
 //            detailedInfoButton = root.findViewById(R.id.detailed_info_button_layout);
 
             if (DataEntryRowTypes.TEXT.equals(mRowType)) {
@@ -189,9 +204,57 @@ public class EditTextRow extends Row {
                 editText.setFilters(filterArray);
             }
             else if(DataEntryRowTypes.ORGANISATION_UNIT.equals(mRowType)) {
-                editText.setInputType(InputType.TYPE_CLASS_PHONE);
+                editText.setInputType(InputType.TYPE_CLASS_TEXT);
                 editText.setHint(R.string.organisation_unit_select);
                 editText.setSingleLine(true);
+
+                //@nhancv TODO: logic to show dialog here
+                if (mLabel.toLowerCase().contains("state") ||
+                    mLabel.toLowerCase().contains("district") ||
+                    mLabel.toLowerCase().contains("block") ||
+                    mLabel.toLowerCase().contains("village")) {
+                    editText.setFocusable(false);
+                    editText.setClickable(true);
+                    editText.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            final List<Model> modelList = new ArrayList<>();
+                            List<ROrganisationUnit> orgUnitList = new ArrayList<>();
+                            if (mLabel.toLowerCase().contains("state")) {
+                                orgUnitList = ROrganisationHelper.getOrgFromLocalByLevel(3);
+                            } else if (mLabel.toLowerCase().contains("district")) {
+                                orgUnitList = ROrganisationHelper.getOrgFromLocalByLevel(ORG_LEVEL_3, 5);
+                            } else if (mLabel.toLowerCase().contains("block")) {
+                                orgUnitList = ROrganisationHelper.getOrgFromLocalByLevel(ORG_LEVEL_5, 6);
+                            } else if (mLabel.toLowerCase().contains("village")) {
+                                orgUnitList = ROrganisationHelper.getOrgFromLocalByLevel(ORG_LEVEL_6, 7);
+                            }
+
+                            //convert to list Model
+                            for (final ROrganisationUnit rOrganisationUnit : orgUnitList) {
+                                modelList.add(OptionDialog.createModel(rOrganisationUnit.getId(),
+                                                                       rOrganisationUnit.getDisplayName()));
+                            }
+
+                            OptionDialog.newInstance(modelList, new ItemClickListener<Model>() {
+                                @Override
+                                public void onItemClick(Model model) {
+                                    Log.e(TAG, "onClick:id " + model.getId());
+                                    Log.e(TAG, "onClick:getDisplayName " + model.getDisplayName());
+                                    if (mLabel.toLowerCase().contains("state")) {
+                                        ORG_LEVEL_3 = model.getId();
+                                    } else if (mLabel.toLowerCase().contains("district")) {
+                                        ORG_LEVEL_5 = model.getId();
+                                    } else if (mLabel.toLowerCase().contains("block")) {
+                                        ORG_LEVEL_6 = model.getId();
+                                    }
+                                    editText.setText(model.getDisplayName());
+                                }
+                            }).show(fragmentManager);
+                        }
+                    });
+                }
+
             }
 
             OnTextChangeListener listener = new OnTextChangeListener();

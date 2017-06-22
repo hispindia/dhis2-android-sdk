@@ -33,7 +33,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.raizlabs.android.dbflow.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -45,7 +44,6 @@ import org.hisp.dhis.android.sdk.controllers.DhisService;
 import org.hisp.dhis.android.sdk.persistence.migrations.MigrationUtil;
 import org.hisp.dhis.android.sdk.utils.MainThreadBus;
 
-import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 
 /**
@@ -68,7 +66,6 @@ public abstract class Dhis2Application extends Application {
         dhisController = new DhisController(this);
         bus.register(dhisController);
         Stetho.initializeWithDefaults(this);
-        Fabric.with(this, new Crashlytics());
 
         FlowManager.setDatabaseListener(Dhis2Database.NAME, new DatabaseHelperListener() {
             @Override

@@ -31,7 +31,6 @@ package org.hisp.dhis.android.sdk.network;
 
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Interceptor;
@@ -146,31 +145,8 @@ public final class RepoManager {
                 e.printStackTrace();
             }
 
-            APIException apiException = APIException.fromRetrofitError(cause);
-            switch (apiException.getKind()) {
-                case CONVERSION:
-                case UNEXPECTED: {
-                    logResponseBody(cause);
-                    Crashlytics.logException(cause.getCause());
-                    break;
-                }
-                case HTTP:
-                    if (apiException.getResponse().getStatus() >= 500) {
-                        logResponseBody(cause);
-                        Crashlytics.logException(cause.getCause());
-                    } else if (apiException.getResponse().getStatus() == 409) {
-                        logResponseBody(cause);
-                        Crashlytics.logException(cause.getCause());
-                    }
-            }
-
-            return apiException;
+            return APIException.fromRetrofitError(cause);
         }
     }
 
-    private static void logResponseBody(RetrofitError cause) {
-        if (cause.getResponse() != null && cause.getResponse().getBody() != null) {
-            Crashlytics.log(cause.getResponse().getBody().toString());
-        }
-    }
 }
