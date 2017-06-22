@@ -32,6 +32,7 @@ package org.hisp.dhis.android.sdk.network;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import org.hisp.dhis.android.sdk.controllers.ApiEndpointContainer;
+import org.hisp.dhis.android.sdk.controllers.realm.ROrganisationUnit;
 import org.hisp.dhis.android.sdk.network.response.ApiResponse2;
 import org.hisp.dhis.android.sdk.persistence.models.ApiResponse;
 import org.hisp.dhis.android.sdk.persistence.models.Constant;
@@ -225,6 +226,9 @@ public interface DhisApi {
 
     @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "?paging=false")
     Map<String,List<OrganisationUnitforcascading>> getOrganisationUnitscascading(@QueryMap(encodeValues = false) Map<String,String> queryMap);
+
+    @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "?paging=false")
+    Map<String,List<ROrganisationUnit>> getOrganisationUnitscascading_(@QueryMap(encodeValues = false) Map<String,String> queryMap);
 
     @GET("/organisationUnits/{id}"+"?paging=false")
     OrganisationUnit getOrganisationUnitParent(@Path("id") String id, @QueryMap Map<String, String> queryMap);

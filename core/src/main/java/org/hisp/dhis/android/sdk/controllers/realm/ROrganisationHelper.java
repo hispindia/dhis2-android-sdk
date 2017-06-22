@@ -75,6 +75,37 @@ public class ROrganisationHelper {
 
     }
 
+    public static List<ROrganisationUnit> getOrganisationUnitID(final String id) {
+        return query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
+            @Override
+            public List<ROrganisationUnit> query(Realm realm) {
+                RealmResults<ROrganisationUnit> realmResults = realm.where(ROrganisationUnit.class)
+                                                                    .equalTo("displayName",id)
+                                                                    .findAll();
+                return realm.copyFromRealm(realmResults);
+            }
+        });
+
+    }
+
+    public static List<ROrganisationUnit> getOrganisationUnitNAME(final String id) {
+        return query(new RealmHelper.RealmQuery<List<ROrganisationUnit>>() {
+            @Override
+            public List<ROrganisationUnit> query(Realm realm) {
+                RealmResults<ROrganisationUnit> realmResults = realm.where(ROrganisationUnit.class)
+                                                                    .equalTo("id",id)
+                                                                    .findAll();
+                return realm.copyFromRealm(realmResults);
+            }
+        });
+
+    }
+
+//    public static OrganisationUnit getOrganisationUnitID(String id) {
+//        return new Select().from(OrganisationUnit.class)
+//                .where(Condition.column(OrganisationUnit$Table.DISPLAYNAME).is(id)).querySingle();
+//    }
+
     /**
      * Get organisation from local by level
      */

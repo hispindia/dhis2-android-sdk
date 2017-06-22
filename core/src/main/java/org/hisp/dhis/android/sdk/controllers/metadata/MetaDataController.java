@@ -854,37 +854,19 @@ public final class MetaDataController extends ResourceController {
         UiUtils.postProgressMessage(context.getString(R.string.loading_metadata));
 
         //here im string all orgunits into local db
-
-        OrganisationUnitforcascading organization = new OrganisationUnitforcascading();
         Map<String, List<OrganisationUnitforcascading>> levelOrganisations = null;
-        Map<String, List<OrganisationUnitforcascading>> levelOrganisations1 = null;
         List<OrganisationUnitforcascading> organisationslevel = null;
-        List<OrganisationUnitforcascading> organisationsParent = null;
-        List<OrganisationUnitforcascading> organisationsChildren = null;
-        Map<String, String> queryMap1 = new HashMap<>();
         Map<String, String> queryMap2 = new HashMap<>();
-        int abc = MetaDataController
-                .getorganisationUnitsLevelWise(7).size();
-        //here <30 i check jsut for not exist already so i use <30 , you can remove it
+
+
         //@nhancv TODO: you can use ROrganisationHelper.isEmpty() for check data on local is exist or not
-        if (abc < 30) {
-            queryMap2.put("fields", "id,displayName,level,parent[id,name]&order=level:asc");
-            levelOrganisations = dhisApi.getOrganisationUnitscascading(queryMap2);
-// so it store 17k orgunits onebyone into localdb and takes a time around 8-10 minutes
-            //i will run now and you can see the time it will take
-            organisationslevel = levelOrganisations.get("organisationUnits");
+
+        queryMap2.put("fields", "id,displayName,level,parent[id,name]&order=level:asc");
+        levelOrganisations = dhisApi.getOrganisationUnitscascading(queryMap2);
+        organisationslevel = levelOrganisations.get("organisationUnits");
 
             //@nhancv TODO: save data to local
             ROrganisationHelper.saveOrgToLocal(organisationslevel);
-        } else {
-            Log.d("no new data", "No new");
-        }
-        //@nhancv TODO: retrieve org from local
-        List<ROrganisationUnit> organisationUnitList = ROrganisationHelper.getAllOrgFromLocal();
-        Log.e(TAG, "organisationUnitList: " + organisationUnitList.size());
-
-        List<ROrganisationUnit> organisationUnitListTest = ROrganisationHelper.getOrgFromLocalByLevel(3, 5);
-        Log.e(TAG, "organisationUnitListTest: " + organisationUnitListTest.size());
 
         //update meta data items
         updateMetaDataItems(context, dhisApi, forceSync);
