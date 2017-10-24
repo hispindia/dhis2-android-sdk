@@ -156,4 +156,8 @@ public abstract class Row implements DataEntryRow, Serializable {
     public void setShouldNeverBeEdited(boolean shouldNeverBeEdited) {
         this.shouldNeverBeEdited = shouldNeverBeEdited;
     }
+
+    public String getmLabel(){
+        return mLabel;
+    }
 }
