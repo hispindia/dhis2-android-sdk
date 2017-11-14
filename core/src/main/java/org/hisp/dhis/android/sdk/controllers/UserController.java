@@ -60,7 +60,7 @@ final class UserController {
         QUERY_PARAMS.put("fields", "id,created,lastUpdated,name,displayName," +
                 "firstName,surname,gender,birthday,introduction," +
                 "education,employer,interests,jobTitle,languages,email,phoneNumber," +
-                "teiSearchOrganisationUnits[id],organisationUnits[id]");
+                "teiSearchOrganisationUnits[id],organisationUnits[id,code,level]");
         UserAccount userAccount = dhisApi
                 .getCurrentUserAccount(QUERY_PARAMS);
 
@@ -93,7 +93,7 @@ final class UserController {
         QUERY_PARAMS.put("fields", "id,created,lastUpdated,name,displayName," +
                 "firstName,surname,gender,birthday,introduction," +
                 "education,employer,interests,jobTitle,languages,email,phoneNumber," +
-                "organisationUnits[id]");
+                "organisationUnits[id,code,level]");
         UserAccount userAccount =
                 dhisApi.getCurrentUserAccount(QUERY_PARAMS);
         // update userAccount in database

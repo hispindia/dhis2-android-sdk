@@ -65,6 +65,15 @@ public abstract class Row implements DataEntryRow, Serializable {
 //        return detailedInfoButton;
 //    }
 
+
+    public String getmLabel() {
+        return mLabel;
+    }
+
+    public void setmLabel(String mLabel) {
+        this.mLabel = mLabel;
+    }
+
     public BaseValue getValue(){
         return mValue;
     }

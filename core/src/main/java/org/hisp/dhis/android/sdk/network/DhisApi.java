@@ -214,7 +214,7 @@ public interface DhisApi {
     @GET("/me/programs/")
     Response getAssignedPrograms(@QueryMap Map<String, String> queryMap);
 
-    @GET("/me?fields=organisationUnits[id,displayName,programs[id]],userCredentials[userRoles[programs[id]]],teiSearchOrganisationUnits")
+    @GET("/me?fields=organisationUnits[id,displayName,programs[id],code,level],userCredentials[userRoles[programs[id]]],teiSearchOrganisationUnits")
     UserAccount getUserAccount();
 
     @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "?paging=false")

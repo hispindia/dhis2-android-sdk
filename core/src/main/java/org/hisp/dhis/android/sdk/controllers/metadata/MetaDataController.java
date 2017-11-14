@@ -293,6 +293,9 @@ public final class MetaDataController extends ResourceController {
                 ProgramTrackedEntityAttribute$Table.SORTORDER).queryList();
     }
 
+    public static List<TrackedEntityInstance> getTrackedEntityInstancesFromLocal() {
+        return new Select().from(TrackedEntityInstance.class).queryList();
+    }
     /**
      * Returns a list of programs assigned to the given organisation unit id
      *
@@ -414,6 +417,7 @@ public final class MetaDataController extends ResourceController {
         return new Select().from(OrganisationUnit.class).where(Condition.column(OrganisationUnit$Table.ID).is(id)).querySingle();
     }
 
+
     public static SystemInfo getSystemInfo() {
         return new Select().from(SystemInfo.class).querySingle();
     }
@@ -432,6 +436,12 @@ public final class MetaDataController extends ResourceController {
     public static List<OrganisationUnit> getAssignedOrganisationUnits() {
         List<OrganisationUnit> organisationUnits = new Select().from(OrganisationUnit.class)
                 .where(Condition.column(OrganisationUnit$Table.TYPE).eq(OrganisationUnit.TYPE.ASSIGNED))
+                .queryList();
+        return organisationUnits;
+    }
+
+    public static List<OrganisationUnit> getOrganisationUnit_list() {
+        List<OrganisationUnit> organisationUnits = new Select().from(OrganisationUnit.class)
                 .queryList();
         return organisationUnits;
     }
@@ -698,6 +708,8 @@ public final class MetaDataController extends ResourceController {
         List<OrganisationUnit> organisationUnitList = userAccount.getOrganisationUnits();
         for (OrganisationUnit organisationUnit : organisationUnitList) {
             organisationUnit.setType(OrganisationUnit.TYPE.ASSIGNED);
+            organisationUnit.setCode(organisationUnit.getCode());
+            organisationUnit.setLevel(organisationUnit.getLevel());
         }
 
         Set<String> teiSearchOrganisationUnitUids = null;
@@ -714,7 +726,7 @@ public final class MetaDataController extends ResourceController {
         List<OrganisationUnit> teiSearchOrganisationUnits = null;
         if (teiSearchOrganisationUnitUids != null) {
             Map<String, String> queryMap = new HashMap<>();
-            queryMap.put("fields", "[id,displayName,programs]");
+            queryMap.put("fields", "[id,displayName,programs,code,level]");
             String filter = "id:in:[";
 
             for (String orgUnitUid : teiSearchOrganisationUnitUids) {
@@ -757,6 +769,8 @@ public final class MetaDataController extends ResourceController {
                     }
                 }
                 organisationUnit.setPrograms(assignedProgramToUnit);
+                organisationUnit.setCode(organisationUnit.getCode());
+                organisationUnit.setLevel(organisationUnit.getLevel());
             }
         }
 

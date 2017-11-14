@@ -173,12 +173,8 @@ final class TrackerDataLoader extends ResourceController {
                     apiException.printStackTrace();
                     failed = true;
                 }
-
             }
-
-
         }
-
 
         if (!failed) {
             saveResourceDataFromServer(ResourceType.EVENTS, dhisApi, eventsFromServer, null, serverDateTime);
@@ -275,9 +271,16 @@ final class TrackerDataLoader extends ResourceController {
         if (queryString != null && !queryString.isEmpty() && valueParams.isEmpty()) {
             QUERY_MAP_FULL.put("query", "LIKE:" + queryString);//todo: make a map where we can use more than one of each key
         }
-        List<TrackedEntityInstance> trackedEntityInstances = unwrapResponse(dhisApi
+        OrganisationUnit ou=MetaDataController.getOrganisationUnit(organisationUnitUid);
+
+        if(ou.getLevel()==6) {
+            organisationUnitUid="WADZCI3Xnnt";
+
+        }
+            List<TrackedEntityInstance> trackedEntityInstances = unwrapResponse(dhisApi
                 .getTrackedEntityInstances(organisationUnitUid,
                         QUERY_MAP_FULL), ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);
+
         return trackedEntityInstances;
     }
 
@@ -336,7 +339,6 @@ final class TrackerDataLoader extends ResourceController {
                 ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);
         return trackedEntityInstances;
     }
-
     static List<TrackedEntityInstance> getTrackedEntityInstancesDataFromServer(DhisApi dhisApi, List<TrackedEntityInstance> trackedEntityInstances, boolean getEnrollments) {
         if (trackedEntityInstances == null) {
             return null;
@@ -344,13 +346,11 @@ final class TrackerDataLoader extends ResourceController {
         if (dhisApi == null) {
             return null;
         }
-
         DateTime serverDateTime = dhisApi.getSystemInfo()
                 .getServerDate();
 
         List<TrackedEntityInstance> trackedEntityInstancesToReturn = new ArrayList<>();
         for (int teiIndex = 0; teiIndex < trackedEntityInstances.size(); teiIndex++) {
-
             int userFriendlyIndex = (int) (Math.ceil((teiIndex + 1) / 2.0));
 
             try {
@@ -376,7 +376,6 @@ final class TrackerDataLoader extends ResourceController {
         }
         DateTime lastUpdated = DateTimeManager.getInstance()
                 .getLastUpdated(ResourceType.TRACKEDENTITYINSTANCE, uid);
-
 
         Log.d(CLASS_TAG, "get tei " + uid);
         TrackedEntityInstance trackedEntityInstance = updateTrackedEntityInstance(dhisApi, uid, lastUpdated);
