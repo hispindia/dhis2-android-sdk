@@ -157,6 +157,11 @@ public final class MetaDataController extends ResourceController {
                 return false;
             }
         }
+        if(LoadingController.isLoadFlagEnabled(context,ResourceType.PROGRAMINDICATORS)){
+            if(DateTimeManager.getInstance().getLastUpdated(ResourceType.PROGRAMINDICATORS)==null){
+                return false;
+            }
+        }
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULES)) {
             if (DateTimeManager.getInstance().getLastUpdated(ResourceType.PROGRAMRULES) == null) {
                 return false;
@@ -506,6 +511,10 @@ public final class MetaDataController extends ResourceController {
                 .queryList();
     }
 
+    //
+    public static List<ProgramIndicator> getProgramIndicators(){
+        return new Select().from(ProgramIndicator.class).queryList();
+    }
     public static List<ProgramIndicator> getProgramIndicatorsByProgramStage(String programStage) {
         List<ProgramIndicatorToSectionRelationship> relations = new Select()
                 .from(ProgramIndicatorToSectionRelationship.class)
@@ -667,6 +676,11 @@ public final class MetaDataController extends ResourceController {
                 getConstantsDataFromServer(dhisApi, serverDateTime);
             }
         }
+        if(LoadingController.isLoadFlagEnabled(context,ResourceType.PROGRAMINDICATORS)){
+            if(shouldLoad(serverDateTime,ResourceType.PROGRAMINDICATORS)){
+                getProgramIndicatorsDataFromServer(dhisApi,serverDateTime);
+            }
+        }
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULES)) {
             if (shouldLoad(serverDateTime, ResourceType.PROGRAMRULES)) {
                 getProgramRulesDataFromServer(dhisApi, serverDateTime);
@@ -692,6 +706,17 @@ public final class MetaDataController extends ResourceController {
             getTrackedEntityAttributeGeneratedValuesFromServer(dhisApi, getTrackedEntityAttributes(), serverDateTime);
         }
     }
+    private static void getProgramIndicatorsDataFromServer(DhisApi dhisApi,DateTime serverDateTime) throws APIException{
+        Log.d(CLASS_TAG, " getProgramIndicatorsDataFromServer");
+        ResourceType resource = ResourceType.PROGRAMINDICATORS;
+        DateTime lastUpdated = DateTimeManager.getInstance()
+                .getLastUpdated(resource);
+
+        List<ProgramIndicator> programIndicators =unwrapResponse(dhisApi
+                .getProgramIndicators(getBasicQueryMap(lastUpdated)),ApiEndpointContainer.PROGRAMINDICATORS);
+        saveResourceDataFromServer(resource,dhisApi,programIndicators,getProgramIndicators(),serverDateTime);
+    }
+
 
     private static void getAssignedProgramsDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {
         Log.d(CLASS_TAG, "getAssignedProgramsDataFromServer");

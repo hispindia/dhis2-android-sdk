@@ -73,10 +73,10 @@ import java.util.Map;
 import retrofit.client.Header;
 import retrofit.client.Response;
 import retrofit.converter.ConversionException;
-
 /**
  * @author Simen Skogly Russnes on 24.08.15.
  */
+
 final class TrackerDataSender {
 
     public static final String CLASS_TAG = TrackerDataSender.class.getSimpleName();
@@ -91,9 +91,9 @@ final class TrackerDataSender {
                 return;
             }
         }
+
         List<Event> events = new Select().from(Event.class).where
                 (Condition.column(Event$Table.FROMSERVER).is(false)).queryList();
-
         List<Event> eventsWithFailedThreshold = new Select().from(Event.class)
                 .join(FailedItem.class, Join.JoinType.LEFT)
                 .on(Condition.column(FailedItem$Table.ITEMID).eq(Event$Table.LOCALID))
@@ -252,7 +252,6 @@ final class TrackerDataSender {
                 handleImportSummary(importSummary, FailedItem.EVENT, event.getLocalId());
                 if (ImportSummary.SUCCESS.equals(importSummary.getStatus()) ||
                         ImportSummary.OK.equals(importSummary.getStatus())) {
-
                     event.setFromServer(true);
                     event.save();
                     clearFailedItem(FailedItem.EVENT, event.getLocalId());
@@ -709,7 +708,6 @@ final class TrackerDataSender {
             item.async().delete();
         }
     }
-
     private static void handleImportSummary(ImportSummary importSummary, String type, long id) {
         try {
             if (ImportSummary.ERROR.equals(importSummary.getStatus())) {
@@ -720,7 +718,6 @@ final class TrackerDataSender {
             Log.e(CLASS_TAG, "Unable to process import summary", e);
         }
     }
-
     private static List<ImportSummary> getImportSummaries(Response response) {
         List<ImportSummary> importSummaries = new ArrayList<>();
 

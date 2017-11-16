@@ -1,0 +1,31 @@
+diff a/core/src/main/java/org/hisp/dhis/android/sdk/controllers/metadata/MetaDataController.java b/core/src/main/java/org/hisp/dhis/android/sdk/controllers/metadata/MetaDataController.java	(rejected hunks)
+@@ -673,11 +683,7 @@ public final class MetaDataController extends ResourceController {
+                 getRelationshipTypesDataFromServer(dhisApi, serverDateTime);
+             }
+         }
+-        if(LoadingController.isLoadFlagEnabled(context,ResourceType.PROGRAMINDICATORS)){
+-            if(shouldLoad(serverDateTime,ResourceType.PROGRAMINDICATORS)){
+-                getProgramIndicatorsDataFromServer(dhisApi,serverDateTime);
+-            }
+-        }
++
+         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULEVARIABLES)) {
+             if (shouldLoad(serverDateTime, ResourceType.PROGRAMRULEVARIABLES)) {
+                 getProgramRuleVariablesDataFromServer(dhisApi, serverDateTime);
+@@ -958,14 +964,14 @@ public final class MetaDataController extends ResourceController {
+         saveResourceDataFromServer(resource, dhisApi, relationshipTypes, getRelationshipTypes(), serverDateTime);
+     }
+ 
+-    private static void getProgramIndicatorsDataFromServer(DhisApi dhisApi,DateTime serverDataTime) throws APIException{
++    private static void getProgramIndicatorsDataFromServer(DhisApi dhisApi,DateTime serverDateTime) throws APIException{
+         Log.d(CLASS_TAG, " getProgramIndicatorsDataFromServer");
+         ResourceType resource = ResourceType.PROGRAMINDICATORS;
+         DateTime lastUpdated = DateTimeManager.getInstance()
+                 .getLastUpdated(resource);
+         List<ProgramIndicator> programIndicators =unwrapResponse(dhisApi
+                 .getProgramIndicators(getBasicQueryMap(lastUpdated)),ApiEndpointContainer.PROGRAMINDICATORS);
+-        saveResourceDataFromServer(resource,dhisApi,programIndicators,getProgramIndicators(),serverDataTime);
++        saveResourceDataFromServer(resource,dhisApi,programIndicators,getProgramIndicators(),serverDateTime);
+     }
+ 
+     public static TrackedEntityAttributeGeneratedValue getTrackedEntityAttributeGeneratedValue(TrackedEntityAttribute trackedEntityAttribute) {

@@ -1,0 +1,10 @@
+diff a/core/src/main/java/org/hisp/dhis/android/sdk/utils/services/ProgramIndicatorService.java b/core/src/main/java/org/hisp/dhis/android/sdk/utils/services/ProgramIndicatorService.java	(rejected hunks)
+@@ -441,7 +441,7 @@ public class ProgramIndicatorService {
+                         date = DateUtils.getMediumDate(dateStr);
+                         //date = DateUtils.getMediumDate(programInstance.getEnrollmentDate());
+                     } else if (ProgramIndicator.INCIDENT_DATE.equals(uid)) {
+-                        String dateStr = programInstance.getEnrollmentDate();
++                        String dateStr = programInstance.getIncidentDate();
+                         dateStr = dateStr.substring(0,dateStr.indexOf("T"));
+                         date = DateUtils.getMediumDate(dateStr);
+                         //date = DateUtils.getMediumDate(programInstance.getIncidentDate());

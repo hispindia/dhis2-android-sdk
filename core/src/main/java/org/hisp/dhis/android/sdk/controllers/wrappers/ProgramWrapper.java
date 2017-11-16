@@ -141,7 +141,7 @@ public class ProgramWrapper {
                 operations.add(DbOperation.delete(programStage));
             }
             for (ProgramIndicator programIndicator : program.getProgramIndicators()) {
-                operations.add(DbOperation.delete(programIndicator));
+                //operations.add(DbOperation.delete(programIndicator));
             }
         }
 

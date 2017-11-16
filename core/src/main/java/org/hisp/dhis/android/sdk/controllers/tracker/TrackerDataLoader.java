@@ -77,15 +77,14 @@ import static org.hisp.dhis.client.sdk.utils.StringUtils.isEmpty;
  * @author Simen Skogly Russnes on 24.08.15.
  */
 final class TrackerDataLoader extends ResourceController {
-
     public static final String CLASS_TAG = TrackerDataLoader.class.getSimpleName();
-
     private TrackerDataLoader() {
     }
 
     /**
      * Loads datavalue items that is scheduled to be loaded but has not yet been.
      */
+    
     static void updateDataValueDataItems(Context context, DhisApi dhisApi) throws APIException {
         if (dhisApi == null) {
             return;
@@ -280,7 +279,6 @@ final class TrackerDataLoader extends ResourceController {
             List<TrackedEntityInstance> trackedEntityInstances = unwrapResponse(dhisApi
                 .getTrackedEntityInstances(organisationUnitUid,
                         QUERY_MAP_FULL), ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);
-
         return trackedEntityInstances;
     }
 
