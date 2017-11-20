@@ -276,9 +276,13 @@ final class TrackerDataLoader extends ResourceController {
             organisationUnitUid="WADZCI3Xnnt";
 
         }
-            List<TrackedEntityInstance> trackedEntityInstances = unwrapResponse(dhisApi
+                /*remove by ifhaam 16/11/2017 for downloading all data for tibet
+                List<TrackedEntityInstance> trackedEntityInstances = unwrapResponse(dhisApi
                 .getTrackedEntityInstances(organisationUnitUid,
-                        QUERY_MAP_FULL), ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);
+                        QUERY_MAP_FULL), ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);*/
+
+                List<TrackedEntityInstance> trackedEntityInstances  = unwrapResponse(dhisApi
+                .getTrackedEntityInstances(QUERY_MAP_FULL),ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);
         return trackedEntityInstances;
     }
 

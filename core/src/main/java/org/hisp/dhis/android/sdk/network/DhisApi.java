@@ -303,6 +303,10 @@ public interface DhisApi {
     @GET("/"+ApiEndpointContainer.TRACKED_ENTITY_INSTANCES+"?skipPaging=true")
     Map<String, List<TrackedEntityInstance>> getTrackedEntityInstances(@Query("ou") String organisationUnitUid, @QueryMap(encodeValues = false) Map<String, String> queryMap);
 
+    //adding ouMode=ALL for downloading all instances
+    @GET("/"+ApiEndpointContainer.TRACKED_ENTITY_INSTANCES+"?skipPaging=true&ouMode=ALL")//adding ouMode=ALL for downloading all instances
+    Map<String, List<TrackedEntityInstance>> getTrackedEntityInstances( @QueryMap(encodeValues = false) Map<String, String> queryMap);
+
     @GET("/"+ApiEndpointContainer.TRACKED_ENTITY_INSTANCES+"?skipPaging=true&ouMode=ACCESSIBLE")
     Map<String, List<TrackedEntityInstance>> getTrackedEntityInstancesFromAllAccessibleOrgUnits(@Query("ou") String organisationUnitUid, @QueryMap(encodeValues = false) Map<String, String> queryMap);
 
