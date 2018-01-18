@@ -1,25 +1,35 @@
-#Eclipse
+# Eclipse
 .project
 .classpath
 .settings
 
-#IntelliJ IDEA
-.idea
+# IntelliJ IDEA
 *.iml
 *.ipr
 *.iws
 out
 
-#Ant
+# ignore .idea directory
+.idea/
+
+# Ant
 build.xml
 local.properties
 proguard.cfg
-#Gradle
+
+# Gradle
 .gradle
 build
 
-#OSX
+# OSX
 .DS_Store
 
-#Windows
+# Windows
 *.db
+
+# Android
+*.apk
+
+# Secret keys
+secrets.properties
+
