@@ -818,12 +818,22 @@ public final class MetaDataController extends ResourceController {
     private static Program updateProgram(DhisApi dhisApi, String uid, DateTime lastUpdated, SyncStrategy syncStrategy) throws APIException {
         final Map<String, String> QUERY_MAP_FULL = new HashMap<>();
 
+//        QUERY_MAP_FULL.put("fields",
+//                "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
+//                        "programStageSections[*,programStageDataElements[*,programStage[id]," +
+//                        "dataElement[*,id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
+//                        "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
+//                        "[*,trackedEntityAttribute[*]],!organisationUnits");
+
+
+        //@Sou Translation for TrackedEntityAttributes/dataElements
+
         QUERY_MAP_FULL.put("fields",
                 "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
                         "programStageSections[*,programStageDataElements[*,programStage[id]," +
-                        "dataElement[*,id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
+                        "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
                         "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
-                        "[*,trackedEntityAttribute[*]],!organisationUnits");
+                        "[*,trackedEntityAttribute[*,displayName~rename(name),name~rename(displayName)]],!organisationUnits");
 
         if (syncStrategy == SyncStrategy.DOWNLOAD_ONLY_NEW && lastUpdated != null) {
             QUERY_MAP_FULL.put("filter", "lastUpdated:gt:" + lastUpdated.toString());
@@ -843,10 +853,12 @@ public final class MetaDataController extends ResourceController {
     }
 
     private static void getOptionSetDataFromServer(DhisApi dhisApi, DateTime serverDateTime,
-            SyncStrategy syncStrategy) throws APIException {
+                                                   SyncStrategy syncStrategy) throws APIException {
         Log.d(CLASS_TAG, "getOptionSetDataFromServer");
         Map<String, String> QUERY_MAP_FULL = new HashMap<>();
-        QUERY_MAP_FULL.put("fields", "*,options[*]");
+//        QUERY_MAP_FULL.put("fields", "*,options[*]");
+        //@Sou Translation for options
+        QUERY_MAP_FULL.put("fields", "*,options[*,displayName~rename(name),name~rename(displayName)]");
         DateTime lastUpdated = DateTimeManager.getInstance()
                 .getLastUpdated(ResourceType.OPTIONSETS);
 
