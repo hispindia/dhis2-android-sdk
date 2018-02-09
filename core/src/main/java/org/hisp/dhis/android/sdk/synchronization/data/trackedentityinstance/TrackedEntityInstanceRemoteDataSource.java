@@ -15,7 +15,8 @@ import java.util.Map;
 import retrofit.client.Response;
 
 public class TrackedEntityInstanceRemoteDataSource  extends ARemoteDataSource {
-
+    public static  String PROJECT_DONOR;
+	
     public TrackedEntityInstanceRemoteDataSource(DhisApi dhisApi) {
         this.dhisApi = dhisApi;
     }
@@ -52,11 +53,63 @@ public class TrackedEntityInstanceRemoteDataSource  extends ARemoteDataSource {
 
     private ImportSummary postTrackedEntityInstance(TrackedEntityInstance trackedEntityInstance, DhisApi dhisApi) throws APIException {
         Response response = dhisApi.postTrackedEntityInstance(trackedEntityInstance);
+		
+		 if (response.getReason().equals("OK")) {
+
+            //@Sou_ Ben id Custom
+            List<TrackedEntityInstance> tei_list= MetaDataController.getTrackedEntityInstancesFromLocal();
+            int count=tei_list.size();
+            String seq_count = String.format ("%05d", count);
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            String year_=String.valueOf(year);
+
+        for(int p=0;p<trackedEntityInstance.getAttributes().size();p++)
+        {
+            if(trackedEntityInstance.getAttributes().get(p).getTrackedEntityAttributeId().equals("KLSVjftH2xS")){
+                PROJECT_DONOR=trackedEntityInstance.getAttributes().get(p).getValue();
+                if(PROJECT_DONOR == null) PROJECT_DONOR = "";
+            }
+
+            if(trackedEntityInstance.getAttributes().get(p).getTrackedEntityAttributeId().equals("L2doMQ7OtUB")){
+                trackedEntityInstance.getAttributes().get(p).setValue("m-PLAN"+PROJECT_DONOR+year_+seq_count);
+                dhisApi.postTrackedEntityInstance(trackedEntityInstance);
+            }
+
+        }
+            trackedEntityInstance.save();
+            trackedEntityInstance.setFromServer(true);
+        }
+		
         return getImportSummary(response);
     }
 
     private ImportSummary putTrackedEntityInstance(TrackedEntityInstance trackedEntityInstance, DhisApi dhisApi) throws APIException {
         Response response = dhisApi.putTrackedEntityInstance(trackedEntityInstance.getUid(), trackedEntityInstance);
+		
+		    if (response.getReason().equals("OK")) {
+            //@Sou_ Ben id Custom
+            List<TrackedEntityInstance> tei_list= MetaDataController.getTrackedEntityInstancesFromLocal();
+            int count=tei_list.size();
+            String seq_count = String.format ("%05d", count);
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            String year_=String.valueOf(year);
+
+            for(int p=0;p<trackedEntityInstance.getAttributes().size();p++)
+            {
+                if(trackedEntityInstance.getAttributes().get(p).getTrackedEntityAttributeId().equals("KLSVjftH2xS")){
+                    PROJECT_DONOR=trackedEntityInstance.getAttributes().get(p).getValue();
+                    if(PROJECT_DONOR == null) PROJECT_DONOR = "";
+                }
+
+                if(trackedEntityInstance.getAttributes().get(p).getTrackedEntityAttributeId().equals("L2doMQ7OtUB")){
+                    trackedEntityInstance.getAttributes().get(p).setValue("m-PLAN"+PROJECT_DONOR+year_+seq_count);
+                    dhisApi.postTrackedEntityInstance(trackedEntityInstance);
+
+                }
+            }
+            trackedEntityInstance.save();
+            trackedEntityInstance.setFromServer(true);
+        }
         return getImportSummary(response);
     }
 }
