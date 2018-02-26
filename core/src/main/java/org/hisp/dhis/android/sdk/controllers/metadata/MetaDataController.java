@@ -216,11 +216,12 @@ public final class MetaDataController extends ResourceController {
                 orderBy(true, ProgramStageSection$Table.SORTORDER).queryList();
     }
 
+    //@sou_ programstagedataelement sort same as web priority
     public static List<ProgramStageDataElement> getProgramStageDataElements(ProgramStageSection section) {
         if (section == null) return null;
         return new Select().from(ProgramStageDataElement.class).where(Condition.column
-                (ProgramStageDataElement$Table.PROGRAMSTAGESECTION).is(section.getUid())).orderBy
-                (ProgramStageDataElement$Table.SORTORDER).queryList();
+                (ProgramStageDataElement$Table.PROGRAMSTAGESECTION).is(section.getUid())).queryList();
+//                (ProgramStageDataElement$Table.SORTORDER).queryList();
     }
 
     public static List<ProgramStageDataElement> getProgramStageDataElements(ProgramStage programStage) {

@@ -115,18 +115,16 @@ public class ProgramWrapper {
 
         List<ProgramStageDataElement> programStageDataElements = new ArrayList<>();
 
-        if (programStageSection.getDataElements() != null){
+         if (programStageSection.getDataElements() != null){
+            for (DataElement dataElement:programStageSection.getDataElements()){
+                for (ProgramStageDataElement programStageDataElement:
+                        programStage.getProgramStageDataElements()) {
 
-            //v.2.27
-            for (ProgramStageDataElement programStageDataElement:
-                    programStage.getProgramStageDataElements()) {
-                for (DataElement dataElement:programStageSection.getDataElements()){
                     if (dataElement.getUid().equals(programStageDataElement.getDataElement().getUid())){
                         programStageDataElements.add(programStageDataElement);
                     }
                 }
             }
-
             return programStageDataElements;
         }else{
             //v.2.26
