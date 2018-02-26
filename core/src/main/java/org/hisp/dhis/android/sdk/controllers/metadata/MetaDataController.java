@@ -827,13 +827,33 @@ public final class MetaDataController extends ResourceController {
 
 
         //@Sou Translation for TrackedEntityAttributes/dataElements
+        Map<String, String> locallangauge = null;
+        locallangauge=dhisApi.getLocaleLanguage();
+        Map.Entry<String,String> entry = locallangauge.entrySet().iterator().next();
+        String lang_value = entry.getValue();
+        Log.d("lang_db_before",lang_value);
+if(!lang_value.equals("en") &&!lang_value.equals(null))
+{
+    Log.d("lang_db",lang_value);
+    QUERY_MAP_FULL.put("fields",
+            "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
+                    "programStageSections[*,programStageDataElements[*,programStage[id]," +
+                    "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
+                    "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
+                    "[*,trackedEntityAttribute[*,displayName~rename(name),name~rename(displayName)]],!organisationUnits");
+}
 
-        QUERY_MAP_FULL.put("fields",
-                "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
-                        "programStageSections[*,programStageDataElements[*,programStage[id]," +
-                        "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
-                        "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
-                        "[*,trackedEntityAttribute[*,displayName~rename(name),name~rename(displayName)]],!organisationUnits");
+
+  else
+{
+    Log.d("lang_db_else",lang_value);
+    QUERY_MAP_FULL.put("fields",
+            "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
+                    "programStageSections[*,programStageDataElements[*,programStage[id]," +
+                    "dataElement[*,displayName,name,id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
+                    "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
+                    "[*,trackedEntityAttribute[*,displayName,name]],!organisationUnits");
+}
 
         if (syncStrategy == SyncStrategy.DOWNLOAD_ONLY_NEW && lastUpdated != null) {
             QUERY_MAP_FULL.put("filter", "lastUpdated:gt:" + lastUpdated.toString());
@@ -858,7 +878,20 @@ public final class MetaDataController extends ResourceController {
         Map<String, String> QUERY_MAP_FULL = new HashMap<>();
 //        QUERY_MAP_FULL.put("fields", "*,options[*]");
         //@Sou Translation for options
-        QUERY_MAP_FULL.put("fields", "*,options[*,displayName~rename(name),name~rename(displayName)]");
+		
+		        Map<String, String> locallangauge = null;
+        locallangauge=dhisApi.getLocaleLanguage();
+        Map.Entry<String,String> entry = locallangauge.entrySet().iterator().next();
+        String lang_value = entry.getValue();
+        if(!lang_value.equals("en") &&!lang_value.equals(null))
+        {
+            QUERY_MAP_FULL.put("fields", "*,options[*,displayName~rename(name),name~rename(displayName)]");
+        }
+        else
+        {
+            QUERY_MAP_FULL.put("fields", "*,options[*,displayName,name]");
+        }
+		
         DateTime lastUpdated = DateTimeManager.getInstance()
                 .getLastUpdated(ResourceType.OPTIONSETS);
 

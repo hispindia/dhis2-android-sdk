@@ -332,4 +332,7 @@ public interface DhisApi {
     @GET("/"+ApiEndpointContainer.TRACKED_ENTITY_ATTRIBUTES+"/{trackedEntityAttribute}/generateAndReserve")
     List<TrackedEntityAttributeGeneratedValue> getTrackedEntityAttributeGeneratedValues(@Path("trackedEntityAttribute") String trackedEntityAttribute, @Query("numberToReserve") long numberOfIdsToGenerate);
 
+	// @GET USERSETTINGS for localedblanguage to be save 
+	@GET("/"+ApiEndpointContainer.USERSETTINGS)
+    Map<String,String> getLocaleLanguage();
 }
