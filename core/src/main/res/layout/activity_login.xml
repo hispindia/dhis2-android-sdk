@@ -126,7 +126,7 @@
             style="?android:attr/progressBarStyleLargeInverse"
             android:layout_width="390dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/progress_bar"
+
             android:gravity="center"
             android:layout_gravity="center"
             android:layout_centerHorizontal="true"

@@ -153,6 +153,8 @@ public class WrapperFragment extends BaseFragment implements View.OnClickListene
         return toolbar;
     }
 
+
+
     @SuppressWarnings("unchecked")
     private Class<? extends Fragment> getFragmentClass() {
         Serializable fragmentClassSerialized = getArguments()
