@@ -52,5 +52,6 @@ public enum DataEntryRowTypes {
     PHONE_NUMBER,
     EMAIL,
     INVALID_DATA_ENTRY,
-    URL
+    URL,
+    TRACKER_ASSOCIATE
 }
