@@ -38,15 +38,32 @@ import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 public class OnTrackerItemClick extends OnRowClick<BaseSerializableModel>
 {
     private final boolean onDescriptionClick;
+    private boolean isLongClick;
 
     public OnTrackerItemClick(BaseSerializableModel item, ITEM_STATUS status,
                               boolean description) {
         super(status, item);
         this.onDescriptionClick = description;
+        isLongClick = false;
+    }
+
+    public OnTrackerItemClick(BaseSerializableModel item, ITEM_STATUS status,
+                              boolean description, boolean isLongClick) {
+        super(status, item);
+        this.onDescriptionClick = description;
+        this.isLongClick = isLongClick;
     }
 
     public boolean isOnDescriptionClick() {
         return onDescriptionClick;
+    }
+
+    public boolean isLongClick() {
+        return isLongClick;
+    }
+
+    public void setLongClick(boolean longClick) {
+        isLongClick = longClick;
     }
 }
 

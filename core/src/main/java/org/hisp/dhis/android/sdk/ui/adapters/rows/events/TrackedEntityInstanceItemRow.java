@@ -255,7 +255,13 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
         @Override
         public boolean onLongClick(View view) {
             // empty implementation for making the context menu work
-
+            if (view.getId() == R.id.event_container) {
+                Dhis2Application.getEventBus()
+                        .post(new OnTrackerItemClick(trackedEntityInstance, status, true,true));
+            } else if (view.getId() == R.id.status_container) {
+                Dhis2Application.getEventBus()
+                        .post(new OnTrackerItemClick(trackedEntityInstance, status, false,true));
+            }
             return false;
         }
     }
