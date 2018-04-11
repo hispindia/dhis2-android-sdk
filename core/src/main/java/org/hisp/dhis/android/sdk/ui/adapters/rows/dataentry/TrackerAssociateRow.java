@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.events.OnRowClick;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
@@ -165,11 +166,18 @@ public class TrackerAssociateRow extends Row {
                     break;
 
                 case "SEARCH":
-                    setValue("SEARCH");
-//                    if(rowActionListener!=null){
-//                        rowActionListener.searchButtonClicked();
-//                        String vl = rowActionListener.getValue(TrackerAssociateRowActionListener.STATES.SEARCH);
-//                    }
+                    //etValue("SEARCH");
+                    if(rowActionListener!=null){
+                        rowActionListener.searchButtonClicked();
+                        rowActionListener.setValueListeners(TrackerAssociateRowActionListener.STATES.SEARCH
+                        ,new ValueChangeListener(){
+
+                            @Override
+                            public void onValueChange(String newVal) {
+                                setValue(newVal);
+                            }
+                        });
+                    }
                     Toast.makeText(view.getRootView().getContext(),"Search Button Pressed",Toast.LENGTH_SHORT).show();
                     break;
 
