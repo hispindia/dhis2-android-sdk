@@ -29,7 +29,15 @@
 
 package org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry;
 
+import android.support.v4.app.FragmentManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramIndicator;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.events.OnDetailedInfoButtonClick;
 
 public final class IndicatorRow extends NonEditableTextViewRow {
     private static final String EMPTY_FIELD = "";
@@ -42,6 +50,10 @@ public final class IndicatorRow extends NonEditableTextViewRow {
         mValue = value;
         mDescription = description;
         checkNeedsForDescriptionButton();
+    }
+
+    public void setValue(String val){
+        this.mValue = val;
     }
 
     @Override
@@ -60,5 +72,52 @@ public final class IndicatorRow extends NonEditableTextViewRow {
         } else {
             return EMPTY_FIELD;
         }
+    }
+
+    @Override
+    public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
+                        View convertView, ViewGroup container) {
+        View view;
+        ViewHolder holder;
+
+        if (convertView != null && convertView.getTag() instanceof ViewHolder) {
+            view = convertView;
+            holder = (ViewHolder) view.getTag();
+        } else {
+            View root = inflater.inflate(
+//                    R.layout.listview_row_indicator, container, false);
+                    R.layout.listview_row_indicator_with_add_button, container, false);
+            View detailedInfoButton = root.findViewById(R.id.detailed_info_button_layout); // need to keep reference
+            holder = new ViewHolder(
+                    (TextView) root.findViewById(R.id.text_label),
+                    (TextView) root.findViewById(R.id.indicator_row),
+                    detailedInfoButton);
+
+            root.setTag(holder);
+            view = root;
+        }
+
+        holder.textLabel.setText(getName());
+
+        if(!isEditable())
+        {
+            holder.textValue.setEnabled(false);
+        }
+        else
+            holder.textValue.setEnabled(true);
+
+        holder.detailedInfoButton.setOnClickListener(new OnDetailedInfoButtonClick(this));
+        holder.textValue.setText(mValue);
+
+        if(isDetailedInfoButtonHidden())
+        {
+            holder.detailedInfoButton.setVisibility(View.INVISIBLE);
+        }
+        else {
+            holder.detailedInfoButton.setVisibility(View.VISIBLE);
+        }
+        holder.textValue.setOnEditorActionListener(mOnEditorActionListener);
+
+        return view;
     }
 }
