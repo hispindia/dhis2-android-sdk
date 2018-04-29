@@ -53,5 +53,7 @@ public enum DataEntryRowTypes {
     EMAIL,
     INVALID_DATA_ENTRY,
     URL,
-    TRACKER_ASSOCIATE
+    TRACKER_ASSOCIATE,
+    SECTION_SEPERATOR
+
 }

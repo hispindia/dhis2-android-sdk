@@ -75,6 +75,8 @@ public class DataEntryRowFactory {
 //                    DataEntryRowTypes.INVALID_DATA_ENTRY);
               row = new TrackerAssociateRow(trackedEntityAttributeName, mandatory, null, baseValue);
 
+        }else if(valueType.equals(ValueType.SECTION_SEPERATOR)) {
+            row = new SectionSeperatorRow(baseValue.getValue());
         } else {
             row = new InvalidEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue,
                     DataEntryRowTypes.INVALID_DATA_ENTRY);
@@ -137,7 +139,9 @@ public class DataEntryRowFactory {
             row = new EmailAddressEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.EMAIL);
         }  else  if(valueType.equals(ValueType.URL)) {
             row = new URLEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.URL);
-        } else if(valueType.equals(ValueType.TRACKER_ASSOCIATE)){
+        } else if(valueType.equals(ValueType.SECTION_SEPERATOR)) {
+            row = new SectionSeperatorRow(baseValue.getValue());
+        }else if(valueType.equals(ValueType.TRACKER_ASSOCIATE)){
             //should be implemented for ibmc
             //TODO: a custom row rowtpe for tracker associate should be created
 //            row = new InvalidEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue,

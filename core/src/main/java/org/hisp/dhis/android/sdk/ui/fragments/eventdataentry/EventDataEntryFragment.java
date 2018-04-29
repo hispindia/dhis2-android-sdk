@@ -60,6 +60,7 @@ import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.loaders.DbLoader;
+import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
 import org.hisp.dhis.android.sdk.persistence.models.DataValue;
 import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
 import org.hisp.dhis.android.sdk.persistence.models.Event;
@@ -71,6 +72,7 @@ import org.hisp.dhis.android.sdk.persistence.models.ProgramStage;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramStageDataElement;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.ui.adapters.SectionAdapter;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowFactory;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowTypes;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
@@ -83,6 +85,7 @@ import org.hisp.dhis.android.sdk.ui.fragments.dataentry.HideLoadingDialogEvent;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RefreshListViewEvent;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.hisp.dhis.android.sdk.utils.UiUtils;
+import org.hisp.dhis.android.sdk.utils.api.ValueType;
 import org.hisp.dhis.android.sdk.utils.comparators.EventDateComparator;
 import org.hisp.dhis.android.sdk.utils.services.ProgramIndicatorService;
 import org.hisp.dhis.android.sdk.utils.services.VariableService;
@@ -296,16 +299,40 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                 GpsController.activateGps(getActivity().getBaseContext());
             }
             if (data.getSections() != null && !data.getSections().isEmpty()) {
-                if (data.getSections().size() > 1) {
-                    attachSpinner();
-                    spinnerAdapter.swapData(data.getSections());
-                } else {
+//                if (data.getSections().size() > 1) {
+//                    attachSpinner();
+//                    spinnerAdapter.swapData(data.getSections());
+//                } else {
                     if (form.getStage() != null) {
                         getActionBarToolbar().setTitle(form.getStage().getName());
                     }
-                    DataEntryFragmentSection section = data.getSections().get(0);
-                    listViewAdapter.swapData(section.getRows());
-                }
+                    //DataEntryFragmentSection section = data.getSections().get(0);
+                    List<Row> totalRows = new ArrayList<>();
+                    for(DataEntryFragmentSection section :data.getSections()){
+
+                        BaseValue bv = new BaseValue(){
+
+                        };
+                        bv.setValue(section.getLabel());
+
+                        Row row = DataEntryRowFactory.createDataEntryView(false,
+                                false,null,null, bv,
+                                ValueType.SECTION_SEPERATOR,false,false,false);
+                        boolean addLater = false;
+                        if(totalRows.size()==0){
+//                            totalRows.add(row);
+                            addLater = true;
+                        }else{
+                            totalRows.add(row);
+                        }
+                        totalRows.addAll(section.getRows());
+                        if(addLater)totalRows.add(3,row);
+
+
+                    }
+//                    listViewAdapter.swapData(section.getRows());
+                    listViewAdapter.swapData(totalRows);
+//                }
             }
 
             if (form.getEvent() == null) {
