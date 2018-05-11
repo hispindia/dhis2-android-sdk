@@ -34,6 +34,7 @@ import static android.text.TextUtils.isEmpty;
 import static org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController.getDataElement;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -42,6 +43,7 @@ import org.hisp.dhis.android.sdk.controllers.DhisController;
 import org.hisp.dhis.android.sdk.controllers.GpsController;
 import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
+import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.loaders.Query;
 import org.hisp.dhis.android.sdk.persistence.models.DataElement;
 import org.hisp.dhis.android.sdk.persistence.models.DataValue;
@@ -58,9 +60,14 @@ import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventCoordinatesRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventDatePickerRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventDueDatePickerRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IntegerPositiveEditTextRow;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.LongEditTextRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.ShortTextEditTextRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.StatusRow;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.AutoCompleteRow;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragmentSection;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.hisp.dhis.android.sdk.utils.api.ValueType;
 import org.hisp.dhis.android.sdk.utils.services.ProgramIndicatorService;
 import org.hisp.dhis.android.sdk.utils.support.DateUtils;
@@ -73,7 +80,7 @@ import java.util.List;
 class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
 
     private static final String CLASS_TAG = EventDataEntryFragmentQuery.class.getSimpleName();
-
+    private final  List<Row> rows = new ArrayList<>();
     private static final String EMPTY_FIELD = "";
     private static final String DEFAULT_SECTION = "defaultSection";
 
@@ -82,6 +89,9 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
     private final String programStageId;
     private final long eventId;
     private final long enrollmentId;
+   private int paddingForIndex =0;
+    private int challangefaced = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+    private  int  challangefacedothers = -1;//a
 
     EventDataEntryFragmentQuery(String orgUnitId, String programId, String programStageId, long eventId, long enrollmentId) {
         this.orgUnitId = orgUnitId;
@@ -141,7 +151,7 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
         form.setIndicatorToIndicatorRowMap(new HashMap<String, IndicatorRow>());
 
         if (stage.getProgramStageSections() == null || stage.getProgramStageSections().isEmpty()) {
-            List<Row> rows = new ArrayList<>();
+
             addStatusRow(context, form, rows);
             if(form.getEnrollment() != null) {
                 if(! (form.getStage().isHideDueDate()) ) {
@@ -150,7 +160,90 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
             }
             addEventDateRow(context, form, rows);
             addCoordinateRow(form, rows);
-            populateDataEntryRows(form, stage.getProgramStageDataElements(), rows, username, context);
+                    for(int i=0;i<stage.getProgramStageDataElements().size();i++)
+                    {
+
+
+                    DataValue dataValue = getDataValue(stage.getProgramStageDataElements().get(i).getDataelement(), form.getEvent(), username);
+                    DataElement dataElement = getDataElement(stage.getProgramStageDataElements().get(i).getDataelement());
+                    if (dataElement != null) {
+                        form.getDataElementNames().put(stage.getProgramStageDataElements().get(i).getDataelement(),
+                                dataElement.getDisplayName());
+                        form.getDataValues().put(dataValue.getDataElement(), dataValue);
+                        String dataElementName;
+                        if (!isEmpty(dataElement.getDisplayFormName())) {
+                            dataElementName = dataElement.getDisplayFormName();
+                        } else {
+                            dataElementName = dataElement.getDisplayName();
+                        }
+                        if(ValueType.COORDINATE.equals(stage.getProgramStageDataElements().get(i).getDataElement().getValueType())) {
+                            GpsController.activateGps(context);
+                        }
+                        boolean isRadioButton = form.getStage().getProgram().getDataEntryMethod();
+                        if(!isRadioButton){
+                            isRadioButton = stage.getProgramStageDataElements().get(i).isRenderOptionsAsRadio();
+                        }
+
+                        Row row = DataEntryRowFactory.createDataEntryView(stage.getProgramStageDataElements().get(i).getCompulsory(),
+                                stage.getProgramStageDataElements().get(i).getAllowFutureDate(), dataElement.getOptionSet(),
+                                dataElementName, dataValue, dataElement.getValueType(), true, false,
+                                isRadioButton);
+
+
+                        rows.add(row);
+
+
+                         paddingForIndex =stage.getProgramStageDataElements().size();
+                         challangefaced = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+                         challangefacedothers = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+
+                        if(stage.getProgramStageDataElements().get(i).getDataElement().getUid().equals("C1Hr5tSOFhO"))
+                        {
+                            challangefaced=i;
+                        }
+                        else if(stage.getProgramStageDataElements().get(i).getDataElement().getUid().equals("ZmlLbYwR1Zm"))
+                        {
+                            challangefacedothers = i;
+                        }
+
+                    }
+
+                }
+
+            final AutoCompleteRow challangeRow = (AutoCompleteRow) rows.get(7);
+            final LongEditTextRow challangeOtherRow = (LongEditTextRow) rows.get(8);
+
+            Dhis2Application.getEventBus().register(new DobAgeSync(){
+                @Override
+                @com.squareup.otto.Subscribe
+                public void eventHandler(RowValueChangedEvent event){
+//                 Log.i(" Called ",event.getBaseValue().getValue()+"");
+                    if(event.getId()!=null && event.getId().equals("C1Hr5tSOFhO")){
+                            //Log.i(" Called ",row.getValue().getValue());
+                            try {
+                                String value=challangeRow.getValue().getValue();
+                                if(challangeRow.getValue().getValue().contains("other"))
+                                {
+                                    challangeOtherRow.setmMandatory(true);
+                                    stage.getProgramStageDataElements().get(5).setCompulsory(true);
+                                    stage.save();
+                                }
+                                else if(!challangeRow.getValue().getValue().contains("other"))
+                                {
+                                    challangeOtherRow.setmMandatory(false);
+                                    stage.getProgramStageDataElements().get(5).setCompulsory(false);
+                                    stage.save();
+                                }
+                                EventDataEntryFragment.refreshListView();
+                            }catch (Exception ex) {
+                                Log.i("Exception ", "Converting to integer not possible");
+
+                            }
+                        }
+
+                    }
+            });
+
             populateIndicatorRows(form, stage.getProgramIndicators(), rows);
             form.getSections().add(new DataEntryFragmentSection(DEFAULT_SECTION, null, rows));
         } else {
@@ -169,12 +262,89 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
                     addEventDateRow(context, form, rows);
                     addCoordinateRow(form, rows);
                 }
-                populateDataEntryRows(form, section.getProgramStageDataElements(), rows, username, context);
+                for(int j=0;j<stage.getProgramStageDataElements().size();j++)
+                {
+
+
+                    DataValue dataValue = getDataValue(stage.getProgramStageDataElements().get(j).getDataelement(), form.getEvent(), username);
+                    DataElement dataElement = getDataElement(stage.getProgramStageDataElements().get(j).getDataelement());
+                    if (dataElement != null) {
+                        form.getDataElementNames().put(stage.getProgramStageDataElements().get(j).getDataelement(),
+                                dataElement.getDisplayName());
+                        form.getDataValues().put(dataValue.getDataElement(), dataValue);
+                        String dataElementName;
+                        if (!isEmpty(dataElement.getDisplayFormName())) {
+                            dataElementName = dataElement.getDisplayFormName();
+                        } else {
+                            dataElementName = dataElement.getDisplayName();
+                        }
+                        if(ValueType.COORDINATE.equals(stage.getProgramStageDataElements().get(j).getDataElement().getValueType())) {
+                            GpsController.activateGps(context);
+                        }
+                        boolean isRadioButton = form.getStage().getProgram().getDataEntryMethod();
+                        if(!isRadioButton){
+                            isRadioButton = stage.getProgramStageDataElements().get(j).isRenderOptionsAsRadio();
+                        }
+
+                        Row row = DataEntryRowFactory.createDataEntryView(stage.getProgramStageDataElements().get(i).getCompulsory(),
+                                stage.getProgramStageDataElements().get(i).getAllowFutureDate(), dataElement.getOptionSet(),
+                                dataElementName, dataValue, dataElement.getValueType(), true, false,
+                                isRadioButton);
+
+
+                        rows.add(row);
+
+                         paddingForIndex =rows.size();
+                         challangefaced = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+                         challangefacedothers = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+
+                        if(stage.getProgramStageDataElements().get(i).getDataElement().getUid().equals("C1Hr5tSOFhO"))
+                        {
+                            challangefaced=j;
+                        }
+                        else if(stage.getProgramStageDataElements().get(i).getDataElement().getUid().equals("ZmlLbYwR1Zm"))
+                        {
+                            challangefacedothers = j;
+                        }
+
+                    }
+
+                }
+                final AutoCompleteRow challangeRow = (AutoCompleteRow) rows.get(paddingForIndex+challangefaced);
+                final ShortTextEditTextRow challangeOtherRow = (ShortTextEditTextRow) rows.get(paddingForIndex+challangefacedothers);
+
+                Dhis2Application.getEventBus().register(new DobAgeSync(){
+                    @Override
+                    @com.squareup.otto.Subscribe
+                    public void eventHandler(RowValueChangedEvent event){
+//                 Log.i(" Called ",event.getBaseValue().getValue()+"");
+                        if(event.getId()!=null && event.getId().equals("C1Hr5tSOFhO")){
+                            Row row = event.getRow();
+                            if(row!=null) {
+                                //Log.i(" Called ",row.getValue().getValue());
+                                try {
+                                    String value=challangeRow.getValue().getValue();
+                                    EventDataEntryFragment.refreshListView();
+                                }catch (Exception ex) {
+                                    Log.i("Exception ", "Converting to integer not possible");
+
+                                }
+                            }
+
+                        }
+                    }
+
+                });
+
                 populateIndicatorRows(form, section.getProgramIndicators(), rows);
                 form.getSections().add(new DataEntryFragmentSection(section.getName(), section.getUid(), rows));
+
             }
+
         }
         return form;
+
+
     }
 
     private static void populateTrackedEntityDataValues(EventDataEntryFragmentForm form) {
@@ -220,37 +390,46 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
         }
     }
 
-    private static void populateDataEntryRows(EventDataEntryFragmentForm form,
-                                              List<ProgramStageDataElement> dataElements,
-                                              List<Row> rows, String username, Context context) {
-        for (ProgramStageDataElement stageDataElement : dataElements) {
-            DataValue dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-            DataElement dataElement = getDataElement(stageDataElement.getDataelement());
-            if (dataElement != null) {
-                form.getDataElementNames().put(stageDataElement.getDataelement(),
-                        dataElement.getDisplayName());
-                form.getDataValues().put(dataValue.getDataElement(), dataValue);
-                String dataElementName;
-                if (!isEmpty(dataElement.getDisplayFormName())) {
-                    dataElementName = dataElement.getDisplayFormName();
-                } else {
-                    dataElementName = dataElement.getDisplayName();
-                }
-                if(ValueType.COORDINATE.equals(stageDataElement.getDataElement().getValueType())) {
-                    GpsController.activateGps(context);
-                }
-                boolean isRadioButton = form.getStage().getProgram().getDataEntryMethod();
-                if(!isRadioButton){
-                    isRadioButton = stageDataElement.isRenderOptionsAsRadio();
-                }
-                Row row = DataEntryRowFactory.createDataEntryView(stageDataElement.getCompulsory(),
-                        stageDataElement.getAllowFutureDate(), dataElement.getOptionSet(),
-                        dataElementName, dataValue, dataElement.getValueType(), true, false,
-                        isRadioButton);
-                rows.add(row);
-            }
-        }
-    }
+//    private static void populateDataEntryRows(EventDataEntryFragmentForm form,
+//                                              List<ProgramStageDataElement> dataElements,
+//                                              List<Row> rows, String username, Context context) {
+//
+//
+//
+//        for (ProgramStageDataElement stageDataElement : dataElements) {
+//            DataValue dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+//            DataElement dataElement = getDataElement(stageDataElement.getDataelement());
+//            if (dataElement != null) {
+//                form.getDataElementNames().put(stageDataElement.getDataelement(),
+//                        dataElement.getDisplayName());
+//                form.getDataValues().put(dataValue.getDataElement(), dataValue);
+//                String dataElementName;
+//                if (!isEmpty(dataElement.getDisplayFormName())) {
+//                    dataElementName = dataElement.getDisplayFormName();
+//                } else {
+//                    dataElementName = dataElement.getDisplayName();
+//                }
+//                if(ValueType.COORDINATE.equals(stageDataElement.getDataElement().getValueType())) {
+//                    GpsController.activateGps(context);
+//                }
+//                boolean isRadioButton = form.getStage().getProgram().getDataEntryMethod();
+//                if(!isRadioButton){
+//                    isRadioButton = stageDataElement.isRenderOptionsAsRadio();
+//                }
+//
+//                Row row = DataEntryRowFactory.createDataEntryView(stageDataElement.getCompulsory(),
+//                        stageDataElement.getAllowFutureDate(), dataElement.getOptionSet(),
+//                        dataElementName, dataValue, dataElement.getValueType(), true, false,
+//                        isRadioButton);
+//
+//
+//                rows.add(row);
+//            }
+//
+//        }
+//
+//
+//    }
 
     private static void populateIndicatorRows(EventDataEntryFragmentForm form,
                                               List<ProgramIndicator> indicators,
@@ -315,5 +494,23 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
         );
         event.getDataValues().add(dataValue);
         return dataValue;
+    }
+
+    abstract class DobAgeSync {
+
+        public abstract void eventHandler(RowValueChangedEvent event);
+
+        public boolean equals(Object obj){
+            if(obj==null) return false;
+            if(obj instanceof DobAgeSync)
+                return true;
+            else
+                return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return 143;
+        }
     }
 }
