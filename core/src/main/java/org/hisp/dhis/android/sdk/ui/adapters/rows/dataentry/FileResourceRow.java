@@ -33,6 +33,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -73,6 +74,8 @@ import java.io.InputStream;
 import java.nio.channels.Channel;
 import java.nio.channels.FileChannel;
 
+import static org.hisp.dhis.android.sdk.ui.activities.ExternalAccessActivity.CALLED_METHOD;
+
 public class FileResourceRow extends Row {
     public static final int FILE_RESOURCE_REQUEST = 1434;
     private boolean isUploaded;
@@ -100,6 +103,8 @@ public class FileResourceRow extends Row {
     public void getData(Intent data){
         Log.d("REC_DATA",data.getData().toString());
         filePath = data.getData();
+
+
     }
 
 
@@ -196,6 +201,7 @@ public class FileResourceRow extends Row {
 //                        holder.errorLabel.setText("File Upload Failed");
                         }
                     }catch (Exception ex){
+                        ex.printStackTrace();
                         mError = "File Upload Failed";
                     }
 
