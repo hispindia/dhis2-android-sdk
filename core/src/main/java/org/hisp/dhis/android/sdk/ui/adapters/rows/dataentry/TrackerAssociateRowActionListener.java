@@ -1,6 +1,6 @@
 package org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry;
 
-public interface TrackerAssociateRowActionListener {
+public interface TrackerAssociateRowActionListener extends DataEntryRowFactory.callbacks {
     public enum STATES{
         ADD,CLEAR,SEARCH
     }

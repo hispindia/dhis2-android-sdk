@@ -54,6 +54,7 @@ public enum DataEntryRowTypes {
     INVALID_DATA_ENTRY,
     URL,
     TRACKER_ASSOCIATE,
-    SECTION_SEPERATOR
+    SECTION_SEPERATOR,
+    FILE_RESOURCE
 
 }

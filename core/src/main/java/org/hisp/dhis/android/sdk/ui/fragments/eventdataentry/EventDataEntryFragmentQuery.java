@@ -34,6 +34,8 @@ import static android.text.TextUtils.isEmpty;
 import static org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController.getDataElement;
 
 import android.content.Context;
+import android.content.Intent;
+import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -53,10 +55,12 @@ import org.hisp.dhis.android.sdk.persistence.models.ProgramStageDataElement;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramStageSection;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
+import org.hisp.dhis.android.sdk.ui.activities.ExternalAccessActivity;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowFactory;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventCoordinatesRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventDatePickerRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventDueDatePickerRow;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.FileResourceRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.StatusRow;
@@ -222,7 +226,7 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
 
     private static void populateDataEntryRows(EventDataEntryFragmentForm form,
                                               List<ProgramStageDataElement> dataElements,
-                                              List<Row> rows, String username, Context context) {
+                                              List<Row> rows, String username, final Context context) {
         for (ProgramStageDataElement stageDataElement : dataElements) {
             DataValue dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
             DataElement dataElement = getDataElement(stageDataElement.getDataelement());
@@ -251,6 +255,8 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
             }
         }
     }
+
+
 
     private static void populateIndicatorRows(EventDataEntryFragmentForm form,
                                               List<ProgramIndicator> indicators,

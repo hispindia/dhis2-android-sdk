@@ -2,6 +2,8 @@ package org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -19,6 +21,7 @@ import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -26,195 +29,248 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.raizlabs.android.dbflow.annotation.NotNull;
+import com.squareup.otto.Subscribe;
 
-import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.FileController;
+import org.hisp.dhis.android.sdk.job.JobExecutor;
+import org.hisp.dhis.android.sdk.job.NetworkJob;
+import org.hisp.dhis.android.sdk.network.APIException;
+import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
+import org.hisp.dhis.android.sdk.persistence.models.ApiResponse;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
-import org.hisp.dhis.android.sdk.persistence.models.Option;
-import org.hisp.dhis.android.sdk.persistence.models.OptionSet;
-import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.AutoCompleteRow;
+import org.hisp.dhis.android.sdk.persistence.models.FileResourceResponseModels.FileResourceApiResponse;
+import org.hisp.dhis.android.sdk.persistence.models.FileResourceResponseModels.FileResourceResponse;
+import org.hisp.dhis.android.sdk.persistence.preferences.ResourceType;
+import org.hisp.dhis.android.sdk.ui.activities.ExternalAccessActivity;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.hisp.dhis.android.sdk.utils.api.ValueType;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Objects;
+import java.nio.channels.Channel;
+import java.nio.channels.FileChannel;
 
-/**
- * Created by katana on 21/10/16.
- */
+public class FileResourceRow extends Row {
+    public static final int FILE_RESOURCE_REQUEST = 1434;
+    private boolean isUploaded;
+    private static final String EMPTY_FIELD = "";
+    private DataEntryRowFactory.callbacks callback;
+    Uri filePath = null;
+    //private final View.OnClickListener clickListener;
 
-public class DataEntryRowFactory {
-    public static Row createDataEntryView(boolean mandatory, boolean allowFutureDate,
-                                          String optionSetId, String rowName, BaseValue baseValue,
-                                          ValueType valueType, boolean editable,
-                                          boolean shouldNeverBeEdited, boolean dataEntryMethod) {
-        Row row;
-        String trackedEntityAttributeName = rowName;
-        if (optionSetId != null) {
-            OptionSet optionSet = MetaDataController.getOptionSet(optionSetId);
-            if (optionSet == null) {
-                row = new ShortTextEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.TEXT);
-            } else {
-                List<Option> options = MetaDataController.getOptions(optionSetId);
+    public FileResourceRow(String label, boolean mandatory, String warning,
+                           BaseValue baseValue,
+                           DataEntryRowTypes rowType) {
+        mLabel = label;
+        mMandatory = mandatory;
+        mWarning = warning;
+        mValue = baseValue;
+        mRowType = rowType;
 
-                if (isDataEntryRadioButtons(dataEntryMethod, options)) {
-                    row = new RadioButtonsOptionSetRow(trackedEntityAttributeName, mandatory, null,
-                            baseValue, options);
-                }
-                else
-                    row = new AutoCompleteRow(trackedEntityAttributeName, mandatory, null, baseValue, optionSet);
-            }
-        } else if (valueType.equals(ValueType.TEXT)) {
-            row = new ShortTextEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.TEXT);
-        } else if (valueType.equals(ValueType.LONG_TEXT)) {
-            row = new LongEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.LONG_TEXT);
-        } else if (valueType.equals(ValueType.NUMBER)) {
-            row = new NumberEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.NUMBER);
-        } else if (valueType.equals(ValueType.INTEGER)) {
-            row = new IntegerEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.INTEGER);
-        } else if (valueType.equals(ValueType.INTEGER_ZERO_OR_POSITIVE)) {
-            row = new IntegerZeroOrPositiveEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.INTEGER_ZERO_OR_POSITIVE);
-        } else if (valueType.equals(ValueType.PERCENTAGE)) {
-            row = new PercentageEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.PERCENTAGE);
-        } else if (valueType.equals(ValueType.INTEGER_POSITIVE)) {
-            row = new IntegerPositiveEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.INTEGER_POSITIVE);
-        } else if (valueType.equals(ValueType.INTEGER_NEGATIVE)) {
-            row = new IntegerNegativeEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.INTEGER_NEGATIVE);
-        } else if (valueType.equals(ValueType.BOOLEAN)) {
-            row = new RadioButtonsRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.BOOLEAN);
-        } else if (valueType.equals(ValueType.TRUE_ONLY)) {
-            row = new CheckBoxRow(trackedEntityAttributeName, mandatory, null, baseValue);
-        } else if (valueType.equals(ValueType.DATE) || valueType.equals(ValueType.AGE)) {
-            row = new DatePickerRow(trackedEntityAttributeName, mandatory, null, baseValue, allowFutureDate);
-        } else if (valueType.equals(ValueType.TIME)) {
-            row = new TimePickerRow(trackedEntityAttributeName, mandatory, null, baseValue, allowFutureDate);
-        } else if (valueType.equals(ValueType.DATETIME)) {
-            row = new DateTimePickerRow(trackedEntityAttributeName, mandatory, null, baseValue, allowFutureDate);
-        } else if(valueType.equals(ValueType.COORDINATE)) {
-            row = new QuestionCoordinatesRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.QUESTION_COORDINATES);
-        } else  if(valueType.equals(ValueType.PHONE_NUMBER)) {
-            row = new PhoneEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.PHONE_NUMBER);
-        }  else  if(valueType.equals(ValueType.EMAIL)) {
-            row = new EmailAddressEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.EMAIL);
-        }  else  if(valueType.equals(ValueType.URL)) {
-            row = new URLEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.URL);
-        } else if(valueType.equals(ValueType.TRACKER_ASSOCIATE)){
-            //should be implemented for ibmc
-            //TODO: a custom row rowtpe for tracker associate should be created
-//            row = new InvalidEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue,
-//                    DataEntryRowTypes.INVALID_DATA_ENTRY);
-              row = new TrackerAssociateRow(trackedEntityAttributeName, mandatory, null, baseValue);
+        if (!DataEntryRowTypes.FILE_RESOURCE.equals(rowType)) {
+            throw new IllegalArgumentException("Unsupported row type");
+        }
+        Dhis2Application.getEventBus().register(this);
+    }
 
-        }else if(valueType.equals(ValueType.SECTION_SEPERATOR)) {
-            row = new SectionSeperatorRow(baseValue.getValue());
-        }else if(valueType.equals(ValueType.FILE_RESOURCE)) {
-            row = new FileResourceRow(trackedEntityAttributeName,mandatory,null,baseValue,DataEntryRowTypes.FILE_RESOURCE);
+    @Subscribe
+    public void getData(Intent data){
+        Log.d("REC_DATA",data.getData().toString());
+        filePath = data.getData();
+    }
+
+
+
+    @Override
+    public View getView(FragmentManager fragmentManager, final LayoutInflater inflater, View convertView, final ViewGroup container) {
+        View view;
+
+        final FileResourceViewHolder holder;
+        if(convertView!=null && convertView.getTag() instanceof FileResourceViewHolder){
+            view = convertView;
+            holder = (FileResourceViewHolder) view.getTag();
+
         }else {
-            row = new InvalidEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue,
-                    DataEntryRowTypes.INVALID_DATA_ENTRY);
-        }
-        row.setEditable(editable);
-        row.setShouldNeverBeEdited(shouldNeverBeEdited);
-        return row;
-    }
+            View root = inflater.inflate(R.layout.listview_row_file_resource,container,false);
+            TextView label = (TextView) root.findViewById(R.id.text_label);
+            TextView mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
+            TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
+            EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
+            ImageButton btnAction = (ImageButton) root.findViewById(R.id.btn_action);
+            ImageView imageView = (ImageView) root.findViewById(R.id.image);
+            editText.setEnabled(true);
 
-
-    public static Row createDataEntryView(boolean mandatory, boolean allowFutureDate,
-                                          String optionSetId, String rowName, BaseValue baseValue,
-                                          ValueType valueType, boolean editable,
-                                          boolean shouldNeverBeEdited, boolean dataEntryMethod,callbacks actionListener ) {
-        Row row;
-        String trackedEntityAttributeName = rowName;
-        if (optionSetId != null) {
-            OptionSet optionSet = MetaDataController.getOptionSet(optionSetId);
-            if (optionSet == null) {
-                row = new ShortTextEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.TEXT);
-            } else {
-                List<Option> options = MetaDataController.getOptions(optionSetId);
-
-                if (isDataEntryRadioButtons(dataEntryMethod, options)) {
-                    row = new RadioButtonsOptionSetRow(trackedEntityAttributeName, mandatory, null,
-                            baseValue, options);
+            btnAction.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(inflater.getContext(), ExternalAccessActivity.class);
+                    inflater.getContext().startActivity(intent);
                 }
-                else
-                    row = new AutoCompleteRow(trackedEntityAttributeName, mandatory, null, baseValue, optionSet);
-            }
-        } else if (valueType.equals(ValueType.TEXT)) {
-            row = new ShortTextEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.TEXT);
-        } else if (valueType.equals(ValueType.LONG_TEXT)) {
-            row = new LongEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.LONG_TEXT);
-        } else if (valueType.equals(ValueType.NUMBER)) {
-            row = new NumberEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.NUMBER);
-        } else if (valueType.equals(ValueType.INTEGER)) {
-            row = new IntegerEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.INTEGER);
-        } else if (valueType.equals(ValueType.INTEGER_ZERO_OR_POSITIVE)) {
-            row = new IntegerZeroOrPositiveEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.INTEGER_ZERO_OR_POSITIVE);
-        } else if (valueType.equals(ValueType.PERCENTAGE)) {
-            row = new PercentageEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.PERCENTAGE);
-        } else if (valueType.equals(ValueType.INTEGER_POSITIVE)) {
-            row = new IntegerPositiveEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.INTEGER_POSITIVE);
-        } else if (valueType.equals(ValueType.INTEGER_NEGATIVE)) {
-            row = new IntegerNegativeEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.INTEGER_NEGATIVE);
-        } else if (valueType.equals(ValueType.BOOLEAN)) {
-            row = new RadioButtonsRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.BOOLEAN);
-        } else if (valueType.equals(ValueType.TRUE_ONLY)) {
-            row = new CheckBoxRow(trackedEntityAttributeName, mandatory, null, baseValue);
-        } else if (valueType.equals(ValueType.DATE) || valueType.equals(ValueType.AGE)) {
-            row = new DatePickerRow(trackedEntityAttributeName, mandatory, null, baseValue, allowFutureDate);
-        } else if (valueType.equals(ValueType.TIME)) {
-            row = new TimePickerRow(trackedEntityAttributeName, mandatory, null, baseValue, allowFutureDate);
-        } else if (valueType.equals(ValueType.DATETIME)) {
-            row = new DateTimePickerRow(trackedEntityAttributeName, mandatory, null, baseValue, allowFutureDate);
-        } else if(valueType.equals(ValueType.COORDINATE)) {
-            row = new QuestionCoordinatesRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.QUESTION_COORDINATES);
-        } else  if(valueType.equals(ValueType.PHONE_NUMBER)) {
-            row = new PhoneEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.PHONE_NUMBER);
-        }  else  if(valueType.equals(ValueType.EMAIL)) {
-            row = new EmailAddressEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.EMAIL);
-        }  else  if(valueType.equals(ValueType.URL)) {
-            row = new URLEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.URL);
-        } else if(valueType.equals(ValueType.SECTION_SEPERATOR)) {
-            row = new SectionSeperatorRow(baseValue.getValue());
-        }else if(valueType.equals(ValueType.TRACKER_ASSOCIATE)){
-            //should be implemented for ibmc
-            //TODO: a custom row rowtpe for tracker associate should be created
-//            row = new InvalidEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue,
-//                    DataEntryRowTypes.INVALID_DATA_ENTRY);
-              row = new TrackerAssociateRow(trackedEntityAttributeName, mandatory, null, baseValue,(TrackerAssociateRowActionListener)actionListener);
-
-        } else if(valueType.equals(ValueType.FILE_RESOURCE)) {
-            row = new FileResourceRow(trackedEntityAttributeName,mandatory,null,baseValue,DataEntryRowTypes.FILE_RESOURCE);
-        }else{
-            row = new InvalidEditTextRow(trackedEntityAttributeName, mandatory, null, baseValue,
-                    DataEntryRowTypes.INVALID_DATA_ENTRY);
+            });
+            holder = new FileResourceViewHolder(btnAction,"",label,mandatoryIndicator,errorLabel
+            ,editText,imageView);
+            root.setTag(holder);
+            view = root;
         }
-        row.setEditable(editable);
-        row.setShouldNeverBeEdited(shouldNeverBeEdited);
-        return row;
+
+        holder.label.setText(mLabel);
+        holder.editText.setText(mValue.getValue());
+
+
+
+
+        if (mValue.getValue()!=null && !mValue.getValue().equals("")){
+            Log.d("Value_F",mValue.getValue());
+//            File fileout = new File(inflater.getContext().getDir("FILE_RESOURCE",Context.MODE_PRIVATE),mValue.getValue());
+            File fileout = FileController.readFile("FILE_RESOURCE",mValue.getValue(),inflater.getContext());
+            Bitmap bitmap = BitmapFactory.decodeFile(fileout.getPath());
+            holder.imageView.setImageBitmap(bitmap);
+            holder.btnAction.setImageResource(R.drawable.ic_delete);
+            holder.btnAction.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(FileController.deleteFIle("FILE_RESOURCE",mValue.getValue(),inflater.getContext())){
+                        holder.btnAction.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(inflater.getContext(), ExternalAccessActivity.class);
+                                inflater.getContext().startActivity(intent);
+                            }
+                        });
+                        holder.btnAction.setImageResource(R.drawable.ic_add);
+                        mValue.setValue("");
+                        holder.editText.setText("");
+                        holder.imageView.setVisibility(View.GONE);
+                        Dhis2Application.getEventBus().post(new RowValueChangedEvent(mValue,ValueType.FILE_RESOURCE.toString()));
+
+                    }
+
+                }
+            });
+        }else if (filePath!=null){
+            JobExecutor.enqueueJob(new NetworkJob<Object>(1, ResourceType.FILE_RESOURCE) {
+                @Override
+                public Object execute(){
+                    Looper.prepare();
+                    try {
+                        FileResourceApiResponse response = FileController.uploadFileToServer(filePath, inflater.getContext());
+                        if(response.getHttpStatusCode().equals("202")){
+                            String fileName = response.getResponse().getFileResource().getId();
+                            FileController.copyToInternalLoc(fileName,"FILE_RESOURCE",filePath,inflater.getContext());
+
+                            //holder.imageView.setVisibility(View.VISIBLE);
+//              File fileout = new File(inflater.getContext().getDir("FILE_RESOURCE",Context.MODE_PRIVATE),"f");
+                            //File fileout = FileController.readFile("FILE_RESOURCE",fileName,inflater.getContext());
+                            //Bitmap bitmap = BitmapFactory.decodeFile(fileout.getPath());
+                            //holder.imageView.setImageBitmap(bitmap);
+                            mValue.setValue(fileName);
+                            //holder.editText.setText(fileName);
+                            Dhis2Application.getEventBus().post(new RowValueChangedEvent(mValue,ValueType.FILE_RESOURCE.toString()));
+
+                        }else{
+                            mError = "File Upload Failed";
+//                        holder.errorLabel.setVisibility(View.VISIBLE);
+//                        holder.errorLabel.setText("File Upload Failed");
+                        }
+                    }catch (Exception ex){
+                        mError = "File Upload Failed";
+                    }
+
+                    return new Object();
+                }
+            });
+        }
+
+        if (mError == null) {
+            holder.errorLabel.setVisibility(View.GONE);
+        } else {
+            holder.errorLabel.setVisibility(View.VISIBLE);
+            holder.errorLabel.setText(mError);
+        }
+
+        if (!mMandatory) {
+            holder.mandatoryIndicator.setVisibility(View.GONE);
+        } else {
+            holder.mandatoryIndicator.setVisibility(View.VISIBLE);
+        }
+
+        return view;
+
     }
 
-    private static boolean isDataEntryRadioButtons(boolean dataEntryMethod, List<Option> options) {
-        return dataEntryMethod && options.size() < 8;
+    @Override
+    public int getViewType() {
+        return DataEntryRowTypes.FILE_RESOURCE.ordinal();
     }
 
-    public interface callbacks {
 
+
+    private class FileResourceViewHolder{
+        private final TextView label;
+        private final TextView mandatoryIndicator;
+        private final TextView errorLabel;
+        private final EditText editText;
+        private final ImageButton btnAction;
+        private final ImageView imageView;
+        public final String id;
+
+
+
+        public FileResourceViewHolder(ImageButton btn, String id, TextView label, TextView mandatoryIndicator,
+                                      TextView errorLabel, EditText editText,ImageView imageView){
+            this.btnAction = btn;
+            this.id = id;
+            this.label = label;
+            this.mandatoryIndicator = mandatoryIndicator;
+            this.errorLabel = errorLabel;
+
+            this.editText = editText;
+            this.imageView = imageView;
+        }
     }
-//
-//    private class actionReceiverContext extends Context{
+
+
+    public interface FileResRowListener extends DataEntryRowFactory.callbacks,View.OnClickListener{
+
+        void setActivityResultCallback(ImageResultCallback activityResultCallback);
+        ImageResultCallback getActivityResultCallback();
+    }
+
+    public interface ImageResultCallback {
+        void onActivityResult(Intent data);
+    }
+
+//    private class ActionReceiverContext extends Context{
 //        private final Context context;
 //
-//        public actionReceiverContext(Context context) {
+//        public void onActivityResult(){
+//
+//        }
+//
+//        public ActionReceiverContext(Context context) {
 //            this.context =context;
 //        }
 //
@@ -712,6 +768,11 @@ public class DataEntryRowFactory {
 //        public Context createDisplayContext(@NonNull Display display) {
 //            return context.createDisplayContext(display);
 //        }
+//
+//
 //    }
-
+//
+//    public interface ActionReceiverContextCallback {
+//
+//    }
 }

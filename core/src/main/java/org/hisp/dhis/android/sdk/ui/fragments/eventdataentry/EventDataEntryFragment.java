@@ -30,10 +30,12 @@
 package org.hisp.dhis.android.sdk.ui.fragments.eventdataentry;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.FileResourceRow.FILE_RESOURCE_REQUEST;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.Loader;
@@ -314,6 +316,8 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
 
                         };
                         bv.setValue(section.getLabel());
+
+
 
                         Row row = DataEntryRowFactory.createDataEntryView(false,
                                 false,null,null, bv,
@@ -1136,5 +1140,17 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                 }
             }
         }
+
+
     }
+
+
+    private void startActivityForFile(){
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Choose Picture"), FILE_RESOURCE_REQUEST);
+
+    }
+
 }

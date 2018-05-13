@@ -39,6 +39,7 @@ import org.hisp.dhis.android.sdk.persistence.models.DashboardItem;
 import org.hisp.dhis.android.sdk.persistence.models.DashboardItemContent;
 import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
 import org.hisp.dhis.android.sdk.persistence.models.Event;
+import org.hisp.dhis.android.sdk.persistence.models.FileResourceResponseModels.FileResourceApiResponse;
 import org.hisp.dhis.android.sdk.persistence.models.Interpretation;
 import org.hisp.dhis.android.sdk.persistence.models.OptionSet;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnit;
@@ -62,11 +63,14 @@ import retrofit.http.Body;
 import retrofit.http.DELETE;
 import retrofit.http.GET;
 import retrofit.http.Headers;
+import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.PUT;
+import retrofit.http.Part;
 import retrofit.http.Path;
 import retrofit.http.Query;
 import retrofit.http.QueryMap;
+import retrofit.mime.TypedFile;
 import retrofit.mime.TypedString;
 
 
@@ -332,4 +336,7 @@ public interface DhisApi {
     @GET("/"+ApiEndpointContainer.TRACKED_ENTITY_ATTRIBUTES+"/{trackedEntityAttribute}/generateAndReserve")
     List<TrackedEntityAttributeGeneratedValue> getTrackedEntityAttributeGeneratedValues(@Path("trackedEntityAttribute") String trackedEntityAttribute, @Query("numberToReserve") long numberOfIdsToGenerate);
 
+    @Multipart
+    @POST("/"+ApiEndpointContainer.FILERESOURCES+"/")
+    FileResourceApiResponse uploadFile(@Part("file")TypedFile file);
 }
