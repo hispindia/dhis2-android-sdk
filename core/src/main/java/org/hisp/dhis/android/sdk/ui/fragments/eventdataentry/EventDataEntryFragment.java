@@ -53,6 +53,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.raizlabs.android.dbflow.structure.Model;
+import com.squareup.otto.DeadEvent;
 import com.squareup.otto.Subscribe;
 
 import org.hisp.dhis.android.sdk.R;
@@ -83,9 +84,11 @@ import org.hisp.dhis.android.sdk.ui.adapters.rows.events.OnCompleteEventClick;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.events.OnDetailedInfoButtonClick;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragment;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragmentSection;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.DataEntryReady;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.HideLoadingDialogEvent;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RefreshListViewEvent;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.ShowLoadingDialogEvent;
 import org.hisp.dhis.android.sdk.utils.UiUtils;
 import org.hisp.dhis.android.sdk.utils.api.ValueType;
 import org.hisp.dhis.android.sdk.utils.comparators.EventDateComparator;
@@ -710,6 +713,18 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         return errors;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Dhis2Application.getEventBus().post(new DataEntryReady());
+    }
+
+    @Subscribe
+    public void onLoading(final ShowLoadingDialogEvent event){
+        showLoadingDialog();
+    }
+
+
     @Subscribe
     public void onHideLoadingDialog(HideLoadingDialogEvent event) {
         super.onHideLoadingDialog(event);
@@ -725,6 +740,10 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             }
         }
     }
+
+
+
+
 
     @Subscribe
     public void onRefreshListView(RefreshListViewEvent event) {

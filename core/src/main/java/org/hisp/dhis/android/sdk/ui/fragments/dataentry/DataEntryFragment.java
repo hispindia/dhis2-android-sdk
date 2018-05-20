@@ -122,6 +122,8 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         Dhis2Application.getEventBus().unregister(this);
     }
 
+
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_data_entry, menu);
@@ -311,6 +313,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     public void setValidationErrorDialog(ValidationErrorDialog validationErrorDialog) {
         this.validationErrorDialog = validationErrorDialog;
     }
+
 
     @Subscribe
     public void onRowValueChanged(final RowValueChangedEvent event) {

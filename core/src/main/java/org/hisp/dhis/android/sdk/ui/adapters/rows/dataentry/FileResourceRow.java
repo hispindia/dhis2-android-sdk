@@ -1,50 +1,19 @@
 package org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
-import android.os.UserHandle;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.FileProvider;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -52,36 +21,30 @@ import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.FileController;
 import org.hisp.dhis.android.sdk.job.JobExecutor;
 import org.hisp.dhis.android.sdk.job.NetworkJob;
-import org.hisp.dhis.android.sdk.network.APIException;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
-import org.hisp.dhis.android.sdk.persistence.models.ApiResponse;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
 import org.hisp.dhis.android.sdk.persistence.models.FileResourceResponseModels.FileResourceApiResponse;
-import org.hisp.dhis.android.sdk.persistence.models.FileResourceResponseModels.FileResourceResponse;
 import org.hisp.dhis.android.sdk.persistence.preferences.ResourceType;
 import org.hisp.dhis.android.sdk.ui.activities.ExternalAccessActivity;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.DataEntryReady;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.HideLoadingDialogEvent;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RefreshListViewEvent;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.ShowLoadingDialogEvent;
 import org.hisp.dhis.android.sdk.utils.api.ValueType;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.Channel;
-import java.nio.channels.FileChannel;
 
-import static org.hisp.dhis.android.sdk.ui.activities.ExternalAccessActivity.CALLED_METHOD;
+import java.io.File;
+
 
 public class FileResourceRow extends Row {
     public static final int FILE_RESOURCE_REQUEST = 1434;
     private boolean isUploaded;
     private static final String EMPTY_FIELD = "";
     private DataEntryRowFactory.callbacks callback;
+    private boolean shouldUpdate = false;
     Uri filePath = null;
+    private static final int IMAGE_QUALITY = 60;
     //private final View.OnClickListener clickListener;
 
     public FileResourceRow(String label, boolean mandatory, String warning,
@@ -103,16 +66,28 @@ public class FileResourceRow extends Row {
     public void getData(Intent data){
         Log.d("REC_DATA",data.getData().toString());
         filePath = data.getData();
-
-
+        shouldUpdate = true;
     }
 
+    @Subscribe
+    public void onDataEntryReady(DataEntryReady ready){
+        if(shouldUpdate){
+            Dhis2Application.getEventBus().post(new RefreshListViewEvent());
+            shouldUpdate = false;
+        }
+    }
 
+//    @Subscribe
+//    public void getData(FileResourceEvent event){
+//        Log.d("REC_DATA",event.getData().getData().toString());
+//        filePath = event.getData().getData();
+//        Dhis2Application.getEventBus().post(new RefreshListViewEvent());
+//    }
 
     @Override
     public View getView(FragmentManager fragmentManager, final LayoutInflater inflater, View convertView, final ViewGroup container) {
         View view;
-
+//        mError = "a";
         final FileResourceViewHolder holder;
         if(convertView!=null && convertView.getTag() instanceof FileResourceViewHolder){
             view = convertView;
@@ -123,6 +98,7 @@ public class FileResourceRow extends Row {
             TextView label = (TextView) root.findViewById(R.id.text_label);
             TextView mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
             TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
+            TextView warningLabel = (TextView) root.findViewById(R.id.warning_label);
             EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
             ImageButton btnAction = (ImageButton) root.findViewById(R.id.btn_action);
             ImageView imageView = (ImageView) root.findViewById(R.id.image);
@@ -135,7 +111,7 @@ public class FileResourceRow extends Row {
                     inflater.getContext().startActivity(intent);
                 }
             });
-            holder = new FileResourceViewHolder(btnAction,"",label,mandatoryIndicator,errorLabel
+            holder = new FileResourceViewHolder(btnAction,label,mandatoryIndicator,errorLabel,warningLabel
             ,editText,imageView);
             root.setTag(holder);
             view = root;
@@ -144,7 +120,12 @@ public class FileResourceRow extends Row {
         holder.label.setText(mLabel);
         holder.editText.setText(mValue.getValue());
 
-
+        if (holder.error == null || holder.error.equals("")) {
+            holder.errorLabel.setVisibility(View.GONE);
+        } else {
+            holder.errorLabel.setVisibility(View.VISIBLE);
+            holder.errorLabel.setText(holder.error);
+        }
 
 
         if (mValue.getValue()!=null && !mValue.getValue().equals("")){
@@ -152,6 +133,8 @@ public class FileResourceRow extends Row {
 //            File fileout = new File(inflater.getContext().getDir("FILE_RESOURCE",Context.MODE_PRIVATE),mValue.getValue());
             File fileout = FileController.readFile("FILE_RESOURCE",mValue.getValue(),inflater.getContext());
             Bitmap bitmap = BitmapFactory.decodeFile(fileout.getPath());
+            bitmap = FileController.getInSize(bitmap);
+            holder.imageView.setVisibility(View.VISIBLE);
             holder.imageView.setImageBitmap(bitmap);
             holder.btnAction.setImageResource(R.drawable.ic_delete);
             holder.btnAction.setOnClickListener(new View.OnClickListener() {
@@ -176,15 +159,20 @@ public class FileResourceRow extends Row {
                 }
             });
         }else if (filePath!=null){
+
             JobExecutor.enqueueJob(new NetworkJob<Object>(1, ResourceType.FILE_RESOURCE) {
                 @Override
                 public Object execute(){
+                    holder.error ="";
+                    Dhis2Application.getEventBus().post(new ShowLoadingDialogEvent());
                     Looper.prepare();
                     try {
-                        FileResourceApiResponse response = FileController.uploadFileToServer(filePath, inflater.getContext());
+                        File tempFile = FileController.copyToInternalLoc("temp","PATH",filePath,inflater.getContext(),IMAGE_QUALITY);
+//                        FileResourceApiResponse response = FileController.uploadFileToServer(filePath, inflater.getContext());
+                        FileResourceApiResponse response = FileController.uploadFileToServer(tempFile);
                         if(response.getHttpStatusCode().equals("202")){
                             String fileName = response.getResponse().getFileResource().getId();
-                            FileController.copyToInternalLoc(fileName,"FILE_RESOURCE",filePath,inflater.getContext());
+                            FileController.copyToInternalLoc(fileName,"FILE_RESOURCE",filePath,inflater.getContext(),IMAGE_QUALITY);
 
                             //holder.imageView.setVisibility(View.VISIBLE);
 //              File fileout = new File(inflater.getContext().getDir("FILE_RESOURCE",Context.MODE_PRIVATE),"f");
@@ -192,6 +180,7 @@ public class FileResourceRow extends Row {
                             //Bitmap bitmap = BitmapFactory.decodeFile(fileout.getPath());
                             //holder.imageView.setImageBitmap(bitmap);
                             mValue.setValue(fileName);
+
                             //holder.editText.setText(fileName);
                             Dhis2Application.getEventBus().post(new RowValueChangedEvent(mValue,ValueType.FILE_RESOURCE.toString()));
 
@@ -202,20 +191,25 @@ public class FileResourceRow extends Row {
                         }
                     }catch (Exception ex){
                         ex.printStackTrace();
-                        mError = "File Upload Failed";
+                        holder.error = "File Upload Failed";
                     }
-
+                    mWarning = "";
+                    Dhis2Application.getEventBus().post(new RefreshListViewEvent());
+                    Dhis2Application.getEventBus().post(new HideLoadingDialogEvent());
                     return new Object();
                 }
+
             });
         }
 
-        if (mError == null) {
-            holder.errorLabel.setVisibility(View.GONE);
-        } else {
-            holder.errorLabel.setVisibility(View.VISIBLE);
-            holder.errorLabel.setText(mError);
+        if(mWarning!=null && !mWarning.equals("")){
+            holder.warningLabel.setVisibility(View.VISIBLE);
+            holder.warningLabel.setText(mWarning);
+        }else{
+            holder.warningLabel.setVisibility(View.GONE);
         }
+
+//
 
         if (!mMandatory) {
             holder.mandatoryIndicator.setVisibility(View.GONE);
@@ -238,23 +232,23 @@ public class FileResourceRow extends Row {
         private final TextView label;
         private final TextView mandatoryIndicator;
         private final TextView errorLabel;
+        private final TextView warningLabel;
         private final EditText editText;
         private final ImageButton btnAction;
         private final ImageView imageView;
-        public final String id;
+        private String error;
 
 
-
-        public FileResourceViewHolder(ImageButton btn, String id, TextView label, TextView mandatoryIndicator,
-                                      TextView errorLabel, EditText editText,ImageView imageView){
+        public FileResourceViewHolder(ImageButton btn, TextView label, TextView mandatoryIndicator,
+                                      TextView errorLabel,TextView warningLabel, EditText editText,ImageView imageView){
             this.btnAction = btn;
-            this.id = id;
             this.label = label;
             this.mandatoryIndicator = mandatoryIndicator;
             this.errorLabel = errorLabel;
-
+            this.warningLabel = warningLabel;
             this.editText = editText;
             this.imageView = imageView;
+            error = null;
         }
     }
 

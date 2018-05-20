@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -25,25 +26,36 @@ import java.nio.channels.FileChannel;
 import retrofit.mime.TypedFile;
 
 public class FileController {
-    public static void copyToInternalLoc(String filename, String pathtoSave, Uri fileToCopy, Context context){
+    public static File copyToInternalLoc(String filename, String pathtoSave, Uri fileToCopy, Context context,int quality){
         File mydir = context.getDir(pathtoSave,Context.MODE_PRIVATE);
+        Uri uri = null;
         if(!mydir.exists()){
             mydir.mkdirs();
         }
         FileChannel fiCh = null;
         FileChannel foch = null;
+        File fileout =null;
         try {
-            File fileout = new File(context.getDir(pathtoSave,Context.MODE_PRIVATE),filename);
+            fileout = new File(context.getDir(pathtoSave,Context.MODE_PRIVATE),filename);
             FileOutputStream fileOutputStream = new FileOutputStream(fileout);
             MediaStore.Images.Media.getBitmap(context.getContentResolver(),fileToCopy)
-                    .compress(Bitmap.CompressFormat.JPEG,100,fileOutputStream);
-
+                    .compress(Bitmap.CompressFormat.JPEG,quality,fileOutputStream);
+            uri = Uri.parse(fileout.getAbsolutePath());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return fileout;
 
+    }
+
+    public static Bitmap getInSize(Bitmap src){
+        Bitmap output = null;
+        output = Bitmap.createScaledBitmap(src,600,300,true);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(90);
+        return Bitmap.createBitmap(output , 0, 0, output .getWidth(), output .getHeight(), matrix, true);
 
     }
 
