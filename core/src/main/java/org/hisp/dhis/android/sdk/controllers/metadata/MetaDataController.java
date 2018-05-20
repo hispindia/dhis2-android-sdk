@@ -37,6 +37,7 @@ import android.util.Log;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.sql.language.Update;
 
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.ApiEndpointContainer;
@@ -201,6 +202,7 @@ public final class MetaDataController extends ResourceController {
     public static List<RelationshipType> getRelationshipTypes() {
         return new Select().from(RelationshipType.class).queryList();
     }
+
 
     public static RelationshipType getRelationshipType(String relation) {
         return new Select().from(RelationshipType.class).where(Condition.column(RelationshipType$Table.ID).is(relation)).querySingle();
@@ -408,6 +410,44 @@ public final class MetaDataController extends ResourceController {
 
     public static List<ProgramRuleVariable> getProgramRuleVariables() {
         return new Select().from(ProgramRuleVariable.class).queryList();
+    }
+
+    public static List<ProgramRuleVariable>getagelatest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("age_latest")).queryList();
+    }
+    public static List<ProgramRuleVariable> getaddress_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("address_latest")).queryList();
+    }
+    public static List<ProgramRuleVariable> getgender_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("gender_latest")).queryList();
+    }
+    public static List<ProgramRuleVariable> getlactation_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("lactation_latest")).queryList();
+    }
+
+    public static List<ProgramRuleVariable> getlcoation_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("lcoation_latest")).queryList();
+    }
+    public static List<ProgramRuleVariable> getname_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("name_latest")).queryList();
+    }
+    public static List<ProgramRuleVariable> getphone_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("phone_latest")).queryList();
+    }
+    public static List<ProgramRuleVariable> getvaccinedate_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("vaccinedate_latest")).queryList();
+    }
+    public static List<ProgramRuleVariable> getvaccine_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("vaccine_latest")).queryList();
+    }
+
+     public static List<ProgramRuleVariable> getowned_latest(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("owned_latest")).queryList();
+    }
+
+    public static List<ProgramRuleVariable> getprs_(){
+        return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("goa")).queryList();
+
     }
 
     public static List<ProgramRuleAction> getProgramRuleActions() {
@@ -655,7 +695,6 @@ public final class MetaDataController extends ResourceController {
 
         }
         SystemInfo serverSystemInfo = dhisApi.getSystemInfo();
-        serverSystemInfo.save();
         AppPreferencesImpl appPreferences = new AppPreferencesImpl(context);
         appPreferences.setApiVersion(serverSystemInfo.getVersion());
         DateTime serverDateTime = serverSystemInfo.getServerDate();
@@ -957,13 +996,7 @@ public final class MetaDataController extends ResourceController {
                 .getLastUpdated(ResourceType.PROGRAMRULES);
         List<ProgramRule> programRules = unwrapResponse(dhisApi
                 .getProgramRules(getBasicQueryMap(lastUpdated)), ApiEndpointContainer.PROGRAMRULES);
-        List<ProgramRule> validProgramRules = new ArrayList<>();
-        for(ProgramRule programRule : programRules){
-            if(programRule.getCondition()!=null && !programRule.getCondition().isEmpty()) {
-                validProgramRules.add(programRule);
-            }
-        }
-        saveResourceDataFromServer(ResourceType.PROGRAMRULES, dhisApi, validProgramRules, getProgramRules(), serverDateTime);
+        saveResourceDataFromServer(ResourceType.PROGRAMRULES, dhisApi, programRules, getProgramRules(), serverDateTime);
     }
 
     private static void getProgramRuleVariablesDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {

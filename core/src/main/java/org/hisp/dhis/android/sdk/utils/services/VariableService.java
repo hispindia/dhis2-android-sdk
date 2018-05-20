@@ -368,11 +368,102 @@ public class VariableService {
         programRuleVariables.addAll(createContextVariables());
         programRuleVariables.addAll(createConstantVariables());
         Map<String, ProgramRuleVariable> programRuleVariableMap = new HashMap<>();
+        ProgramRuleVariable prvariable=new ProgramRuleVariable();
         for (ProgramRuleVariable programRuleVariable : programRuleVariables) {
-            programRuleVariableMap.put(programRuleVariable.getName(), programRuleVariable);
-        }
+            if(programRuleVariable!=null)
+            {
+                if (programRuleVariable.getUid()!=null)
+                {
+                    if(programRuleVariable.getUid().equals("R7uWYmN14HA"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("age_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("eRJEn4LxRyU"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("address_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("vZpop33tNHY"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("gender_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("Sg7q5RiGiUA"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("lactation_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("FKtLnsvrqjV"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("lcoation_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("RwaPrnpeTyz"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("name_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("UvwQBy6mzRO"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("phone_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("CTvvT40mDOz"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("vaccinedate_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("mOss6RfCTOG"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("vaccine_latest");
+                        prvariable.save();
+                    }
+                    else if(programRuleVariable.getUid().equals("pnvJmndd0T6"))
+                    {
+                        prvariable.delete();
+                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
+                        prvariable.setDataElement(programRuleVariable.getDataElement());
+                        prvariable.setName("owned_latest");
+                        prvariable.save();
+                    }
+                }
+
+            }
+
+
+                programRuleVariableMap.put(programRuleVariable.getName(), programRuleVariable);
+            }
         getInstance().setProgramRuleVariableMap(programRuleVariableMap);
     }
+
 //    public static void initialize(Enrollment enrollment, Event currentEvent) {
 //        //setting current enrollment and event
 //        getInstance().setCurrentEnrollment(enrollment);
