@@ -415,6 +415,39 @@ public final class MetaDataController extends ResourceController {
     public static List<ProgramRuleVariable>getagelatest(){
         return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("age_latest")).queryList();
     }
+
+    //ToDO delete unused pv values
+    public static void delete_pv_age(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("age_latest"));
+    }
+    public static void delete_pv_add(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("address_latest"));
+    }
+
+    public static void delete_pv_lac(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("lactation_latest"));
+    }
+    public static void delete_pv_loc(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("lcoation_latest"));
+    }
+    public static void delete_pv_name(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("name_latest"));
+    }
+    public static void delete_pv_phone(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("phone_latest"));
+    }public static void delete_pv_vaccinedate(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("vaccinedate_latest"));
+    }public static void delete_pv_vaccine(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("vaccine_latest"));
+    }
+    public static void delete_pv_owned(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("owned_latest"));
+    }
+    public static void delete_pv_gender(){
+        Delete.table(ProgramRuleVariable.class,Condition.column(ProgramRuleVariable$Table.NAME).is("gender_latest"));
+    }
+
+
     public static List<ProgramRuleVariable> getaddress_latest(){
         return new Select().from(ProgramRuleVariable.class).where(Condition.column(ProgramRuleVariable$Table.NAME).is("address_latest")).queryList();
     }
