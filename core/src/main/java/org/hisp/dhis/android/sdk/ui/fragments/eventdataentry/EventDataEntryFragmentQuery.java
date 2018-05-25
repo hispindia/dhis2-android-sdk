@@ -93,8 +93,6 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
     private static  String VACCINE = "";
     private static  String OWNED = "";
 
-
-
     private static final String EMPTY_FIELD = "";
     private static final String ANIMALAGE_DE = "uMWySXTI2Tw";
     private static final String ADDRESS_DE = "WjzzFUtOPR3";
@@ -102,14 +100,14 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
     private static final String LACTATION_DE = "EsYp4F232Wq";
     private static final String LOCATION_DE = "QMGWGK6wkET";
     private static final String NAME_DE = "G6artY8PBbp";
-    private static final String PHONE_DE = "UvwQBy6mzRO";
+    private static final String PHONE_DE = "kgleUt92vGf";
     private static final String VACCINEDATE_DE = "GDSzKMAZdMy";
     private static final String VACCINE_DE = "jK88MZyzXhQ";
     private static final String OWNED_DE = "vQSkTK2jyeB";
     private static final String RABIESASSESMENT="ww8DSCToHag";
-
+    private static final String EVENTNOTIFICATION="PwGD626AbHf";
+    private static final String RABIESASSESMENT_FOLLOW="MkiHGIm385w";
     private static final String DEFAULT_SECTION = "defaultSection";
-
     private final String orgUnitId;
     private final String programId;
     private final String programStageId;
@@ -165,6 +163,8 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
             enrollment.setEvents(newEventsForEnrollment);
             form.setEnrollment(enrollment);
         }
+
+        List<ProgramRuleVariable> programRuleVariables = MetaDataController.getProgramRuleVariables();
         form.setStage(stage);
         form.setSections(new ArrayList<DataEntryFragmentSection>());
         form.setDataElementNames(new HashMap<String, String>());
@@ -181,35 +181,66 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
         List<ProgramRuleVariable> phone_list=MetaDataController.getphone_latest();
         List<ProgramRuleVariable> vaccdate_list=MetaDataController.getvaccinedate_latest();
         List<ProgramRuleVariable> vac_list=MetaDataController.getvaccine_latest();
-        List<ProgramRuleVariable> own_list=MetaDataController.getvaccine_latest();
+        List<ProgramRuleVariable> own_list=MetaDataController.getowned_latest();
 
-        ANIMAL_AGE_=age_list.get(age_list.size()-1).getDisplayName();
-        ADDRESS=add_list.get(add_list.size()-1).getDisplayName();
-        GENDER=gender_list.get(gender_list.size()-1).getDisplayName();
-        LACTATION=lac_list.get(lac_list.size()-1).getDisplayName();
-        LOCATION=loc_list.get(loc_list.size()-1).getDisplayName();
-        NAME=name_list.get(name_list.size()-1).getDisplayName();
-        PHONE=phone_list.get(name_list.size()-1).getDisplayName();
-        VACCINEDATE=vaccdate_list.get(vaccdate_list.size()-1).getDisplayName();
-        VACCINE=vac_list.get(vac_list.size()-1).getDisplayName();
-        OWNED=own_list.get(own_list.size()-1).getDisplayName();
+        //ToDO list reduced to 1 element per variable (delete unused values)
+//        ANIMAL_AGE_=age_list.get(age_list.size()-1).getDisplayName();
+//        ADDRESS=add_list.get(add_list.size()-1).getDisplayName();
+//        GENDER=gender_list.get(gender_list.size()-1).getDisplayName();
+//        LACTATION=lac_list.get(lac_list.size()-1).getDisplayName();
+//        LOCATION=loc_list.get(loc_list.size()-1).getDisplayName();
+//        NAME=name_list.get(name_list.size()-1).getDisplayName();
+//        PHONE=phone_list.get(name_list.size()-1).getDisplayName();
+//        VACCINEDATE=vaccdate_list.get(vaccdate_list.size()-1).getDisplayName();
+//        VACCINE=vac_list.get(vac_list.size()-1).getDisplayName();
+//        OWNED=own_list.get(own_list.size()-1).getDisplayName();
 
+        if(age_list.size()>0)
+        {
+            ANIMAL_AGE_=age_list.get(0).getDisplayName();
+        }
+        if(add_list.size()>0)
+        {
+            ADDRESS=add_list.get(0).getDisplayName();
+        }
+        if(gender_list.size()>0)
+        {
+            GENDER=gender_list.get(0).getDisplayName();
+        } if(lac_list.size()>0)
+        {
+            LACTATION=lac_list.get(0).getDisplayName();
+        } if(loc_list.size()>0)
+        {
+            LOCATION=loc_list.get(0).getDisplayName();
+        } if(name_list.size()>0)
+        {
+            NAME=name_list.get(0).getDisplayName();
+        }
+        if(vaccdate_list.size()>0)
+        {
+            VACCINEDATE=vaccdate_list.get(0).getDisplayName();
+        }
+        if(vac_list.size()>0)
+        {
+            VACCINE=vac_list.get(0).getDisplayName();
+        }
+        if(own_list.size()>0)
+        {
+            OWNED=own_list.get(0).getDisplayName();
+        }
+        if(phone_list.size()>0)
+        {
+            PHONE=phone_list.get(0).getDisplayName();
+        }
 
-        List<ProgramRuleVariable> programRuleVariables = MetaDataController.getProgramRuleVariables();
-//        for (ProgramRuleVariable programRuleVariable : programRuleVariables) {
-//            if(programRuleVariable!=null)
-//            {
-//                        if(programRuleVariable.getUid().equals("R7uWYmN14HA"))
-//                        {
-//                            Log.d("hello","hello");
-////                            String value=VariableService.getReplacementForProgramRuleVariable(programRuleVariable.getName());
-//                            Log.d("hello","hello");
-//                        }
-//
-//            }
-//
-//        }
-
+//        GENDER=gender_list.get(0).getDisplayName();
+//        LACTATION=lac_list.get(0).getDisplayName();
+//        LOCATION=loc_list.get(0).getDisplayName();
+//        NAME=name_list.get(0).getDisplayName();
+//        PHONE=phone_list.get(0).getDisplayName();
+//        VACCINEDATE=vaccdate_list.get(0).getDisplayName();
+//        VACCINE=vac_list.get(0).getDisplayName();
+//        OWNED=own_list.get(0).getDisplayName();
         if (stage.getProgramStageSections() == null || stage.getProgramStageSections().isEmpty()) {
             List<Row> rows = new ArrayList<>();
             addStatusRow(context, form, rows);
@@ -293,99 +324,177 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
     private static void populateDataEntryRows(EventDataEntryFragmentForm form,
                                               List<ProgramStageDataElement> dataElements,
                                               List<Row> rows, String username, final Context context) {
+        HashMap<String, DataValue> dataValuestosave = new HashMap<>();
         DataValue dataValue=null;
-       DataElement dataElement=null;
+        DataElement dataElement=null;
+        List<DataValue> dv_list=new ArrayList<>();
+        HashMap<String,DataValue> test=new HashMap<String, DataValue>();
         for (ProgramStageDataElement stageDataElement : dataElements) {
+//            if(form.getStage().getUid().equals(RABIESASSESMENT)||form.getStage().getUid().equals(RABIESASSESMENT_FOLLOW)||form.getStage().getUid().equals(EVENTNOTIFICATION))
+//            if(form.getStage().getUid().equals(RABIESASSESMENT)||form.getStage().getUid().equals(RABIESASSESMENT_FOLLOW))
+//            {
+                if (stageDataElement.getDataElement().getUid().equals(ANIMALAGE_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(ANIMAL_AGE_);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
 
-            if(form.getStage().getUid().equals(RABIESASSESMENT))
-            {
-             if (stageDataElement.getDataElement().getUid().equals(ANIMALAGE_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),ANIMAL_AGE_ , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(ADDRESS_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),ADDRESS , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(GENDER_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),GENDER , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(LACTATION_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),LACTATION , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(LOCATION_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),LOCATION , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(NAME_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),NAME , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(PHONE_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),PHONE , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(VACCINEDATE_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),VACCINEDATE , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(VACCINE_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),VACCINE , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else if (stageDataElement.getDataElement().getUid().equals(OWNED_DE))
-             {
-                  dataValue = new DataValue(
-                         form.getEvent(),OWNED , stageDataElement.getDataElement().getUid(), false, username
-                 );
-                 dataElement=stageDataElement.getDataElement();
-             }
-             else
-             {
-                 dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                 dataElement = getDataElement(stageDataElement.getDataelement());
-             }
-            }
-            else
-            {
-                 dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                dataElement = getDataElement(stageDataElement.getDataelement());
-            }
+                }
+                else if (stageDataElement.getDataElement().getUid().equals(ADDRESS_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(ADDRESS);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+                }
+                else if (stageDataElement.getDataElement().getUid().equals(GENDER_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(GENDER);
+                    de.save();
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+                }
+                else if (stageDataElement.getDataElement().getUid().equals(LACTATION_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(LACTATION);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
 
+                }
+                else  if (stageDataElement.getDataElement().getUid().equals(LOCATION_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(LOCATION);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+
+                }
+                else if (stageDataElement.getDataElement().getUid().equals(NAME_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(NAME);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+
+                }
+                else  if (stageDataElement.getDataElement().getUid().equals(PHONE_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(PHONE);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+
+                }
+                else  if (stageDataElement.getDataElement().getUid().equals(VACCINEDATE_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(VACCINEDATE);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+
+                }
+                else  if (stageDataElement.getDataElement().getUid().equals(VACCINE_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(VACCINE);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+
+                }
+                else if (stageDataElement.getDataElement().getUid().equals(OWNED_DE))
+                {
+                    DataValue de=new DataValue();
+                    de.setDataElement(stageDataElement.getDataElement().getUid());
+                    de.setEvent(form.getEvent().getEvent());
+                    de.setLocalEventId(form.getEvent().getLocalId());
+                    de.setProvidedElsewhere(false);
+                    de.setStoredBy(username);
+                    de.setValue(OWNED);
+                    de.save();
+                    form.getEvent().getDataValues().add(de);
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+
+
+                }
+                else
+                {
+                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+                    dataElement = getDataElement(stageDataElement.getDataelement());
+                }
             //ToDo Populate Stage dataelements
 
             if (dataElement != null) {
                 form.getDataElementNames().put(stageDataElement.getDataelement(),
                         dataElement.getDisplayName());
+                if(dataElement.getUid().equals(GENDER_DE))
+                {
+                    form.getDataValues().put(dataValue.getDataElement(), dataValue);
+                }
                 form.getDataValues().put(dataValue.getDataElement(), dataValue);
                 String dataElementName;
                 if (!isEmpty(dataElement.getDisplayFormName())) {
@@ -442,7 +551,6 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
                     event.setDueDate(dueDate.toString());
                 }
             }
-
             List<DataValue> dataValues = new ArrayList<>();
             for (ProgramStageDataElement dataElement : programStage.getProgramStageDataElements()) {
                 dataValues.add(
@@ -456,7 +564,6 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
                 getEvent(orgUnitId, programId, -1, enrollmentId, programStage, username); // if event is null, create a new one
             }
         }
-
         return event;
     }
 
