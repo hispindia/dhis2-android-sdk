@@ -72,6 +72,20 @@ public class VariableService {
 
     private static final String CLASS_TAG = VariableService.class.getSimpleName();
 
+
+    //Ref for DE's
+
+    private static final String ANIMALAGE_DE = "uMWySXTI2Tw";
+    private static final String ADDRESS_DE = "WjzzFUtOPR3";
+    private static final String GENDER_DE = "HMKxrrdXnLm";
+    private static final String LACTATION_DE = "EsYp4F232Wq";
+    private static final String LOCATION_DE = "QMGWGK6wkET";
+    private static final String NAME_DE = "G6artY8PBbp";
+    private static final String PHONE_DE = "kgleUt92vGf";
+    private static final String VACCINEDATE_DE = "GDSzKMAZdMy";
+    private static final String VACCINE_DE = "jK88MZyzXhQ";
+    private static final String OWNED_DE = "vQSkTK2jyeB";
+
     private static VariableService variableService;
 
     /**
@@ -376,83 +390,191 @@ public class VariableService {
                 {
                     if(programRuleVariable.getUid().equals("R7uWYmN14HA"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("age_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_age();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("age_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("age_latest");
+                            prvariable.save();
+                        }
+
+
                     }
-                    else if(programRuleVariable.getUid().equals("eRJEn4LxRyU"))
+                     if(programRuleVariable.getUid().equals("eRJEn4LxRyU"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("address_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_add();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("address_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("address_latest");
+                            prvariable.save();
+                        }
+
                     }
-                    else if(programRuleVariable.getUid().equals("vZpop33tNHY"))
+                     if(programRuleVariable.getUid().equals("vZpop33tNHY"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("gender_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_gender();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("gender_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("gender_latest");
+                            prvariable.save();
+                        }
                     }
-                    else if(programRuleVariable.getUid().equals("Sg7q5RiGiUA"))
+                     if(programRuleVariable.getUid().equals("Sg7q5RiGiUA"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("lactation_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_lac();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("lactation_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("lactation_latest");
+                            prvariable.save();
+                        }
                     }
-                    else if(programRuleVariable.getUid().equals("FKtLnsvrqjV"))
+                     if(programRuleVariable.getUid().equals("FKtLnsvrqjV"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("lcoation_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_loc();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("lcoation_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("lcoation_latest");
+                            prvariable.save();
+                        }
                     }
-                    else if(programRuleVariable.getUid().equals("RwaPrnpeTyz"))
+                     if(programRuleVariable.getUid().equals("RwaPrnpeTyz"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("name_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_name();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("name_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("name_latest");
+                            prvariable.save();
+                        }
+
                     }
-                    else if(programRuleVariable.getUid().equals("UvwQBy6mzRO"))
+                     if(programRuleVariable.getUid().equals("UvwQBy6mzRO"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("phone_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_phone();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("phone_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("phone_latest");
+                            prvariable.save();
+                        }
+
                     }
-                    else if(programRuleVariable.getUid().equals("CTvvT40mDOz"))
+                     if(programRuleVariable.getUid().equals("CTvvT40mDOz"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("vaccinedate_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_vaccinedate();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("vaccinedate_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("vaccinedate_latest");
+                            prvariable.save();
+                        }
+
                     }
-                    else if(programRuleVariable.getUid().equals("mOss6RfCTOG"))
+                     if(programRuleVariable.getUid().equals("mOss6RfCTOG"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("vaccine_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_vaccine();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("vaccine_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("vaccine_latest");
+                            prvariable.save();
+                        }
+
                     }
-                    else if(programRuleVariable.getUid().equals("pnvJmndd0T6"))
+                     if(programRuleVariable.getUid().equals("pnvJmndd0T6"))
                     {
-                        prvariable.delete();
-                        prvariable.setDisplayName(programRuleVariable.getVariableValue());
-                        prvariable.setDataElement(programRuleVariable.getDataElement());
-                        prvariable.setName("owned_latest");
-                        prvariable.save();
+                        MetaDataController.delete_pv_owned();
+                        if(programRuleVariable.getAllValues().size()>0)
+                        {
+                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("owned_latest");
+                            prvariable.save();
+                        }
+                        else
+                        {
+                            prvariable.setDisplayName("");
+                            prvariable.setDataElement(programRuleVariable.getDataElement());
+                            prvariable.setName("owned_latestdl");
+                            prvariable.save();
+                        }
+
                     }
                 }
 
@@ -464,76 +586,6 @@ public class VariableService {
         getInstance().setProgramRuleVariableMap(programRuleVariableMap);
     }
 
-//    public static void initialize(Enrollment enrollment, Event currentEvent) {
-//        //setting current enrollment and event
-//        getInstance().setCurrentEnrollment(enrollment);
-//        getInstance().setCurrentEvent(currentEvent);
-//
-//        //setting list of events for enrollment
-//        List<Event> events;
-//        if(getInstance().getCurrentEnrollment() != null) {
-//            events = getInstance().getCurrentEnrollment().getEvents();
-//        } else {
-//            events = new ArrayList<>();
-//        }
-//        getInstance().setEventsForEnrollment(events);
-//        if(getInstance().getCurrentEvent() != null &&
-//                !getInstance().getEventsForEnrollment().contains(getInstance().getCurrentEvent())) {
-//            getInstance().getEventsForEnrollment().add(getInstance().getCurrentEvent());
-//        }
-//
-//        List<Event> eventsForEnrollment = new ArrayList<>();
-//        if(getInstance().getEventsForEnrollment() != null) {
-//            eventsForEnrollment = getInstance().getEventsForEnrollment();
-//            Collections.sort(getInstance().getEventsForEnrollment(), new EventDateComparator());
-//        }
-//
-//        //setting data elements map
-//        List<DataElement> dataElements = MetaDataController.getDataElements();
-//        getInstance().setDataElementMap(new HashMap<String, DataElement>());
-//        for(DataElement dataElement : dataElements) {
-//            getInstance().getDataElementMap().put(dataElement.getUid(), dataElement);
-//        }
-//
-//        //setting trackedEntityAttribute map
-//        List<TrackedEntityAttribute> trackedEntityAttributes = MetaDataController.getTrackedEntityAttributes();
-//        getInstance().setTrackedEntityAttributeMap(new HashMap<String, TrackedEntityAttribute>());
-//        for(TrackedEntityAttribute trackedEntityAttribute : trackedEntityAttributes) {
-//            getInstance().getTrackedEntityAttributeMap().put(trackedEntityAttribute.getUid(), trackedEntityAttribute);
-//        }
-//
-//        //setting events in map for each program stage
-//        getInstance().setEventsForProgramStages(new HashMap<String, List<Event>>());
-//        for(Event event : eventsForEnrollment) {
-//            List<Event> eventsForProgramStage = getInstance().getEventsForProgramStages().get(event.getProgramStageId());
-//            if(eventsForProgramStage == null) {
-//                eventsForProgramStage = new ArrayList<>();
-//                getInstance().getEventsForProgramStages().put(event.getProgramStageId(), eventsForProgramStage);
-//            }
-//            eventsForProgramStage.add(event);
-//        }
-//
-//        //setting data values in map for each event
-//        getInstance().setEventDataValueMaps(new HashMap<Event, Map<String, DataValue>>());
-//        for(Event event : eventsForEnrollment) {
-//            Map<String, DataValue> dataValueMap = new HashMap<>();
-//            for(DataValue dataValue : event.getDataValues()) {
-//                dataValueMap.put(dataValue.getDataElement(), dataValue);
-//            }
-//            getInstance().getEventDataValueMaps().put(event, dataValueMap);
-//        }
-//
-//        //setting programRuleVariables
-//        List<ProgramRuleVariable> programRuleVariables = MetaDataController.getProgramRuleVariables();
-//        populateDataElementAndAttributeVariables(programRuleVariables);
-//        programRuleVariables.addAll(createContextVariables());
-//        programRuleVariables.addAll(createConstantVariables());
-//        Map<String, ProgramRuleVariable> programRuleVariableMap = new HashMap<>();
-//        for(ProgramRuleVariable programRuleVariable : programRuleVariables) {
-//            programRuleVariableMap.put(programRuleVariable.getName(), programRuleVariable);
-//        }
-//        getInstance().setProgramRuleVariableMap(programRuleVariableMap);
-//    }
 
     public Map<String, ProgramRuleVariable> getProgramRuleVariableMap() {
         return programRuleVariableMap;
@@ -691,6 +743,7 @@ public class VariableService {
                     eventsForEnrollment = getInstance().getEventsForEnrollment();
                 }
                 for (Event event : eventsForEnrollment) {
+                    //ToDO @Sou dataValue null stop
                     dataValue = getInstance().getEventDataValueMaps().get(event).get(programRuleVariable.getDataElement());
                     if (dataValue != null) {
                         if (value == null) {
