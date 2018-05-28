@@ -215,6 +215,7 @@ public class VariableService {
     private static void updateListOfEventsWithCurrentEvent(Event currentEvent) {
         if (currentEvent != null) {
             List<Event> eventsForEnrollment = getInstance().getEventsForEnrollment();
+            Map<String,String> dataElementValueMap = new HashMap<>();
             Event staleEvent = null;
             for (Event event : eventsForEnrollment) {
                 if (event.getLocalId() == currentEvent.getLocalId()) {
@@ -222,6 +223,124 @@ public class VariableService {
                     break;
                 }
             }
+            for(DataValue dataValue :currentEvent.getDataValues()){
+                switch (dataValue.getDataElement()){
+                    case ANIMALAGE_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+
+                    case ADDRESS_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+                    case GENDER_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+                    case LACTATION_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+                    case LOCATION_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+                    case NAME_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+
+                    case PHONE_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+                    case VACCINEDATE_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+                    case VACCINE_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+                    case OWNED_DE:
+                        dataElementValueMap.put(dataValue.getDataElement(),dataValue.getValue());
+                        break;
+                }
+            }
+
+            for(Event event: eventsForEnrollment){
+                List<String> dataElementsAdded = new ArrayList<>();
+                if(event.getLocalId()!=currentEvent.getLocalId()){
+                    for(DataValue dataValue:event.getDataValues()){
+                        switch (dataValue.getDataElement()){
+                            //TODO:implement reflection here
+                            case ANIMALAGE_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+
+                            case ADDRESS_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+                            case GENDER_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+                            case LACTATION_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+                            case LOCATION_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+                            case NAME_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+
+                            case PHONE_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+                            case VACCINEDATE_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+                            case VACCINE_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+                            case OWNED_DE:
+                                dataValue.setValue(dataElementValueMap.get(dataValue.getDataElement()));
+                                dataValue.save();
+                                dataElementsAdded.add(dataValue.getDataElement());
+                                break;
+                        }
+                    }
+                    for(String key :dataElementValueMap.keySet()){
+                        if(dataElementsAdded.contains(key)){
+                            continue;
+                        }else{
+                            DataValue dataValue = new DataValue();
+                            dataValue.setValue(dataElementValueMap.get(key));
+                            dataValue.setDataElement(key);
+                            dataValue.setEvent(event.getEvent());
+                            dataValue.setLocalEventId(event.getLocalId());
+                            dataValue.setProvidedElsewhere(false);
+                            dataValue.setStoredBy(currentEvent.getDataValues().get(0).getStoredBy());
+                            dataValue.save();
+                            event.getDataValues().add(dataValue);
+
+                        }
+                    }
+                    event.save();
+                }
+            }
+
+
             if (staleEvent != null) {
                 // remove stale event and replace it with the new event
                 int index = eventsForEnrollment.indexOf(staleEvent);
@@ -384,201 +503,201 @@ public class VariableService {
         Map<String, ProgramRuleVariable> programRuleVariableMap = new HashMap<>();
         ProgramRuleVariable prvariable=new ProgramRuleVariable();
         for (ProgramRuleVariable programRuleVariable : programRuleVariables) {
-            if(programRuleVariable!=null)
-            {
-                if (programRuleVariable.getUid()!=null)
-                {
-                    if(programRuleVariable.getUid().equals("R7uWYmN14HA"))
-                    {
-                        MetaDataController.delete_pv_age();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("age_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("age_latest");
-                            prvariable.save();
-                        }
-
-
-                    }
-                     if(programRuleVariable.getUid().equals("eRJEn4LxRyU"))
-                    {
-                        MetaDataController.delete_pv_add();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("address_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("address_latest");
-                            prvariable.save();
-                        }
-
-                    }
-                     if(programRuleVariable.getUid().equals("vZpop33tNHY"))
-                    {
-                        MetaDataController.delete_pv_gender();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("gender_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("gender_latest");
-                            prvariable.save();
-                        }
-                    }
-                     if(programRuleVariable.getUid().equals("Sg7q5RiGiUA"))
-                    {
-                        MetaDataController.delete_pv_lac();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("lactation_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("lactation_latest");
-                            prvariable.save();
-                        }
-                    }
-                     if(programRuleVariable.getUid().equals("FKtLnsvrqjV"))
-                    {
-                        MetaDataController.delete_pv_loc();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("lcoation_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("lcoation_latest");
-                            prvariable.save();
-                        }
-                    }
-                     if(programRuleVariable.getUid().equals("RwaPrnpeTyz"))
-                    {
-                        MetaDataController.delete_pv_name();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("name_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("name_latest");
-                            prvariable.save();
-                        }
-
-                    }
-                     if(programRuleVariable.getUid().equals("UvwQBy6mzRO"))
-                    {
-                        MetaDataController.delete_pv_phone();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("phone_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("phone_latest");
-                            prvariable.save();
-                        }
-
-                    }
-                     if(programRuleVariable.getUid().equals("CTvvT40mDOz"))
-                    {
-                        MetaDataController.delete_pv_vaccinedate();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("vaccinedate_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("vaccinedate_latest");
-                            prvariable.save();
-                        }
-
-                    }
-                     if(programRuleVariable.getUid().equals("mOss6RfCTOG"))
-                    {
-                        MetaDataController.delete_pv_vaccine();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("vaccine_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("vaccine_latest");
-                            prvariable.save();
-                        }
-
-                    }
-                     if(programRuleVariable.getUid().equals("pnvJmndd0T6"))
-                    {
-                        MetaDataController.delete_pv_owned();
-                        if(programRuleVariable.getAllValues().size()>0)
-                        {
-                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("owned_latest");
-                            prvariable.save();
-                        }
-                        else
-                        {
-                            prvariable.setDisplayName("");
-                            prvariable.setDataElement(programRuleVariable.getDataElement());
-                            prvariable.setName("owned_latestdl");
-                            prvariable.save();
-                        }
-
-                    }
-                }
-
-            }
+//            if(programRuleVariable!=null)
+//            {
+//                if (programRuleVariable.getUid()!=null)
+//                {
+//                    if(programRuleVariable.getUid().equals("R7uWYmN14HA"))
+//                    {
+//                        MetaDataController.delete_pv_age();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("age_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("age_latest");
+//                            prvariable.save();
+//                        }
+//
+//
+//                    }
+//                     if(programRuleVariable.getUid().equals("eRJEn4LxRyU"))
+//                    {
+//                        MetaDataController.delete_pv_add();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("address_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("address_latest");
+//                            prvariable.save();
+//                        }
+//
+//                    }
+//                     if(programRuleVariable.getUid().equals("vZpop33tNHY"))
+//                    {
+//                        MetaDataController.delete_pv_gender();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("gender_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("gender_latest");
+//                            prvariable.save();
+//                        }
+//                    }
+//                     if(programRuleVariable.getUid().equals("Sg7q5RiGiUA"))
+//                    {
+//                        MetaDataController.delete_pv_lac();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("lactation_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("lactation_latest");
+//                            prvariable.save();
+//                        }
+//                    }
+//                     if(programRuleVariable.getUid().equals("FKtLnsvrqjV"))
+//                    {
+//                        MetaDataController.delete_pv_loc();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("lcoation_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("lcoation_latest");
+//                            prvariable.save();
+//                        }
+//                    }
+//                     if(programRuleVariable.getUid().equals("RwaPrnpeTyz"))
+//                    {
+//                        MetaDataController.delete_pv_name();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("name_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("name_latest");
+//                            prvariable.save();
+//                        }
+//
+//                    }
+//                     if(programRuleVariable.getUid().equals("UvwQBy6mzRO"))
+//                    {
+//                        MetaDataController.delete_pv_phone();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("phone_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("phone_latest");
+//                            prvariable.save();
+//                        }
+//
+//                    }
+//                     if(programRuleVariable.getUid().equals("CTvvT40mDOz"))
+//                    {
+//                        MetaDataController.delete_pv_vaccinedate();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("vaccinedate_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("vaccinedate_latest");
+//                            prvariable.save();
+//                        }
+//
+//                    }
+//                     if(programRuleVariable.getUid().equals("mOss6RfCTOG"))
+//                    {
+//                        MetaDataController.delete_pv_vaccine();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("vaccine_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("vaccine_latest");
+//                            prvariable.save();
+//                        }
+//
+//                    }
+//                     if(programRuleVariable.getUid().equals("pnvJmndd0T6"))
+//                    {
+//                        MetaDataController.delete_pv_owned();
+//                        if(programRuleVariable.getAllValues().size()>0)
+//                        {
+//                            prvariable.setDisplayName(programRuleVariable.getAllValues().get(programRuleVariable.getAllValues().size()-1));
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("owned_latest");
+//                            prvariable.save();
+//                        }
+//                        else
+//                        {
+//                            prvariable.setDisplayName("");
+//                            prvariable.setDataElement(programRuleVariable.getDataElement());
+//                            prvariable.setName("owned_latestdl");
+//                            prvariable.save();
+//                        }
+//
+//                    }
+//                }
+//
+//            }
 
 
                 programRuleVariableMap.put(programRuleVariable.getName(), programRuleVariable);

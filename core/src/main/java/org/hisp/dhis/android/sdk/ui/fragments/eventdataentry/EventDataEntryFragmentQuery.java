@@ -195,52 +195,52 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
 //        VACCINE=vac_list.get(vac_list.size()-1).getDisplayName();
 //        OWNED=own_list.get(own_list.size()-1).getDisplayName();
 
-        if(age_list.size()>0)
-        {
-            ANIMAL_AGE_=age_list.get(0).getDisplayName();
-        }
-        if(add_list.size()>0)
-        {
-            ADDRESS=add_list.get(0).getDisplayName();
-        }
-        if(gender_list.size()>0)
-        {
-            GENDER=gender_list.get(0).getDisplayName();
-        } if(lac_list.size()>0)
-        {
-            LACTATION=lac_list.get(0).getDisplayName();
-        } if(loc_list.size()>0)
-        {
-            LOCATION=loc_list.get(0).getDisplayName();
-        } if(name_list.size()>0)
-        {
-            NAME=name_list.get(0).getDisplayName();
-        }
-        if(vaccdate_list.size()>0)
-        {
-            VACCINEDATE=vaccdate_list.get(0).getDisplayName();
-        }
-        if(vac_list.size()>0)
-        {
-            VACCINE=vac_list.get(0).getDisplayName();
-        }
-        if(own_list.size()>0)
-        {
-            OWNED=own_list.get(0).getDisplayName();
-        }
-        if(phone_list.size()>0)
-        {
-            PHONE=phone_list.get(0).getDisplayName();
-        }
-
-//        GENDER=gender_list.get(0).getDisplayName();
-//        LACTATION=lac_list.get(0).getDisplayName();
-//        LOCATION=loc_list.get(0).getDisplayName();
-//        NAME=name_list.get(0).getDisplayName();
-//        PHONE=phone_list.get(0).getDisplayName();
-//        VACCINEDATE=vaccdate_list.get(0).getDisplayName();
-//        VACCINE=vac_list.get(0).getDisplayName();
-//        OWNED=own_list.get(0).getDisplayName();
+//        if(age_list.size()>0)
+//        {
+//            ANIMAL_AGE_=age_list.get(0).getDisplayName();
+//        }
+//        if(add_list.size()>0)
+//        {
+//            ADDRESS=add_list.get(0).getDisplayName();
+//        }
+//        if(gender_list.size()>0)
+//        {
+//            GENDER=gender_list.get(0).getDisplayName();
+//        } if(lac_list.size()>0)
+//        {
+//            LACTATION=lac_list.get(0).getDisplayName();
+//        } if(loc_list.size()>0)
+//        {
+//            LOCATION=loc_list.get(0).getDisplayName();
+//        } if(name_list.size()>0)
+//        {
+//            NAME=name_list.get(0).getDisplayName();
+//        }
+//        if(vaccdate_list.size()>0)
+//        {
+//            VACCINEDATE=vaccdate_list.get(0).getDisplayName();
+//        }
+//        if(vac_list.size()>0)
+//        {
+//            VACCINE=vac_list.get(0).getDisplayName();
+//        }
+//        if(own_list.size()>0)
+//        {
+//            OWNED=own_list.get(0).getDisplayName();
+//        }
+//        if(phone_list.size()>0)
+//        {
+//            PHONE=phone_list.get(0).getDisplayName();
+//        }
+//
+////        GENDER=gender_list.get(0).getDisplayName();
+////        LACTATION=lac_list.get(0).getDisplayName();
+////        LOCATION=loc_list.get(0).getDisplayName();
+////        NAME=name_list.get(0).getDisplayName();
+////        PHONE=phone_list.get(0).getDisplayName();
+////        VACCINEDATE=vaccdate_list.get(0).getDisplayName();
+////        VACCINE=vac_list.get(0).getDisplayName();
+////        OWNED=own_list.get(0).getDisplayName();
         if (stage.getProgramStageSections() == null || stage.getProgramStageSections().isEmpty()) {
             List<Row> rows = new ArrayList<>();
             addStatusRow(context, form, rows);
@@ -325,168 +325,12 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
                                               List<ProgramStageDataElement> dataElements,
                                               List<Row> rows, String username, final Context context) {
         HashMap<String, DataValue> dataValuestosave = new HashMap<>();
-        DataValue dataValue=null;
-        DataElement dataElement=null;
         List<DataValue> dv_list=new ArrayList<>();
         HashMap<String,DataValue> test=new HashMap<String, DataValue>();
         for (ProgramStageDataElement stageDataElement : dataElements) {
-//            if(form.getStage().getUid().equals(RABIESASSESMENT)||form.getStage().getUid().equals(RABIESASSESMENT_FOLLOW)||form.getStage().getUid().equals(EVENTNOTIFICATION))
-//            if(form.getStage().getUid().equals(RABIESASSESMENT)||form.getStage().getUid().equals(RABIESASSESMENT_FOLLOW))
-//            {
-                if (stageDataElement.getDataElement().getUid().equals(ANIMALAGE_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(ANIMAL_AGE_);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-
-                }
-                else if (stageDataElement.getDataElement().getUid().equals(ADDRESS_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(ADDRESS);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-                }
-                else if (stageDataElement.getDataElement().getUid().equals(GENDER_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(GENDER);
-                    de.save();
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-                }
-                else if (stageDataElement.getDataElement().getUid().equals(LACTATION_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(LACTATION);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-
-                }
-                else  if (stageDataElement.getDataElement().getUid().equals(LOCATION_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(LOCATION);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-
-                }
-                else if (stageDataElement.getDataElement().getUid().equals(NAME_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(NAME);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-
-                }
-                else  if (stageDataElement.getDataElement().getUid().equals(PHONE_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(PHONE);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-
-                }
-                else  if (stageDataElement.getDataElement().getUid().equals(VACCINEDATE_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(VACCINEDATE);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-
-                }
-                else  if (stageDataElement.getDataElement().getUid().equals(VACCINE_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(VACCINE);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-
-                }
-                else if (stageDataElement.getDataElement().getUid().equals(OWNED_DE))
-                {
-                    DataValue de=new DataValue();
-                    de.setDataElement(stageDataElement.getDataElement().getUid());
-                    de.setEvent(form.getEvent().getEvent());
-                    de.setLocalEventId(form.getEvent().getLocalId());
-                    de.setProvidedElsewhere(false);
-                    de.setStoredBy(username);
-                    de.setValue(OWNED);
-                    de.save();
-                    form.getEvent().getDataValues().add(de);
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-
-
-                }
-                else
-                {
-                    dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
-                    dataElement = getDataElement(stageDataElement.getDataelement());
-                }
-            //ToDo Populate Stage dataelements
+            DataValue dataValue = getDataValue(stageDataElement.getDataelement(), form.getEvent(), username);
+            DataElement dataElement = getDataElement(stageDataElement.getDataelement());
+//
 
             if (dataElement != null) {
                 form.getDataElementNames().put(stageDataElement.getDataelement(),
