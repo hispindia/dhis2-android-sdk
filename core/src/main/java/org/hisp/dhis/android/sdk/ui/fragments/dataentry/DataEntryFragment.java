@@ -30,6 +30,7 @@
 package org.hisp.dhis.android.sdk.ui.fragments.dataentry;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
@@ -131,7 +132,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_data_entry, container, false);
     }
 
@@ -158,7 +159,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
             }
         });
         View upButton = getLayoutInflater(savedInstanceState)
-                .inflate(R.layout.up_button_layout, listView, false);
+                .inflate(R.layout.next_button_layout, listView, false);
         listViewAdapter = new DataValueAdapter(getChildFragmentManager(),
                 getLayoutInflater(savedInstanceState), listView, getContext());
 
@@ -173,7 +174,13 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         upButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listView.smoothScrollToPosition(INITIAL_POSITION);
+                //
+                if (getActivity() != null) {
+                    getActivity().finish();
+                }
+
+//                DataEntryFragment.super.onBackPressed();
+//                listView.smoothScrollToPosition(INITIAL_POSITION);
             }
         });
     }
@@ -208,7 +215,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     public static void resetHidingAndWarnings(DataValueAdapter dataValueAdapter,
-            SectionAdapter sectionAdapter) {
+                                              SectionAdapter sectionAdapter) {
         if (dataValueAdapter != null) {
             dataValueAdapter.resetHiding();
             dataValueAdapter.resetDisabled();
@@ -286,7 +293,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     private void addErrors(ArrayList<String> programRulesErrors,
-            ArrayList<String> errors, String errorMessage) {
+                           ArrayList<String> errors, String errorMessage) {
         if (programRulesErrors != null) {
             for (String programRulesError : programRulesErrors) {
                 errors.add(errorMessage + ": " + programRulesError);
