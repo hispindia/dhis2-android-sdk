@@ -77,7 +77,6 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         implements LoaderManager.LoaderCallbacks<D>, AdapterView.OnItemSelectedListener,
         OnBackPressedListener {
     public static final String TAG = DataEntryFragment.class.getSimpleName();
-
     protected static final int LOADER_ID = 17;
     protected static final int INITIAL_POSITION = 0;
     protected static final String EXTRA_ARGUMENTS = "extra:Arguments";
@@ -122,9 +121,6 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         super.onPause();
         Dhis2Application.getEventBus().unregister(this);
     }
-
-
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_data_entry, menu);
@@ -170,12 +166,13 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         if (listViewState != null) {
             listView.onRestoreInstanceState(listViewState);
         }
-
         upButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //
                 if (getActivity() != null) {
+                    //ToDo in Case of Empty non-filling form
+                    proceed();
                     getActivity().finish();
                 }
 
