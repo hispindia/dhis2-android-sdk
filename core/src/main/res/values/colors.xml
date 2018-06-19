@@ -51,7 +51,7 @@
     <color name="stage_ontime">@color/web_light_green</color>
     <color name="stage_overdue">#f2dede</color>
     <color name="stage_skipped">@color/web_light_grey</color>
-
+    <color name="aqua_">#ffe5cc</color>
     <color name="web_orange">#eed659</color>
     <color name="web_light_orange">#fcf8e3</color>
     <color name="web_grey">#8a8a8a</color>e2dfcc
