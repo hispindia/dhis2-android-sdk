@@ -489,6 +489,16 @@ public final class TrackerController extends ResourceController {
                 .orderBy(true, TrackedEntityAttribute$Table.SORTORDERINLISTNOPROGRAM).queryList();
     }
 
+    public static List<TrackedEntityAttributeValue> getVisibleTrackedEntityAttributeValuesWithoutList
+            (long trackedEntityInstance) {
+        return new Select().from(TrackedEntityAttributeValue.class)
+                .join(TrackedEntityAttribute.class, Join.JoinType.LEFT)
+                .on(Condition.column(TrackedEntityAttribute$Table.ID).eq(TrackedEntityAttributeValue$Table.TRACKEDENTITYATTRIBUTEID))
+                .where(Condition.column
+                        (TrackedEntityAttributeValue$Table.LOCALTRACKEDENTITYINSTANCEID).is(trackedEntityInstance))
+                .orderBy(true, TrackedEntityAttribute$Table.SORTORDERINLISTNOPROGRAM).queryList();
+    }
+
     /**
      * Returns a list of failed items from the database, or null if there are none.
      * Failed items are items that have failed to upload and sync with the server for some reason
