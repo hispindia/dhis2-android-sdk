@@ -43,6 +43,7 @@ import org.joda.time.DateTime;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 
@@ -94,6 +95,13 @@ public abstract class AbsDatePickerRow extends Row {
             DatePickerDialog picker = new DatePickerDialog(context, listener,
                     calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                     calendar.get(Calendar.DAY_OF_MONTH));
+
+            //@Sou Due  Date/Report Date Limit to last 7 days
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_MONTH, -6);
+            Date result = cal.getTime();
+            picker.getDatePicker().setMaxDate(System.currentTimeMillis());
+            picker.getDatePicker().setMinDate(result.getTime());
             if(!allowDatesInFuture) {
             picker.getDatePicker().setMaxDate(DateTime.now().getMillis());
             }
