@@ -40,7 +40,7 @@
     <org.hisp.dhis.android.sdk.ui.views.FontTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/next"
+        android:text="next"
         android:textColor="@color/navy_blue"
         android:textSize="20sp"
         app:font="@string/condensed_font_name"/>

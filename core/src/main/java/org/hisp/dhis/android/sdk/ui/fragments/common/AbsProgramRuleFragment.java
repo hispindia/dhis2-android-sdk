@@ -33,19 +33,33 @@ import android.app.ProgressDialog;
 import android.util.Log;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.DhisController;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.hisp.dhis.android.sdk.persistence.models.DataValue;
+import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
+import org.hisp.dhis.android.sdk.persistence.models.Event;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramRule;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramRuleAction;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramRuleVariable;
+import org.hisp.dhis.android.sdk.persistence.models.ProgramStage;
+import org.hisp.dhis.android.sdk.persistence.models.ProgramStageDataElement;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.utils.comparators.ProgramRulePriorityComparator;
 import org.hisp.dhis.android.sdk.utils.services.ProgramRuleService;
 import org.hisp.dhis.android.sdk.utils.services.VariableService;
+import org.hisp.dhis.android.sdk.utils.support.DateUtils;
 import org.hisp.dhis.client.sdk.ui.fragments.BaseFragment;
+import org.joda.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.AbsDatePickerRow.EMPTY_FIELD;
+
 
 /**
  * Abstract Fragment that can be extended by Fragments that want to make use of Program Rules.
@@ -57,6 +71,8 @@ public abstract class AbsProgramRuleFragment<D> extends BaseFragment {
     private static final String TAG = AbsProgramRuleFragment.class.getSimpleName();
     protected IProgramRuleFragmentHelper programRuleFragmentHelper;
     private ProgressDialog progressDialog;
+    private static final String QUARANTINE_SCHEDULER = "SH5ad8iQpQB";
+    private static final String QUARANTINE="IXdxLjRSFT8";
 
     public IProgramRuleFragmentHelper getProgramRuleFragmentHelper() {
         return programRuleFragmentHelper;
@@ -104,25 +120,146 @@ public abstract class AbsProgramRuleFragment<D> extends BaseFragment {
             }
         }
 
-//        Collections.sort(programRules, new ProgramRulePriorityComparator());
-//        for (ProgramRule programRule : programRules) {
-//            try {
-//                boolean evaluatedTrue = ProgramRuleService.evaluate(programRule.getCondition());
-//                for (ProgramRuleAction action : programRule.getProgramRuleActions()) {
-//                    if (evaluatedTrue) {
-//                        applyProgramRuleAction(action, affectedFieldsWithValue);
-//                    }
-//                }
-//            } catch (Exception e) {
-//                Log.e("PROGRAM RULE", "Error evaluating program rule", e);
-//            }
-//        }
+        if(programRuleFragmentHelper.getEvent() != null && programRuleFragmentHelper.getEvent().getProgramStageId().equals(QUARANTINE_SCHEDULER)){
+            List<DataValue> dataValues = programRuleFragmentHelper.getEvent().getDataValues();
+            List<Event> events = programRuleFragmentHelper.getEnrollment().getEvents();
+            Map<String,Event> mappedEvents = new HashMap<String,Event>();
+            for(Event event:events){
+                if(event.getProgramStageId().equals(QUARANTINE)){
+                    mappedEvents.put(event.getEventDate(),event);
+                }
+            }
+            String quarantineEndDate = programRuleFragmentHelper.getDataElementValue("wqxQiTEfioS").getValue();
+            if(dataValues.size()>1 && quarantineEndDate.length()>0){
+
+
+                for(DataValue dv :dataValues){
+                    switch(dv.getDataElement()){
+                        case "RdNf0Z7OsMe": //checkin 1
+                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
+                               Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
+                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
+                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
+                                        ,MetaDataController.getProgramStage(QUARANTINE),
+                                        DhisController.getInstance().getSession().getCredentials().getUsername());
+                               event.setDueDate(quarantineEndDate);
+                               event.setEventDate(dv.getValue());
+                                event.save();
+                            }
+                            break;
+
+                        case "Gdv9G1PsASA"://checkin 2
+                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
+                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
+                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
+                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
+                                        ,MetaDataController.getProgramStage(QUARANTINE),
+                                        DhisController.getInstance().getSession().getCredentials().getUsername());
+                                event.setDueDate(quarantineEndDate);
+                                event.setEventDate(dv.getValue());
+                                event.save();
+                            }
+                            break;
+
+
+                        case "sJUq4qKJRD8"://checkin 3
+                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
+                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
+                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
+                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
+                                        ,MetaDataController.getProgramStage(QUARANTINE),
+                                        DhisController.getInstance().getSession().getCredentials().getUsername());
+                                event.setDueDate(quarantineEndDate);
+                                event.setEventDate(dv.getValue());
+                                event.save();
+                            }
+                            break;
+
+                        case "RJ1Fi9WdGfO"://checkin 4
+                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
+                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
+                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
+                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
+                                        ,MetaDataController.getProgramStage(QUARANTINE),
+                                        DhisController.getInstance().getSession().getCredentials().getUsername());
+                                event.setDueDate(quarantineEndDate);
+                                event.setEventDate(dv.getValue());
+                                event.save();
+                            }
+                            break;
+
+                        case "Ghq39zfrljF": //checkin 5
+                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
+                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
+                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
+                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
+                                        ,MetaDataController.getProgramStage(QUARANTINE),
+                                        DhisController.getInstance().getSession().getCredentials().getUsername());
+                                event.setDueDate(quarantineEndDate);
+                                event.setEventDate(dv.getValue());
+                                event.save();
+                            }
+                            break;
+
+
+                        case "PXFKBOkzPa3"://checkin 6
+                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
+                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
+                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
+                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
+                                        ,MetaDataController.getProgramStage(QUARANTINE),
+                                        DhisController.getInstance().getSession().getCredentials().getUsername());
+                                event.setDueDate(quarantineEndDate);
+                                event.setEventDate(dv.getValue());
+                                event.save();
+                            }
+                            break;
+
+//                        case "wqxQiTEfioS": //Quarantine end date
+//
+//                            break;
+
+                    }
+                }
+            }
+        }
 
         if (!affectedFieldsWithValue.isEmpty()) {
             programRuleFragmentHelper.showWarningHiddenValuesDialog(programRuleFragmentHelper.getFragment(), affectedFieldsWithValue);
         }
         //hideBlockingProgressBar();
         programRuleFragmentHelper.updateUi();
+    }
+
+    private Event getEvent(String orgUnitId, String programId, long eventId, long enrollmentId,
+                           ProgramStage programStage, String username) {
+        Event event;
+        if (eventId < 0) {
+            event = new Event(orgUnitId, Event.STATUS_ACTIVE, programId, programStage, null, null, null);
+            if (enrollmentId > 0) {
+                Enrollment enrollment = TrackerController.getEnrollment(enrollmentId);
+                if (enrollment != null) {
+                    event.setLocalEnrollmentId(enrollmentId);
+                    event.setEnrollment(enrollment.getEnrollment());
+                    event.setTrackedEntityInstance(enrollment.getTrackedEntityInstance());
+                    LocalDate dueDate = new LocalDate(DateUtils.parseDate(enrollment.getEnrollmentDate())).plusDays(programStage.getMinDaysFromStart());
+                    event.setDueDate(dueDate.toString());
+                }
+            }
+            List<DataValue> dataValues = new ArrayList<>();
+            for (ProgramStageDataElement dataElement : programStage.getProgramStageDataElements()) {
+                dataValues.add(
+                        new DataValue(event, EMPTY_FIELD, dataElement.getDataelement(), false, username)
+                );
+            }
+            event.setDataValues(dataValues);
+        } else {
+            event = TrackerController.getEvent(eventId);
+            if(event == null) {
+                getEvent(orgUnitId, programId, -1, enrollmentId, programStage, username); // if event is null, create a new one
+            }
+        }
+        return event;
     }
 
     protected void applyProgramRuleAction(ProgramRuleAction programRuleAction, List<String> affectedFieldsWithValue) {

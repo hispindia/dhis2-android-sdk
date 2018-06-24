@@ -55,6 +55,6 @@ public enum DataEntryRowTypes {
     URL,
     TRACKER_ASSOCIATE,
     SECTION_SEPERATOR,
-    FILE_RESOURCE
-
+    FILE_RESOURCE,
+    DOUBLE_ELEMENT_ROW
 }

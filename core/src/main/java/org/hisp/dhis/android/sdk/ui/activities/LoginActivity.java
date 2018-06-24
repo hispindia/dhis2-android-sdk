@@ -44,6 +44,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.otto.Subscribe;
@@ -147,7 +148,7 @@ public class LoginActivity extends Activity implements OnClickListener {
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         progressBar.setVisibility(View.GONE);
         progressText = (TextView) findViewById(R.id.progress_text);
-        progressText.setVisibility(View.GONE);
+       // progressText.setVisibility(View.GONE);
         loginButton.setOnClickListener(this);
     }
 
@@ -217,7 +218,8 @@ public class LoginActivity extends Activity implements OnClickListener {
     {
         if(event!=null) {
             if (event.message != null) {
-                progressText.setText(event.message);
+//                progressText.setText(event.message);
+                Toast.makeText(getApplicationContext(),event.message,Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -254,8 +256,8 @@ public class LoginActivity extends Activity implements OnClickListener {
         Animation anim = AnimationUtils.loadAnimation(this, R.anim.out_up);
         viewsContainer.startAnimation(anim);
         viewsContainer.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
-        progressText.setVisibility(View.VISIBLE);
+        //progressBar.setVisibility(View.VISIBLE);
+       // progressText.setVisibility(View.VISIBLE);
     }
 
     private void showLoginFailedDialog(String error) {

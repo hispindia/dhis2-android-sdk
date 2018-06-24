@@ -77,6 +77,7 @@ import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.ui.adapters.SectionAdapter;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowFactory;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowTypes;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DoubleElementRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.RunProgramRulesEvent;
@@ -116,6 +117,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
     public static final String PROGRAM_STAGE_ID = "extra:ProgramStageId";
     public static final String EVENT_ID = "extra:EventId";
     public static final String ENROLLMENT_ID = "extra:EnrollmentId";
+    private static final String QUARANTINE_SCHEDULER = "SH5ad8iQpQB";
     private ImageView previousSectionButton;
     private ImageView nextSectionButton;
     private View spinnerContainer;
@@ -303,7 +305,30 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                     data.getStage().getCaptureCoordinates()) {
                 GpsController.activateGps(getActivity().getBaseContext());
             }
-            if (data.getSections() != null && !data.getSections().isEmpty()) {
+//******************************************************************************************
+//            *******************************************************************************
+//            Don't remove this line these are working model for tabuler design
+//            if(data.getEvent().getProgramStageId().equals(QUARANTINE_SCHEDULER)){
+//                List<Row> totalRows = new ArrayList<>();
+//                for(DataEntryFragmentSection section :data.getSections()){
+//
+//                    Row lastRow = null;
+//                    for(Row row :section.getRows()){
+//                        if(lastRow!=null){
+//                            DoubleElementRow doubleRow = new DoubleElementRow(lastRow,row);
+//                            totalRows.add(doubleRow);
+//                            lastRow=null;
+//                        }else{
+//                            lastRow=row;
+//                        }
+//                    }
+//                }
+//                listViewAdapter.swapData(totalRows);
+//            }else
+//            Tabular design code ends here
+//            **********************************************************************************
+//**********************************************************************************************
+                if (data.getSections() != null && !data.getSections().isEmpty()) {
 //                if (data.getSections().size() > 1) {
 //                    attachSpinner();
 //                    spinnerAdapter.swapData(data.getSections());
