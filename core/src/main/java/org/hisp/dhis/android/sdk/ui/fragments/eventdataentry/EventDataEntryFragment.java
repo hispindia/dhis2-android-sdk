@@ -596,6 +596,10 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             return;
         }
 
+        if(getProgramRuleFragmentHelper().getEvent().getProgramStageId().equals(QUARANTINE_SCHEDULER)){
+            initiateEvaluateProgramRules();
+        }
+
         if (hasRules(dataElement)) {
             getProgramRuleFragmentHelper().getProgramRuleValidationErrors().clear();
             getProgramRuleFragmentHelper().getShowOnCompleteErrors().clear();
