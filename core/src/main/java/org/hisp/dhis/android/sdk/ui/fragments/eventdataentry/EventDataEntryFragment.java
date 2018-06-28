@@ -41,6 +41,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -535,12 +536,15 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         for (DataValue dataValue : form.getEvent().getDataValues()) {
             ProgramStageDataElement dataElement = dataElements.get(dataValue.getDataElement());
             if (dataElement == null) {
+                Log.d("ERROR 1 ",dataValue.getDataElement());
                 return false;
             }
             if (dataElement.getCompulsory() && isEmpty(dataValue.getValue())) {
+                Log.d("ERROR 2 ",dataValue.getDataElement());
                 return false;
             } else if (listViewAdapter.getMandatoryList().contains(dataElement.getDataelement())
                     && isEmpty(dataValue.getValue())) {
+                Log.d("ERROR 3  ",dataValue.getDataElement());
                 return false;
             }
         }
@@ -578,14 +582,17 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         );
         for (DataValue dataValue : form.getEvent().getDataValues()) {
             ProgramStageDataElement dataElement = dataElements.get(dataValue.getDataElement());
-            String dataElementUid = dataElement.getDataElement().getUid();
+
             if (dataElement == null) {
                 // don't do anything
-            } else if ((dataElement.getCompulsory() || listViewAdapter.getMandatoryList().contains(dataElementUid)) && isEmpty(dataValue.getValue())) {
-                if(!errors.containsKey(ErrorType.MANDATORY)){
-                    errors.put(ErrorType.MANDATORY, new ArrayList<String>());
+            } else {
+                String dataElementUid = dataElement.getDataElement().getUid();
+                if ((dataElement.getCompulsory() || listViewAdapter.getMandatoryList().contains(dataElementUid)) && isEmpty(dataValue.getValue())) {
+                    if (!errors.containsKey(ErrorType.MANDATORY)) {
+                        errors.put(ErrorType.MANDATORY, new ArrayList<String>());
+                    }
+                    errors.get(ErrorType.MANDATORY).add(MetaDataController.getDataElement(dataElement.getDataelement()).getDisplayName());
                 }
-                errors.get(ErrorType.MANDATORY).add(MetaDataController.getDataElement(dataElement.getDataelement()).getDisplayName());
             }
         }
         return errors;
@@ -597,6 +604,9 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         }
 
         if(getProgramRuleFragmentHelper().getEvent().getProgramStageId().equals(QUARANTINE_SCHEDULER)){
+            getProgramRuleFragmentHelper().getProgramRuleValidationErrors().clear();
+            getProgramRuleFragmentHelper().getShowOnCompleteErrors().clear();
+            getProgramRuleFragmentHelper().getShowOnCompleteWarningErrors().clear();
             initiateEvaluateProgramRules();
         }
 

@@ -46,6 +46,7 @@ import org.hisp.dhis.android.sdk.persistence.models.Option;
 import org.hisp.dhis.android.sdk.persistence.models.Option$Table;
 import org.hisp.dhis.android.sdk.persistence.models.OptionSet;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramRuleVariable;
+import org.hisp.dhis.android.sdk.persistence.models.ProgramStageDataElement;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttribute$Table;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
@@ -320,13 +321,13 @@ public class VariableService {
                                 break;
                         }
                     }
-                    for(String key :dataElementValueMap.keySet()){
-                        if(dataElementsAdded.contains(key)){
+                    for(ProgramStageDataElement programStageDataElement :MetaDataController.getProgramStage(event.getProgramStageId()).getProgramStageDataElements()){
+                        if(dataElementsAdded.contains(programStageDataElement.getDataelement())){
                             continue;
-                        }else{
+                        }else if(dataElementValueMap.containsKey(programStageDataElement.getDataelement())){
                             DataValue dataValue = new DataValue();
-                            dataValue.setValue(dataElementValueMap.get(key));
-                            dataValue.setDataElement(key);
+                            dataValue.setValue(dataElementValueMap.get(programStageDataElement.getDataelement()));
+                            dataValue.setDataElement(programStageDataElement.getDataelement());
                             dataValue.setEvent(event.getEvent());
                             dataValue.setLocalEventId(event.getLocalId());
                             dataValue.setProvidedElsewhere(false);
@@ -336,6 +337,22 @@ public class VariableService {
 
                         }
                     }
+                    //for(String key :dataElementValueMap.keySet()){
+//                        if(dataElementsAdded.contains(key)){
+//                            continue;
+//                        }else{
+//                            DataValue dataValue = new DataValue();
+//                            dataValue.setValue(dataElementValueMap.get(key));
+//                            dataValue.setDataElement(key);
+//                            dataValue.setEvent(event.getEvent());
+//                            dataValue.setLocalEventId(event.getLocalId());
+//                            dataValue.setProvidedElsewhere(false);
+//                            dataValue.setStoredBy(currentEvent.getDataValues().get(0).getStoredBy());
+//                            dataValue.save();
+//                            event.getDataValues().add(dataValue);
+//
+//                        }
+                    //}
                     event.save();
                 }
             }
