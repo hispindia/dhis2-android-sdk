@@ -224,13 +224,13 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
                                 String value=challangeRow.getValue().getValue();
                                 if(challangeRow.getValue().getValue().contains("other"))
                                 {
-                                    challangeOtherRow.setmMandatory(true);
+//                                    challangeOtherRow.setmMandatory(true);
                                     stage.getProgramStageDataElements().get(5).setCompulsory(true);
                                     stage.save();
                                 }
                                 else if(!challangeRow.getValue().getValue().contains("other"))
                                 {
-                                    challangeOtherRow.setmMandatory(false);
+//                                    challangeOtherRow.setmMandatory(false);
                                     stage.getProgramStageDataElements().get(5).setCompulsory(false);
                                     stage.save();
                                 }

@@ -355,6 +355,10 @@ public final class TrackerController extends ResourceController {
                 Condition.column(Event$Table.PROGRAMSTAGEID).is(programStage)).querySingle();
     }
 
+    public static List<Event> getEventsFromServer(DhisApi dhisApi,String programId,String orgID){
+        return TrackerDataLoader.getEventsDataFromServer(dhisApi,orgID,programId);
+    }
+
     /**
      * Returns an event based on UID generated on server. Note that this reference may change if
      * an event is created on the device, and then synced with the server. If possible, always use

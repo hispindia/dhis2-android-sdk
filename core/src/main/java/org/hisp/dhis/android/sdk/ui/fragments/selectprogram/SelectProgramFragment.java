@@ -32,6 +32,7 @@ package org.hisp.dhis.android.sdk.ui.fragments.selectprogram;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -51,11 +52,19 @@ import android.widget.Toast;
 import com.squareup.otto.Subscribe;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.DhisController;
 import org.hisp.dhis.android.sdk.controllers.DhisService;
 import org.hisp.dhis.android.sdk.controllers.SyncStrategy;
+import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.hisp.dhis.android.sdk.events.OnTeiDownloadedEvent;
 import org.hisp.dhis.android.sdk.events.UiEvent;
+import org.hisp.dhis.android.sdk.job.JobExecutor;
+import org.hisp.dhis.android.sdk.job.NetworkJob;
+import org.hisp.dhis.android.sdk.network.APIException;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
+import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
+import org.hisp.dhis.android.sdk.persistence.models.Event;
+import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.ui.activities.SynchronisationStateHandler;
 import org.hisp.dhis.android.sdk.ui.adapters.AbsAdapter;
 import org.hisp.dhis.android.sdk.ui.dialogs.AutoCompleteDialogFragment;
@@ -67,7 +76,9 @@ import org.hisp.dhis.android.sdk.ui.views.CardTextViewButton;
 import org.hisp.dhis.android.sdk.utils.api.ProgramType;
 import org.hisp.dhis.client.sdk.ui.fragments.BaseFragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class SelectProgramFragment extends BaseFragment
         implements View.OnClickListener, AutoCompleteDialogFragment.OnOptionSelectedListener,
@@ -86,6 +97,10 @@ public abstract class SelectProgramFragment extends BaseFragment
 
     protected SelectProgramFragmentState mState;
     protected SelectProgramFragmentPreferences mPrefs;
+
+
+    private List<TrackedEntityInstance> downloadedTrackedEntityInstances;
+    private List<Enrollment> downloadedEnrollments;
 
     public SelectProgramFragment() {
         this("state:SelectProgramFragment", 1);
@@ -157,6 +172,19 @@ public abstract class SelectProgramFragment extends BaseFragment
         }
 
         onRestoreState(true);
+    }
+
+    private Enrollment getActiveEnrollmentByProgram (String programId){
+        Enrollment activeEnrollment = null;
+
+        for (Enrollment enrollment : downloadedEnrollments) {
+            if (enrollment.getProgram().getUid().equals(programId)) {
+                activeEnrollment = enrollment;
+                break;
+            }
+        }
+
+        return activeEnrollment;
     }
 
     @Override
@@ -340,6 +368,108 @@ public abstract class SelectProgramFragment extends BaseFragment
         getLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
     }
 
+    public void queryTrackedEntityInstances(final FragmentManager fragmentManager, final String orgUnit, final String programId )
+            throws APIException {
+        final String queryString = "";
+        Dhis2Application.getEventBus().post(
+                new OnTeiDownloadedEvent(OnTeiDownloadedEvent.EventType.START,
+                        0));
+        Log.d(TAG, "loading: " + 0);
+        downloadedTrackedEntityInstances = new ArrayList<>();
+        downloadedEnrollments = new ArrayList<>();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Dhis2Application.getEventBus().post(new UiEvent(UiEvent.UiEventType.SYNCING_START));
+            }
+        });
+
+
+        JobExecutor.enqueueJob(new NetworkJob<Object>(1,
+                null) {
+
+            @Override
+            public Object execute() throws APIException {
+
+                List<TrackedEntityInstance> trackedEntityInstancesQueryResult = null;
+
+                trackedEntityInstancesQueryResult = TrackerController.queryTrackedEntityInstancesDataFromServer(DhisController.getInstance().getDhisApi(), orgUnit, programId, queryString);
+
+
+                SynchronisationStateHandler.getInstance().changeState(true);
+                List<TrackedEntityInstance> trackedEntityInstances = TrackerController.getTrackedEntityInstancesDataFromServer(DhisController.getInstance().getDhisApi(), trackedEntityInstancesQueryResult, true, true);
+
+                if (trackedEntityInstances != null) {
+                    if (downloadedTrackedEntityInstances == null) {
+                        downloadedTrackedEntityInstances = new ArrayList<>();
+                    }
+                    downloadedTrackedEntityInstances.addAll(trackedEntityInstances);
+                }
+
+                for (int i = 0; i < downloadedTrackedEntityInstances.size(); i++) {
+                    List<Enrollment> enrollments = TrackerController.getEnrollmentDataFromServer(DhisController.getInstance().getDhisApi(), downloadedTrackedEntityInstances.get(i), null);
+                    if (enrollments != null) {
+                        if (downloadedEnrollments == null) {
+                            downloadedEnrollments = new ArrayList<>();
+                        }
+                        downloadedEnrollments.addAll(enrollments);
+                    }
+                    Dhis2Application.getEventBus().post(
+                            new OnTeiDownloadedEvent(OnTeiDownloadedEvent.EventType.UPDATE,
+                                    trackedEntityInstances.size(), (int) Math.ceil(
+                                    (downloadedTrackedEntityInstances.size() + i + 1) / 2.0)));
+                }
+
+
+                if (downloadedTrackedEntityInstances != null && downloadedTrackedEntityInstances.size() == 1) {
+                    if (downloadedEnrollments != null) {
+                        Enrollment activeEnrollment = getActiveEnrollmentByProgram(programId);
+
+                        final Enrollment enrollment = activeEnrollment;
+                        if (enrollment != null) {
+                            final TrackedEntityInstance trackedEntityInstance =
+                                    downloadedTrackedEntityInstances.get(0);
+
+//                            if (!backNavigation) {
+//                                activity.runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        HolderActivity.navigateToProgramOverviewFragment(activity,
+//                                                orgUnitId,
+//                                                enrollment.getProgram().getUid(),
+//                                                trackedEntityInstance.getLocalId());
+//                                    }
+//                                });
+//                            }
+                        }
+                    }
+                }
+
+                List<Event> downloadedEvents = TrackerController.getEventsFromServer(DhisController.getInstance().getDhisApi(),programId,orgUnit);
+
+                Dhis2Application.getEventBus().post(
+                        new OnTeiDownloadedEvent(OnTeiDownloadedEvent.EventType.END,
+                                trackedEntityInstancesQueryResult.size()));
+                SynchronisationStateHandler.getInstance().changeState(false);
+                Dhis2Application.getEventBus().post(new UiEvent(UiEvent.UiEventType.SYNCING_END));
+
+//                activity.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if(backNavigation) {
+//                            getActivity().finish();
+//                            HolderActivity.mCallBack.onSuccess();
+//                        }
+//                    }
+//                });
+
+                // showTrackedEntityInstanceQueryResultDialog(fragmentManager, trackedEntityInstancesQueryResult, orgUnit);
+//                showOnlineSearchResultFragment(trackedEntityInstancesQueryResult, orgUnit, program, backNavigation);
+
+                return new Object();
+            }
+        });
+    }
 
     @Subscribe /* it doesn't seem that this subscribe works. Inheriting class will have to */
     public void onReceivedUiEvent(UiEvent uiEvent) {
