@@ -216,12 +216,11 @@ public final class MetaDataController extends ResourceController {
                 orderBy(true, ProgramStageSection$Table.SORTORDER).queryList();
     }
 
-    //@sou_ programstagedataelement sort same as web priority
     public static List<ProgramStageDataElement> getProgramStageDataElements(ProgramStageSection section) {
         if (section == null) return null;
         return new Select().from(ProgramStageDataElement.class).where(Condition.column
-                (ProgramStageDataElement$Table.PROGRAMSTAGESECTION).is(section.getUid())).queryList();
-//                (ProgramStageDataElement$Table.SORTORDER).queryList();
+                (ProgramStageDataElement$Table.PROGRAMSTAGESECTION).is(section.getUid())).orderBy
+                (ProgramStageDataElement$Table.SORTORDER).queryList();
     }
 
     public static List<ProgramStageDataElement> getProgramStageDataElements(ProgramStage programStage) {
@@ -374,6 +373,10 @@ public final class MetaDataController extends ResourceController {
         return new Select().from(TrackedEntityInstance.class).where(Condition.column(
                 TrackedEntityInstance$Table.FROMSERVER).is(true)).queryList();
     }
+    public static List<TrackedEntityInstance> getTrackedEntityInstancesFromLocal() {
+        return new Select().from(TrackedEntityInstance.class).where(Condition.column(
+                TrackedEntityInstance$Table.FROMSERVER)).queryList();
+    }
 
     public static List<TrackedEntityAttributeGroup> getTrackedEntityAttributeGroups() {
         return new Select().from(TrackedEntityAttributeGroup.class).queryList();
@@ -498,6 +501,9 @@ public final class MetaDataController extends ResourceController {
      * @return
      */
     public static UserAccount getUserAccount() {
+        return new Select().from(UserAccount.class).querySingle();
+    }
+    public static UserAccount getUserLocalLang() {
         return new Select().from(UserAccount.class).querySingle();
     }
 
@@ -725,6 +731,14 @@ public final class MetaDataController extends ResourceController {
     private static void getAssignedProgramsDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {
         Log.d(CLASS_TAG, "getAssignedProgramsDataFromServer");
         UserAccount userAccount = dhisApi.getUserAccount();
+        UserAccount userAccount_ = new UserAccount();
+        Map<String, String> locallangauge = null;
+        locallangauge=dhisApi.getLocaleLanguage();
+        Map.Entry<String,String> entry = locallangauge.entrySet().iterator().next();
+        String lang_value = entry.getValue();
+        userAccount_.setUserSettings(lang_value);
+        userAccount_.save();
+
         Map<String, Program> programMap = new HashMap<>();
         List<Program> assignedProgramUids = userAccount.getPrograms();
 
@@ -826,35 +840,33 @@ public final class MetaDataController extends ResourceController {
 //                        "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
 //                        "[*,trackedEntityAttribute[*]],!organisationUnits");
 
-
-        //@Sou Translation for TrackedEntityAttributes/dataElements
         Map<String, String> locallangauge = null;
         locallangauge=dhisApi.getLocaleLanguage();
         Map.Entry<String,String> entry = locallangauge.entrySet().iterator().next();
         String lang_value = entry.getValue();
         Log.d("lang_db_before",lang_value);
-if(!lang_value.equals("en") &&!lang_value.equals(null))
-{
-    Log.d("lang_db",lang_value);
-    QUERY_MAP_FULL.put("fields",
-            "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
-                    "programStageSections[*,programStageDataElements[*,programStage[id]," +
-                    "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
-                    "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
-                    "[*,trackedEntityAttribute[*,displayName~rename(name),name~rename(displayName)]],!organisationUnits");
-}
+        if(!lang_value.equals("en") &&!lang_value.equals(null))
+        {
+            Log.d("lang_db",lang_value);
+            QUERY_MAP_FULL.put("fields",
+                    "*,displayName~rename(name),name~rename(displayName),trackedEntity[*],programIndicators[*],programStages[*,displayName~rename(name),name~rename(displayName),!dataEntryForm,program[id],programIndicators[*]," +
+                            "programStageSections[*,displayName~rename(name),name~rename(displayName),programStageDataElements[*,programStage[id]," +
+                            "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
+                            "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
+                            "[*,trackedEntityAttribute[*,displayName~rename(name),name~rename(displayName)]],!organisationUnits");
+        }
 
 
-  else
-{
-    Log.d("lang_db_else",lang_value);
-    QUERY_MAP_FULL.put("fields",
-            "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
-                    "programStageSections[*,programStageDataElements[*,programStage[id]," +
-                    "dataElement[*,displayName,name,id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
-                    "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
-                    "[*,trackedEntityAttribute[*,displayName,name]],!organisationUnits");
-}
+        else
+        {
+            Log.d("lang_db_else",lang_value);
+            QUERY_MAP_FULL.put("fields",
+                    "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
+                            "programStageSections[*,programStageDataElements[*,programStage[id]," +
+                            "dataElement[*,displayName,name,id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
+                            "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
+                            "[*,trackedEntityAttribute[*,displayName,name]],!organisationUnits");
+        }
 
         if (syncStrategy == SyncStrategy.DOWNLOAD_ONLY_NEW && lastUpdated != null) {
             QUERY_MAP_FULL.put("filter", "lastUpdated:gt:" + lastUpdated.toString());
@@ -874,13 +886,10 @@ if(!lang_value.equals("en") &&!lang_value.equals(null))
     }
 
     private static void getOptionSetDataFromServer(DhisApi dhisApi, DateTime serverDateTime,
-                                                   SyncStrategy syncStrategy) throws APIException {
+            SyncStrategy syncStrategy) throws APIException {
         Log.d(CLASS_TAG, "getOptionSetDataFromServer");
         Map<String, String> QUERY_MAP_FULL = new HashMap<>();
-//        QUERY_MAP_FULL.put("fields", "*,options[*]");
-        //@Sou Translation for options
-		
-		        Map<String, String> locallangauge = null;
+        Map<String, String> locallangauge = null;
         locallangauge=dhisApi.getLocaleLanguage();
         Map.Entry<String,String> entry = locallangauge.entrySet().iterator().next();
         String lang_value = entry.getValue();
@@ -892,7 +901,10 @@ if(!lang_value.equals("en") &&!lang_value.equals(null))
         {
             QUERY_MAP_FULL.put("fields", "*,options[*,displayName,name]");
         }
-		
+
+//        QUERY_MAP_FULL.put("fields", "*,options[*]");
+
+
         DateTime lastUpdated = DateTimeManager.getInstance()
                 .getLastUpdated(ResourceType.OPTIONSETS);
 
