@@ -192,16 +192,12 @@ public class SettingsFragment extends Fragment
                                 DhisService.logOutUser(getActivity());
                                 int apiVersion = Build.VERSION.SDK_INT;
                                 if(apiVersion >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-//                                    deleteCache(getContext());
-
                                     Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                                     startActivity(intent);
                                     getActivity().finish();
                                     deleteAppData(getContext());
                                 }
                                 else {
-//                                    deleteCache(getContext());
-
                                     Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                                     startActivity(intent);
                                     getActivity().finish();
@@ -389,35 +385,9 @@ else
     public ActionBar getActionBar() {
         return ((AppCompatActivity)getActivity()).getSupportActionBar();
     }
-
-    public static void deleteCache(Context context) {
-        try {
-            File dir = context.getCacheDir();
-            deleteDir(dir);
-        } catch (Exception e) {}
-    }
-
-    public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-            return dir.delete();
-        } else if(dir!= null && dir.isFile()) {
-            return dir.delete();
-        } else {
-            return false;
-        }
-    }
-
     //ToDo Method to clear appdata
     private void deleteAppData(Context context) {
         try {
-            // clearing app data
             String packageName = context.getPackageName();
             Runtime runtime = Runtime.getRuntime();
             runtime.exec("pm clear "+packageName);
