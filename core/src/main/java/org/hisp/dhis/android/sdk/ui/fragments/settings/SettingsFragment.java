@@ -51,6 +51,7 @@ import android.widget.Toast;
 
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.otto.Subscribe;
+import java.io.File;
 
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.DhisController;
@@ -63,6 +64,7 @@ import org.hisp.dhis.android.sdk.events.LoadingMessageEvent;
 import org.hisp.dhis.android.sdk.events.UiEvent;
 import org.hisp.dhis.android.sdk.network.Session;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.persistence.preferences.AppPreferences;
 import org.hisp.dhis.android.sdk.ui.activities.LoginActivity;
 import org.hisp.dhis.android.sdk.utils.UiUtils;
@@ -84,7 +86,10 @@ public class SettingsFragment extends Fragment
     private ProgressBar mProgressBar;
     private TextView syncTextView;
     private LoadingMessageEvent progressMessage;
-
+    private static final String TZ_LANG= "sw";
+    private static final String TZ_SYNCSERVER= "Sawazisha/hifadhi kwenye seva";
+    private static final String TZ_SYNCREMOTE= "Kwa mbali hifadhi/sawazisha data iliyofutwa";
+    private static final String TZ_DELETE= "Futa data zote za ndani na utoke";
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +107,8 @@ public class SettingsFragment extends Fragment
             getActionBar().setHomeButtonEnabled(true);
         }
 
+
+
         updateFrequencySpinner = (Spinner) view.findViewById(R.id.settings_update_frequency_spinner);
         updateFrequencySpinner.setSelection(PeriodicSynchronizerController.getUpdateFrequency(getActivity()));
         updateFrequencySpinner.setOnItemSelectedListener(this);
@@ -116,6 +123,15 @@ public class SettingsFragment extends Fragment
         logoutButton.setOnClickListener(this);
         synchronizeButton.setOnClickListener(this);
         synchronizeRemovedEventsButton.setOnClickListener(this);
+        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(TZ_LANG))
+        {
+            synchronizeButton.setText(TZ_SYNCSERVER);
+            synchronizeRemovedEventsButton.setText(TZ_SYNCREMOTE);
+            logoutButton.setText(TZ_DELETE);
+        }
 
         //if(DhisController.isLoading() && getProgressMessage() != null)
         {
@@ -172,24 +188,33 @@ public class SettingsFragment extends Fragment
                                         appPreferences.putServerUrl(serverUrlString);
                                     }
                                 }
-                                DhisService.logOutUser(getActivity());
 
+                                DhisService.logOutUser(getActivity());
                                 int apiVersion = Build.VERSION.SDK_INT;
                                 if(apiVersion >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                                    Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
-                                    startActivity(intent);
-                                    getActivity().finishAffinity();
-                                }
-                                else {
+//                                    deleteCache(getContext());
+
                                     Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                                     startActivity(intent);
                                     getActivity().finish();
+                                    deleteAppData(getContext());
+                                }
+                                else {
+//                                    deleteCache(getContext());
+
+                                    Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
+                                    startActivity(intent);
+                                    getActivity().finish();
+                                    deleteAppData(getContext());
                                 }
 
                             }
                         }
                     });
-        } else if (view.getId() == R.id.settings_sync_button) {
+        }
+
+
+        else if (view.getId() == R.id.settings_sync_button) {
             if (isAdded()) {
                 final Context context = getActivity().getBaseContext();
                 Toast.makeText(context, getString(R.string.syncing), Toast.LENGTH_SHORT).show();
@@ -222,6 +247,7 @@ public class SettingsFragment extends Fragment
         }
     }
 
+
     private void startSync() {
         changeUiVisibility(false);
         setText(getProgressMessage());
@@ -230,8 +256,21 @@ public class SettingsFragment extends Fragment
     private void endSync() {
         changeUiVisibility(true);
         syncTextView.setText("");
-        synchronizeButton.setText(R.string.synchronize_with_server);
-        synchronizeRemovedEventsButton.setText(R.string.synchronize_deleted_data);
+
+        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(TZ_LANG))
+        {
+            synchronizeButton.setText(TZ_SYNCSERVER);
+            synchronizeRemovedEventsButton.setText(TZ_SYNCREMOTE);
+        }
+else
+        {
+            synchronizeButton.setText(R.string.synchronize_with_server);
+            synchronizeRemovedEventsButton.setText(R.string.synchronize_deleted_data);
+        }
+
     }
 
     private void changeUiVisibility(boolean enabled) {
@@ -256,6 +295,7 @@ public class SettingsFragment extends Fragment
 
     private void setText(LoadingMessageEvent event)
     {
+
         if (event != null) {
             if (event.eventType.equals(LoadingMessageEvent.EventType.DATA) ||
                     event.eventType.equals(LoadingMessageEvent.EventType.METADATA) ||
@@ -349,4 +389,42 @@ public class SettingsFragment extends Fragment
     public ActionBar getActionBar() {
         return ((AppCompatActivity)getActivity()).getSupportActionBar();
     }
+
+    public static void deleteCache(Context context) {
+        try {
+            File dir = context.getCacheDir();
+            deleteDir(dir);
+        } catch (Exception e) {}
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+            return dir.delete();
+        } else if(dir!= null && dir.isFile()) {
+            return dir.delete();
+        } else {
+            return false;
+        }
+    }
+
+    //ToDo Method to clear appdata
+    private void deleteAppData(Context context) {
+        try {
+            // clearing app data
+            String packageName = context.getPackageName();
+            Runtime runtime = Runtime.getRuntime();
+            runtime.exec("pm clear "+packageName);
+            Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+            getActivity().finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } }
 }
