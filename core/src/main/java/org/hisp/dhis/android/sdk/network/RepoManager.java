@@ -29,23 +29,34 @@
 
 package org.hisp.dhis.android.sdk.network;
 
+import android.os.RecoverySystem;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 
 import org.hisp.dhis.android.sdk.controllers.DhisController;
+import org.hisp.dhis.android.sdk.events.LoadingMessageEvent;
 import org.hisp.dhis.android.sdk.utils.StringConverter;
+import org.hisp.dhis.android.sdk.utils.UiUtils;
+import org.hisp.dhis.android.sdk.utils.Utils;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.concurrent.TimeUnit;
 
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Source;
 import retrofit.ErrorHandler;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -94,7 +105,18 @@ public final class RepoManager {
     public static OkHttpClient provideOkHttpClient(Credentials credentials) {
         OkHttpClient client = new OkHttpClient();
         client.networkInterceptors().add(new StethoInterceptor());
+        client.networkInterceptors().add(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Response originalResponse = chain.proceed(chain.request());
+                return originalResponse.newBuilder()
+                        .body(new ProgressResponseBody(originalResponse.body()))
+                        .build();
+
+            }
+        });
         client.interceptors().add(provideInterceptor(credentials));
+
         client.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         client.setReadTimeout(DEFAULT_READ_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         client.setWriteTimeout(DEFAULT_WRITE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
@@ -171,6 +193,52 @@ public final class RepoManager {
     private static void logResponseBody(RetrofitError cause) {
         if (cause.getResponse() != null && cause.getResponse().getBody() != null) {
             Crashlytics.log(cause.getResponse().getBody().toString());
+        }
+    }
+
+    private static class ProgressResponseBody extends ResponseBody{
+        private final ResponseBody responseBody;
+
+        private BufferedSource bufferedSource;
+
+        public ProgressResponseBody(ResponseBody responseBody){
+            this.responseBody = responseBody;
+
+        }
+
+        @Override
+        public MediaType contentType() {
+            return responseBody.contentType();
+        }
+
+        @Override
+        public long contentLength() throws IOException {
+            return responseBody.contentLength();
+        }
+
+        @Override
+        public BufferedSource source() throws IOException {
+            if(bufferedSource==null){
+                bufferedSource = Okio.buffer(source(responseBody.source()));
+            }
+            return bufferedSource;
+        }
+
+        private Source source(Source source){
+            return new ForwardingSource(source) {
+                long totalBytesRead = 0L;
+
+                @Override
+                public long read(Buffer sink, long byteCount) throws IOException {
+                    long bytesRead = super.read(sink,byteCount);
+
+                    totalBytesRead+=bytesRead != -1 ? bytesRead:0;
+//                    UiUtils.postProgressMessage("Downloaded total"+ totalBytesRead+"Total length "+responseBody.contentLength()+"Bytes Read "+(bytesRead==-1), LoadingMessageEvent.EventType.DATA);
+                    double progress = (totalBytesRead *100/responseBody.contentLength());
+                    UiUtils.postProgressMessage(Math.round(progress)+"", LoadingMessageEvent.EventType.DATA_DOWNLOADING_PROGRESS);
+                    return bytesRead;
+                }
+            };
         }
     }
 }
