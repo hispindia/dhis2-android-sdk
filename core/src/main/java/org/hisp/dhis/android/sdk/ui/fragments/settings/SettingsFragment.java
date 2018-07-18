@@ -385,7 +385,7 @@ else
     public ActionBar getActionBar() {
         return ((AppCompatActivity)getActivity()).getSupportActionBar();
     }
-    //ToDo Method to clear appdata
+    //@Sou ToDo Method to clear appdata Fixed
     private void deleteAppData(Context context) {
         try {
             String packageName = context.getPackageName();
