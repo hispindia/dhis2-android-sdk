@@ -270,7 +270,7 @@ public class VariableService {
                 dataValueMap.put(copiedDataValue.getDataElement(), copiedDataValue);
             }
 
-            //replacing option code value with option code name as the name is used in expressions
+            //ToDO @Sou replacing option code value with option code name as the name is used in expressions
             StringBuilder stringBuilder = new StringBuilder();
             for(String dataElement : dataValueMap.keySet()) {
                 stringBuilder.append("'");
@@ -289,7 +289,8 @@ public class VariableService {
                 String optionSetCode = dataValueToReplaceCodeWithValue.getValue();
                 Option option = new Select().from(Option.class).where(Condition.column(Option$Table.OPTIONSET).eq(dataElementWithOptionSet.getOptionSet())).and(Condition.column(Option$Table.CODE).eq(optionSetCode)).querySingle();
                 if(option != null) {
-                    dataValueToReplaceCodeWithValue.setValue(option.getName());
+//                    dataValueToReplaceCodeWithValue.setValue(option.getName());
+                    dataValueToReplaceCodeWithValue.setValue(option.getCode());
                 }
             }
             getInstance().getEventDataValueMaps().put(event, dataValueMap);
@@ -317,6 +318,7 @@ public class VariableService {
             if(stringBuilder.length()>0) {
                 stringBuilder.deleteCharAt(stringBuilder.length() - 1);
             }
+          //ToDO @Sou replacing option code value with option code name as the name is used in expressions for Attributes
             String trackedEntityAttributeListForQuery = stringBuilder.toString();
             String sqlQuery = "SELECT * FROM " + TrackedEntityAttribute.class.getSimpleName() + " WHERE " + TrackedEntityAttribute$Table.ID + " IN (" + trackedEntityAttributeListForQuery + ") AND " + TrackedEntityAttribute$Table.OPTIONSET + " != '';";
             List<TrackedEntityAttribute> trackedEntityAttributesWithOptionSets = new StringQuery<>(TrackedEntityAttribute.class, sqlQuery).queryList();
@@ -325,7 +327,8 @@ public class VariableService {
                 String optionSetCode = trackedEntityAttributeValueToReplaceCodeWithValue.getValue();
                 Option option = new Select().from(Option.class).where(Condition.column(Option$Table.OPTIONSET).eq(trackedEntityAttributeWithOptionSet.getOptionSet())).and(Condition.column(Option$Table.CODE).eq(optionSetCode)).querySingle();
                 if(option != null) {
-                    trackedEntityAttributeValueToReplaceCodeWithValue.setValue(option.getName());
+//                    trackedEntityAttributeValueToReplaceCodeWithValue.setValue(option.getName());
+                    trackedEntityAttributeValueToReplaceCodeWithValue.setValue(option.getCode());
                 }
             }
 
@@ -632,7 +635,11 @@ public class VariableService {
                             value = dataValue.getValue();
                         } else {
                             DataElement dataElement = getInstance().getDataElementMap().get(programRuleVariable.getDataElement());
-                            defaultValue = getDefaultValue(dataElement.getValueType());
+                            if(dataElement.getValueType()!=null)
+                            {
+                                defaultValue = getDefaultValue(dataElement.getValueType());
+                            }
+
                         }
                     }
                 }
@@ -692,6 +699,12 @@ public class VariableService {
                 if (getInstance().getCurrentEvent() != null) {
                     DataValue dataValue = getInstance().getEventDataValueMaps().get(getInstance().getCurrentEvent()).get(programRuleVariable.getDataElement());
                     if (dataValue != null) {
+                        // if(dataValue.getDataElement().equals("nF55GMQPvD1"))
+                        // {
+                        //     Event current_selection=getInstance().getCurrentEvent();
+                        //     Log.d("chest_element","chest_element");
+                        // }
+
                         value = dataValue.getValue();
                         allValues.add(value);
                     }
@@ -918,6 +931,10 @@ public class VariableService {
         if (isEmpty(value)) {
             value = defaultValue;
         }
+        // if(programRuleVariable.getUid().equals("NS8l7ylr8X0"))
+        // {
+        //     Log.d("motherdetails","motherdetails_called");
+        // }
         return value;
     }
 
