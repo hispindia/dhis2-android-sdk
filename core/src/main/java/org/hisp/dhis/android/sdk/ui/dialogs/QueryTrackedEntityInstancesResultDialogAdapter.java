@@ -46,7 +46,10 @@ import android.widget.Filterable;
 import android.widget.LinearLayout;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.hisp.dhis.android.sdk.persistence.models.Program;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramTrackedEntityAttribute;
+import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.ui.views.FontTextView;
@@ -218,6 +221,10 @@ public class QueryTrackedEntityInstancesResultDialogAdapter extends BaseAdapter 
                                 programTrackedEntityAttributeMap);
                 Collections.sort(values, trackedEntityAttributeValueComparator);
 
+//                final Program mProgram = MetaDataController.getProgram();
+//                List<ProgramTrackedEntityAttribute> programTrackedEntityAttributes =
+//                        mProgram.getProgramTrackedEntityAttributes();
+
                 for (int i = 0; i < values.size(); i++) {
                     TrackedEntityAttributeValue trackedEntityAttributeValue = values.get(i);
                     if (programTrackedEntityAttributeMap.containsKey(
@@ -227,8 +234,14 @@ public class QueryTrackedEntityInstancesResultDialogAdapter extends BaseAdapter 
                                     programTrackedEntityAttributeMap.get(
                                             trackedEntityAttributeValue.getTrackedEntityAttributeId());
 
+
+                            //@Sou Todo Download translation attribute displayname
                             StringBuilder builder = new StringBuilder();
-                            builder.append(programTrackedEntityAttribute.getTrackedEntityAttribute().getDisplayName());
+                            TrackedEntityAttribute ptea=MetaDataController.getTrackedEntityAttribute(programTrackedEntityAttribute.getTrackedEntityAttribute().getUid());
+//                            ProgramTrackedEntityAttribute ptea_p=MetaDataController.getProgramTrackedEntityAttributes(programTrackedEntityAttribute.getTrackedEntityAttribute().getUid());
+                           //Attribute displayname replaced with translated name using ~replace
+                            builder.append(programTrackedEntityAttribute.getTrackedEntityAttribute().getName());
+//                            builder.append(ptea.getName());
                             builder.append(attributeContainer.getContext().getString(
                                     R.string.delimiter));
 
