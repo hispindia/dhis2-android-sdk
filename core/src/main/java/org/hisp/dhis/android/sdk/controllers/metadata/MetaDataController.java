@@ -733,61 +733,76 @@ public final class MetaDataController extends ResourceController {
         DateTime serverDateTime = serverSystemInfo.getServerDate();
         //some items depend on each other. Programs depend on AssignedPrograms because we need
         //the ids of programs to load.
+        UiUtils.postProgressMessage("Assigned Organization Units", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.ASSIGNEDPROGRAMS)) {
             if (shouldLoad(serverDateTime, ResourceType.ASSIGNEDPROGRAMS)) {
                 getAssignedProgramsDataFromServer(dhisApi, serverDateTime);
             }
         }
+//        UiUtils.postProgressMessage("10%", LoadingMessageEvent.EventType.DATA);
+        UiUtils.postProgressMessage("Program", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMS)) {
             List<String> assignedPrograms = MetaDataController.getAssignedPrograms();
             if (assignedPrograms != null) {
+                int counter =1;
                 for (String program : assignedPrograms) {
                     if (shouldLoad(serverDateTime, ResourceType.PROGRAMS, program)) {
+                        UiUtils.postProgressMessage("Program ("+counter+"/"+assignedPrograms.size()+")", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
                         getProgramDataFromServer(dhisApi, program, serverDateTime, syncStrategy);
+                        counter++;
                     }
                 }
             }
         }
+        UiUtils.postProgressMessage("Downloading Option set", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.OPTIONSETS)) {
             if (shouldLoad(serverDateTime, ResourceType.OPTIONSETS)) {
                 getOptionSetDataFromServer(dhisApi, serverDateTime, syncStrategy);
             }
         }
+        UiUtils.postProgressMessage("Downloading Tracked Entity Attributes", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.TRACKEDENTITYATTRIBUTES)) {
             if (shouldLoad(serverDateTime, ResourceType.TRACKEDENTITYATTRIBUTES)) {
                 getTrackedEntityAttributeDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Tracked Entity Attribute Groups", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.TRACKEDENTITYATTRIBUTEGROUPS)) {
             if (shouldLoad(serverDateTime, ResourceType.TRACKEDENTITYATTRIBUTEGROUPS)) {
                 getTrackedEntityAttributeGroupDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Constants", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.CONSTANTS)) {
             if (shouldLoad(serverDateTime, ResourceType.CONSTANTS)) {
                 getConstantsDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Program Rules", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULES)) {
             if (shouldLoad(serverDateTime, ResourceType.PROGRAMRULES)) {
                 getProgramRulesDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Program Rule Variables", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULEVARIABLES)) {
             if (shouldLoad(serverDateTime, ResourceType.PROGRAMRULEVARIABLES)) {
                 getProgramRuleVariablesDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Program Rule Actions", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULEACTIONS)) {
             if (shouldLoad(serverDateTime, ResourceType.PROGRAMRULEACTIONS)) {
                 getProgramRuleActionsDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Relationship Types", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.RELATIONSHIPTYPES)) {
             if (shouldLoad(serverDateTime, ResourceType.RELATIONSHIPTYPES)) {
                 getRelationshipTypesDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Tracked Entity Attribute Generated Values", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         List<TrackedEntityAttribute> trackedEntityAttributes = getTrackedEntityAttributes();
         if (trackedEntityAttributes != null && !trackedEntityAttributes.isEmpty()) {
             getTrackedEntityAttributeGeneratedValuesFromServer(dhisApi, getTrackedEntityAttributes(), serverDateTime);

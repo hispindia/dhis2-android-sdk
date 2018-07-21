@@ -42,7 +42,6 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +62,9 @@ import org.hisp.dhis.android.sdk.persistence.preferences.AppPreferences;
 import org.hisp.dhis.android.sdk.persistence.preferences.ResourceType;
 import org.hisp.dhis.android.sdk.utils.UiUtils;
 
+import antonkozyriatskyi.circularprogressindicator.CircularProgressIndicator;
+
+
 /**
  *
  */
@@ -77,7 +79,7 @@ public class LoginActivity extends Activity implements OnClickListener {
     private EditText passwordEditText;
     private EditText serverEditText;
     private Button loginButton;
-    private ProgressBar progressBar;
+    private CircularProgressIndicator progressBar;
     private TextView progressText;
     private View viewsContainer;
     private boolean isPulling;
@@ -88,6 +90,8 @@ public class LoginActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        progressBar = (CircularProgressIndicator) findViewById(R.id.progress_bar);
+        progressBar.setMaxProgress(100);
 
         mPrefs = new AppPreferences(getApplicationContext());
         setupUI();
@@ -145,10 +149,15 @@ public class LoginActivity extends Activity implements OnClickListener {
         usernameEditText.setText(username);
         passwordEditText.setText(password);
 
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
         progressBar.setVisibility(View.GONE);
+        progressBar.setProgressStrokeWidthPx(50);
+        progressBar.setStartAngle(270);
+        progressBar.setMaxProgress(100);
+        progressBar.setDirection(CircularProgressIndicator.DIRECTION_CLOCKWISE);
+
         progressText = (TextView) findViewById(R.id.progress_text);
-       // progressText.setVisibility(View.GONE);
+        progressText.setVisibility(View.GONE);
         loginButton.setOnClickListener(this);
     }
 
@@ -205,22 +214,29 @@ public class LoginActivity extends Activity implements OnClickListener {
 
     @Subscribe
     public void onLoadingMessageEvent(final LoadingMessageEvent event) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run()
-            {
+
                 setText(event);
-            }
-        });
     }
 
     private void setText(LoadingMessageEvent event)
     {
         if(event!=null) {
-            if (event.message != null) {
-//                progressText.setText(event.message);
-                Toast.makeText(getApplicationContext(),event.message,Toast.LENGTH_SHORT).show();
+            if(event.eventType.equals(LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION)){
+                if (event.message != null){
+                    progressText.setText(event.message);
+                    progressBar.setCurrentProgress(0);
+                }
+
+            }else if(event.eventType.equals(LoadingMessageEvent.EventType.DATA_DOWNLOADING_PROGRESS)){
+                if (event.message != null){
+                    progressBar.setCurrentProgress(Integer.parseInt(event.message));
+                    Toast.makeText(getApplicationContext(),"Current Prog"+Integer.parseInt(event.message),Toast.LENGTH_SHORT).show();
+                }
             }
+//            if (event.message != null) {
+////                progressText.setText(event.message);
+//                Toast.makeText(getApplicationContext(),event.message,Toast.LENGTH_SHORT).show();
+//            }
         }
     }
 
@@ -240,7 +256,9 @@ public class LoginActivity extends Activity implements OnClickListener {
                 LoadingController.enableLoading(this, ResourceType.RELATIONSHIPTYPES);
                 LoadingController.enableLoading(this, ResourceType.EVENTS);
                 isPulling=true;
+                showLoadingView();
                 DhisService.loadInitialData(LoginActivity.this);
+
             } else {
                 onLoginFail(result.getResponseHolder().getApiException());
             }
@@ -294,6 +312,13 @@ public class LoginActivity extends Activity implements OnClickListener {
         progressText.setVisibility(View.GONE);
         viewsContainer.setVisibility(View.VISIBLE);
         viewsContainer.startAnimation(anim);
+    }
+    private void showLoadingView(){
+        progressBar.setVisibility(View.VISIBLE);
+//        progressBar.setIndeterminate(false);
+        progressBar.setMaxProgress(100);
+
+        progressText.setVisibility(View.VISIBLE);
     }
 
     public void launchMainActivity() {
