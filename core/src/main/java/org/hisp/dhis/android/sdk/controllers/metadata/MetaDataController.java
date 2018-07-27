@@ -149,6 +149,7 @@ public final class MetaDataController extends ResourceController {
      * @return
      */
     public static boolean isDataLoaded(Context context) {
+
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.ASSIGNEDPROGRAMS)) {
             if (DateTimeManager.getInstance().getLastUpdated(ResourceType.ASSIGNEDPROGRAMS) == null) {
                 return false;
@@ -667,61 +668,75 @@ public final class MetaDataController extends ResourceController {
         DateTime serverDateTime = serverSystemInfo.getServerDate();
         //some items depend on each other. Programs depend on AssignedPrograms because we need
         //the ids of programs to load.
+
+        UiUtils.postProgressMessage("Assigned Organization Units", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.ASSIGNEDPROGRAMS)) {
             if (shouldLoad(serverDateTime, ResourceType.ASSIGNEDPROGRAMS)) {
                 getAssignedProgramsDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Program Related Metadata", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMS)) {
             List<String> assignedPrograms = MetaDataController.getAssignedPrograms();
             if (assignedPrograms != null) {
                 for (String program : assignedPrograms) {
                     if (shouldLoad(serverDateTime, ResourceType.PROGRAMS, program)) {
                         getProgramDataFromServer(dhisApi, program, serverDateTime, syncStrategy);
+
                     }
                 }
             }
         }
+
+        UiUtils.postProgressMessage("Downloading Option sets", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.OPTIONSETS)) {
             if (shouldLoad(serverDateTime, ResourceType.OPTIONSETS)) {
                 getOptionSetDataFromServer(dhisApi, serverDateTime, syncStrategy);
             }
         }
+        UiUtils.postProgressMessage("Downloading Tracked Entity Attributes", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.TRACKEDENTITYATTRIBUTES)) {
             if (shouldLoad(serverDateTime, ResourceType.TRACKEDENTITYATTRIBUTES)) {
                 getTrackedEntityAttributeDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Tracked Entity Attribute Groups", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.TRACKEDENTITYATTRIBUTEGROUPS)) {
             if (shouldLoad(serverDateTime, ResourceType.TRACKEDENTITYATTRIBUTEGROUPS)) {
                 getTrackedEntityAttributeGroupDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Constants", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.CONSTANTS)) {
             if (shouldLoad(serverDateTime, ResourceType.CONSTANTS)) {
                 getConstantsDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Program Rules", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULES)) {
             if (shouldLoad(serverDateTime, ResourceType.PROGRAMRULES)) {
                 getProgramRulesDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Program Rule Variables", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULEVARIABLES)) {
             if (shouldLoad(serverDateTime, ResourceType.PROGRAMRULEVARIABLES)) {
                 getProgramRuleVariablesDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Program Rule Actions", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMRULEACTIONS)) {
             if (shouldLoad(serverDateTime, ResourceType.PROGRAMRULEACTIONS)) {
                 getProgramRuleActionsDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading Relationship Types", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.RELATIONSHIPTYPES)) {
             if (shouldLoad(serverDateTime, ResourceType.RELATIONSHIPTYPES)) {
                 getRelationshipTypesDataFromServer(dhisApi, serverDateTime);
             }
         }
+        UiUtils.postProgressMessage("Downloading TrackedentityAttributes", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         List<TrackedEntityAttribute> trackedEntityAttributes = getTrackedEntityAttributes();
         if (trackedEntityAttributes != null && !trackedEntityAttributes.isEmpty()) {
             getTrackedEntityAttributeGeneratedValuesFromServer(dhisApi, getTrackedEntityAttributes(), serverDateTime);
@@ -849,7 +864,7 @@ public final class MetaDataController extends ResourceController {
         {
             Log.d("lang_db",lang_value);
             QUERY_MAP_FULL.put("fields",
-                    "*,displayName~rename(name),name~rename(displayName),trackedEntity[*],programIndicators[*],programStages[*,displayName~rename(name),name~rename(displayName),!dataEntryForm,program[id],programIndicators[*]," +
+                    "*,displayName~rename(name),name~rename(displayName),trackedEntity[*,displayName~rename(name),name~rename(displayName)],programIndicators[*],programStages[*,displayName~rename(name),name~rename(displayName),!dataEntryForm,program[id],programIndicators[*]," +
                             "programStageSections[*,displayName~rename(name),name~rename(displayName),programStageDataElements[*,programStage[id]," +
                             "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
                             "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
@@ -914,6 +929,8 @@ public final class MetaDataController extends ResourceController {
 
         List<OptionSet> optionSets = unwrapResponse(dhisApi
                 .getOptionSets(QUERY_MAP_FULL), ApiEndpointContainer.OPTION_SETS);
+
+
         List<DbOperation> operations = OptionSetWrapper.getOperations(optionSets);
         DbUtils.applyBatch(operations);
         DateTimeManager.getInstance()
@@ -936,8 +953,6 @@ public final class MetaDataController extends ResourceController {
                 .getLastUpdated(ResourceType.TRACKEDENTITYATTRIBUTES);
         List<TrackedEntityAttribute> trackedEntityAttributes = unwrapResponse(dhisApi
                 .getTrackedEntityAttributes(getBasicQueryMap(lastUpdated)), ApiEndpointContainer.TRACKED_ENTITY_ATTRIBUTES);
-
-
         saveResourceDataFromServer(ResourceType.TRACKEDENTITYATTRIBUTES, dhisApi, trackedEntityAttributes, getTrackedEntityAttributes(), serverDateTime);
     }
 
