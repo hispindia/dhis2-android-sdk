@@ -859,10 +859,16 @@ public final class MetaDataController extends ResourceController {
         locallangauge=dhisApi.getLocaleLanguage();
         Map.Entry<String,String> entry = locallangauge.entrySet().iterator().next();
         String lang_value = entry.getValue();
-        Log.d("lang_db_before",lang_value);
         if(!lang_value.equals("en") &&!lang_value.equals(null))
         {
-            Log.d("lang_db",lang_value);
+            // QUERY_MAP_FULL.put("fields",
+            //         "*,displayName~rename(name),name~rename(displayName),trackedEntity[*,displayName~rename(name),name~rename(displayName)],programIndicators[*],programStages[*,displayName~rename(name),name~rename(displayName),!dataEntryForm,program[id],programIndicators[*]," +
+            //                 "programStageSections[*,displayName~rename(name),name~rename(displayName),programStageDataElements[*,programStage[id]," +
+            //                 "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
+            //                 "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
+            //                 "[*,trackedEntityAttribute[*,displayName~rename(name),name~rename(displayName)]],!organisationUnits");
+
+            //Translation for default trackedentity
             QUERY_MAP_FULL.put("fields",
                     "*,displayName~rename(name),name~rename(displayName),trackedEntity[*,displayName~rename(name),name~rename(displayName)],programIndicators[*],programStages[*,displayName~rename(name),name~rename(displayName),!dataEntryForm,program[id],programIndicators[*]," +
                             "programStageSections[*,displayName~rename(name),name~rename(displayName),programStageDataElements[*,programStage[id]," +
@@ -874,7 +880,7 @@ public final class MetaDataController extends ResourceController {
 
         else
         {
-            Log.d("lang_db_else",lang_value);
+          
             QUERY_MAP_FULL.put("fields",
                     "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
                             "programStageSections[*,programStageDataElements[*,programStage[id]," +
