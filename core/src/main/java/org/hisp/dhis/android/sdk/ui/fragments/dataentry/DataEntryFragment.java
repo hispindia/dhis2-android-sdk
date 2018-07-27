@@ -48,14 +48,17 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.ErrorType;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.activities.OnBackPressedListener;
 import org.hisp.dhis.android.sdk.ui.adapters.DataValueAdapter;
 import org.hisp.dhis.android.sdk.ui.adapters.SectionAdapter;
@@ -67,6 +70,7 @@ import org.hisp.dhis.android.sdk.ui.adapters.rows.events.OnDetailedInfoButtonCli
 import org.hisp.dhis.android.sdk.ui.fragments.common.AbsProgramRuleFragment;
 import org.hisp.dhis.android.sdk.ui.fragments.eventdataentry.RulesEvaluatorThread;
 import org.hisp.dhis.android.sdk.ui.fragments.eventdataentry.UpdateSectionsEvent;
+import org.hisp.dhis.android.sdk.ui.views.FontTextView;
 import org.hisp.dhis.android.sdk.utils.UiUtils;
 
 import java.util.ArrayList;
@@ -76,7 +80,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         implements LoaderManager.LoaderCallbacks<D>, AdapterView.OnItemSelectedListener,
         OnBackPressedListener {
     public static final String TAG = DataEntryFragment.class.getSimpleName();
-
+    private static final String TZ_LANG= "sw";
     protected static final int LOADER_ID = 17;
     protected static final int INITIAL_POSITION = 0;
     protected static final String EXTRA_ARGUMENTS = "extra:Arguments";
@@ -155,8 +159,25 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
                 }
             }
         });
+
         View upButton = getLayoutInflater(savedInstanceState)
                 .inflate(R.layout.up_button_layout, listView, false);
+
+        //@Sou translation for upbutton
+        FontTextView upbutton_tz = (FontTextView) upButton.findViewById(R.id.upbutton_tz);
+
+        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(TZ_LANG))
+        {
+            upbutton_tz.setText("Juu");
+        }
+        else
+        {
+            upbutton_tz.setText("Up");
+        }
+
         listViewAdapter = new DataValueAdapter(getChildFragmentManager(),
                 getLayoutInflater(savedInstanceState), listView, getContext());
 
@@ -258,6 +279,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
 
     private void showErrorsDialog(ArrayList<String> errors) {
         if (!errors.isEmpty()) {
+
             validationErrorDialog = ValidationErrorDialog
                     .newInstance(
                             getActivity().getString(R.string.unable_to_complete_registration) + " "
