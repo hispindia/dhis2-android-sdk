@@ -45,6 +45,7 @@ import org.hisp.dhis.android.sdk.persistence.models.ProgramRuleVariable;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramStage;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramStageDataElement;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
+import org.hisp.dhis.android.sdk.ui.fragments.eventdataentry.EventDataEntryRuleHelper;
 import org.hisp.dhis.android.sdk.utils.comparators.ProgramRulePriorityComparator;
 import org.hisp.dhis.android.sdk.utils.services.ProgramRuleService;
 import org.hisp.dhis.android.sdk.utils.services.VariableService;
@@ -223,6 +224,11 @@ public abstract class AbsProgramRuleFragment<D> extends BaseFragment {
                 }
             }
         }
+
+        if(programRuleFragmentHelper instanceof EventDataEntryRuleHelper){
+            ((EventDataEntryRuleHelper)programRuleFragmentHelper).freezDataEntry();
+        }
+
 
         if (!affectedFieldsWithValue.isEmpty()) {
             programRuleFragmentHelper.showWarningHiddenValuesDialog(programRuleFragmentHelper.getFragment(), affectedFieldsWithValue);

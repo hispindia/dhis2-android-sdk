@@ -100,6 +100,7 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
     public static final String PROGRAM_STAGE_ID = "extra:ProgramStageId";
     public static final String EVENT_ID = "extra:EventId";
     public static final String ENROLLMENT_ID = "extra:EnrollmentId";
+    public static final String LAST_COMPLETED_EVENT_DATE = "extra:lastcompletedevent" ;
     private static final String QUARANTINE_SCHEDULER = "SH5ad8iQpQB";
     private ImageView previousSectionButton;
     private ImageView nextSectionButton;
@@ -126,6 +128,10 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
     private SectionAdapter spinnerAdapter;
     private EventDataEntryFragmentForm form;
     private DateTime scheduledDueDate;
+
+
+    public static final String QUARANTINE="IXdxLjRSFT8";
+    private DateTime lastCompletedEventDate;
 
     public EventDataEntryFragment() {
         setProgramRuleFragmentHelper(new EventDataEntryRuleHelper(this));
@@ -221,7 +227,9 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             indicatorEvaluatorThread = new IndicatorEvaluatorThread();
             indicatorEvaluatorThread.start();
         }
-
+        if(getArguments().getString(LAST_COMPLETED_EVENT_DATE)!=null){
+            lastCompletedEventDate = new DateTime(getArguments().getString(LAST_COMPLETED_EVENT_DATE));
+        }
         indicatorEvaluatorThread.init(this);
     }
 
@@ -261,6 +269,38 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         }
     }
 
+    void disableAll(){
+        List<Row> rows = new ArrayList<>();
+        Map<String, DataValue> dataValues = form.getDataValues();
+        for(String key :dataValues.keySet()){
+            listViewAdapter.disableIndex(key);
+        }
+
+        listView.setAdapter(listViewAdapter);
+
+    }
+
+    void freezDataEntry(){
+
+        //disable editing if any of the later events  are completed
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(form.getStage().getUid().equals(QUARANTINE) && lastCompletedEventDate!=null){
+                    Event tempEvent = form.getEvent();
+                    if(tempEvent!= null && tempEvent.getEventDate()!=null){
+                        DateTime tempDateTime = new DateTime(tempEvent.getEventDate());
+                        if(!tempDateTime.isAfter(lastCompletedEventDate)){
+//                            setEditableDataEntryRows(form,false,false);
+                            disableAll();
+                        }
+                    }
+                }
+            }
+        });
+
+    }
+
     @Override
     public Loader<EventDataEntryFragmentForm> onCreateLoader(int id, Bundle args) {
         if (LOADER_ID == id && isAdded()) {
@@ -269,6 +309,8 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             // Hence, it would be more safe not to track any changes in any tables
             List<Class<? extends Model>> modelsToTrack = new ArrayList<>();
             Bundle fragmentArguments = args.getBundle(EXTRA_ARGUMENTS);
+
+
             return new DbLoader<>(
                     getActivity(), modelsToTrack, new EventDataEntryFragmentQuery(
                     fragmentArguments.getString(ORG_UNIT_ID),
@@ -384,6 +426,8 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             }
 
             initiateEvaluateProgramRules();
+
+
         }
     }
 
@@ -445,6 +489,8 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         }
         listView.setAdapter(listViewAdapter);
     }
+
+
 
     private void attachSpinner() {
         if (!isSpinnerAttached()) {

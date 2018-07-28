@@ -333,4 +333,8 @@ public class EventDataEntryRuleHelper implements IProgramRuleFragmentHelper {
         // we have no hidefield rules in this screen so no need to show a progress spinner
         return false;
     }
+
+    public void freezDataEntry(){
+        eventDataEntryFragment.freezDataEntry();
+    }
 }

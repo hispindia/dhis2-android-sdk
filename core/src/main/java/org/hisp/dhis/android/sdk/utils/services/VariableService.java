@@ -353,7 +353,7 @@ public class VariableService {
 //
 //                        }
                     //}
-                    event.save();
+//                    event.save();
                 }
             }
 
@@ -880,13 +880,17 @@ public class VariableService {
                 }
                 for (Event event : eventsForEnrollment) {
                     //ToDO @Sou dataValue null stop
-                    dataValue = getInstance().getEventDataValueMaps().get(event).get(programRuleVariable.getDataElement());
-                    if (dataValue != null) {
-                        if (value == null) {
-                            value = dataValue.getValue();
+                    Map<String, DataValue> stringDataValueMap = getInstance().getEventDataValueMaps().get(event);
+                    if(stringDataValueMap!=null){
+                        dataValue = stringDataValueMap.get(programRuleVariable.getDataElement());
+                        if (dataValue != null) {
+                            if (value == null) {
+                                value = dataValue.getValue();
+                            }
+                            allValues.add(dataValue.getValue());
                         }
-                        allValues.add(dataValue.getValue());
                     }
+
                 }
                 break;
             }
