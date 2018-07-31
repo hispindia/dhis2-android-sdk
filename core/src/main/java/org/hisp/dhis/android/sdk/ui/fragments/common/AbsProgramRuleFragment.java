@@ -123,8 +123,9 @@ public abstract class AbsProgramRuleFragment<D> extends BaseFragment {
 
         if(programRuleFragmentHelper.getEvent() != null && programRuleFragmentHelper.getEvent().getProgramStageId().equals(QUARANTINE_SCHEDULER)){
             List<DataValue> dataValues = programRuleFragmentHelper.getEvent().getDataValues();
-            List<Event> events = programRuleFragmentHelper.getEnrollment().getEvents();
+            List<Event> events = programRuleFragmentHelper.getEnrollment().getEvents(true);
             Map<String,Event> mappedEvents = new HashMap<String,Event>();
+            List<String> listOfDates = new ArrayList<>();
             for(Event event:events){
                 if(event.getProgramStageId().equals(QUARANTINE)){
                     mappedEvents.put(event.getEventDate(),event);
@@ -137,91 +138,69 @@ public abstract class AbsProgramRuleFragment<D> extends BaseFragment {
                 for(DataValue dv :dataValues){
                     switch(dv.getDataElement()){
                         case "RdNf0Z7OsMe": //checkin 1
-                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
-                               Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
-                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
-                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
-                                        ,MetaDataController.getProgramStage(QUARANTINE),
-                                        DhisController.getInstance().getSession().getCredentials().getUsername());
-                               event.setDueDate(quarantineEndDate);
-                               event.setEventDate(dv.getValue());
-                                event.save();
+//                            }else
+                            if(!dv.getValue().equals("")){
+                                listOfDates.add(dv.getValue());
                             }
                             break;
 
                         case "Gdv9G1PsASA"://checkin 2
-                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
-                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
-                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
-                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
-                                        ,MetaDataController.getProgramStage(QUARANTINE),
-                                        DhisController.getInstance().getSession().getCredentials().getUsername());
-                                event.setDueDate(quarantineEndDate);
-                                event.setEventDate(dv.getValue());
-                                event.save();
+                            if(!dv.getValue().equals("")){
+                                listOfDates.add(dv.getValue());
                             }
                             break;
 
 
                         case "sJUq4qKJRD8"://checkin 3
-                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
-                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
-                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
-                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
-                                        ,MetaDataController.getProgramStage(QUARANTINE),
-                                        DhisController.getInstance().getSession().getCredentials().getUsername());
-                                event.setDueDate(quarantineEndDate);
-                                event.setEventDate(dv.getValue());
-                                event.save();
+                            if(!dv.getValue().equals("")){
+                                listOfDates.add(dv.getValue());
                             }
                             break;
 
                         case "RJ1Fi9WdGfO"://checkin 4
-                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
-                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
-                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
-                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
-                                        ,MetaDataController.getProgramStage(QUARANTINE),
-                                        DhisController.getInstance().getSession().getCredentials().getUsername());
-                                event.setDueDate(quarantineEndDate);
-                                event.setEventDate(dv.getValue());
-                                event.save();
+                            if(!dv.getValue().equals("")){
+                                listOfDates.add(dv.getValue());
                             }
                             break;
 
                         case "Ghq39zfrljF": //checkin 5
-                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
-                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
-                                        programRuleFragmentHelper.getEnrollment().getProgram().getUid()
-                                        ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
-                                        ,MetaDataController.getProgramStage(QUARANTINE),
-                                        DhisController.getInstance().getSession().getCredentials().getUsername());
-                                event.setDueDate(quarantineEndDate);
-                                event.setEventDate(dv.getValue());
-                                event.save();
+//
+                            if(!dv.getValue().equals("")){
+                                listOfDates.add(dv.getValue());
                             }
                             break;
 
 
                         case "PXFKBOkzPa3"://checkin 6
-                            if(!dv.getValue().equals("") && mappedEvents.get(dv.getValue())==null){
-                                Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
+//
+                            if(!dv.getValue().equals("")){
+                                listOfDates.add(dv.getValue());
+                            }
+                            break;
+                    }
+                }
+
+                for(Event event:events){
+                    if(event.getProgramStageId().equals(QUARANTINE)){
+                        if(!listOfDates.contains(event.getEventDate())){
+                            event.delete();
+                        }
+                    }
+                }
+
+                for(String date:listOfDates){
+                    if(mappedEvents.get(date)==null){
+                        Event event =  getEvent(programRuleFragmentHelper.getEnrollment().getOrgUnit(),
                                         programRuleFragmentHelper.getEnrollment().getProgram().getUid()
                                         ,-1,programRuleFragmentHelper.getEnrollment().getLocalId()
                                         ,MetaDataController.getProgramStage(QUARANTINE),
                                         DhisController.getInstance().getSession().getCredentials().getUsername());
                                 event.setDueDate(quarantineEndDate);
-                                event.setEventDate(dv.getValue());
+                                event.setEventDate(date);
                                 event.save();
-                            }
-                            break;
-
-//                        case "wqxQiTEfioS": //Quarantine end date
-//
-//                            break;
-
                     }
                 }
+
             }
         }
 
