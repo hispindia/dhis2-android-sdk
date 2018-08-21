@@ -572,6 +572,15 @@ public final class TrackerController extends ResourceController {
         return TrackerDataLoader.queryTrackedEntityInstancesDataFromAllAccessibleOrgunits(dhisApi, organisationUnitUid, programUid, queryString, detailedSearch, params);
     }
 
+    public static List<TrackedEntityInstance> queryTrackedEntityInstancesDataFromAllAccessibleOrgUnits(DhisApi dhisApi,
+                                                                                                       String organisationUnitUid,
+                                                                                                       String programUid,
+                                                                                                       String queryString,
+                                                                                                       boolean detailedSearch,String startDate,                                                                                                             String endDate,
+                                                                                                       TrackedEntityAttributeValue... params) throws APIException {
+        return TrackerDataLoader.queryTrackedEntityInstancesDataFromAllAccessibleOrgunits(dhisApi, organisationUnitUid, programUid, queryString, detailedSearch,startDate,endDate, params);
+    }
+
     public static List<TrackedEntityInstance> getTrackedEntityInstancesDataFromServer(DhisApi dhisApi, List<TrackedEntityInstance> trackedEntityInstances, boolean getEnrollments, boolean getRecursiveRelations) throws APIException {
         return TrackerDataLoader.getTrackedEntityInstancesDataFromServer(dhisApi, trackedEntityInstances, getEnrollments, getRecursiveRelations);
     }

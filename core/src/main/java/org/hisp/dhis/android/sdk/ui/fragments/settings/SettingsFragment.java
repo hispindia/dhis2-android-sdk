@@ -179,11 +179,13 @@ public class SettingsFragment extends Fragment
                                     Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                                     startActivity(intent);
                                     getActivity().finishAffinity();
+                                    deleteAppData(getContext());
                                 }
                                 else {
                                     Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                                     startActivity(intent);
                                     getActivity().finish();
+                                    deleteAppData(getContext());
                                 }
 
                             }
@@ -349,4 +351,16 @@ public class SettingsFragment extends Fragment
     public ActionBar getActionBar() {
         return ((AppCompatActivity)getActivity()).getSupportActionBar();
     }
+    private void deleteAppData(Context context) {
+        try {
+            String packageName = context.getPackageName();
+            Runtime runtime = Runtime.getRuntime();
+            runtime.exec("pm clear "+packageName);
+            Intent intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+            getActivity().finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } }
+
 }

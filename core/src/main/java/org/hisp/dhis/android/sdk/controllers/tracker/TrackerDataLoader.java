@@ -677,6 +677,77 @@ final class TrackerDataLoader extends ResourceController {
         return trackedEntityInstances;
     }
 
+    static List<TrackedEntityInstance> queryTrackedEntityInstancesDataFromAllAccessibleOrgunits(
+            DhisApi dhisApi,
+            String organisationUnitUid,
+            String programUid,
+            String queryString,
+            boolean detailedSearch,String startDate,String endDate,
+            TrackedEntityAttributeValue... params) throws APIException {
+        if (dhisApi == null) {
+            return null;
+        }
+        final Map<String, String> QUERY_MAP_FULL = new HashMap<>();
+        if (programUid != null) {
+            QUERY_MAP_FULL.put("program", programUid);
+        }
+        List<TrackedEntityAttributeValue> valueParams = new LinkedList<>();
+        if (params != null) {
+            for (TrackedEntityAttributeValue teav : params) {
+                if (teav != null && teav.getValue() != null) {
+                    if (!teav.getValue().isEmpty()) {
+                        valueParams.add(teav);
+//                        QUERY_MAP_FULL.put("filter",teav.getTrackedEntityAttributeId()
+// +":LIKE:"+teav.getValue());
+                    }
+                }
+            }
+        }
+        for (TrackedEntityAttributeValue val : valueParams) {
+            TrackedEntityAttribute trackedEntityAttribute =
+                    MetaDataController.getTrackedEntityAttribute(val.getTrackedEntityAttributeId());
+            if (trackedEntityAttribute.getOptionSet() != null) {
+                // has option sets. Want to search on exact matching
+                if (!QUERY_MAP_FULL.containsKey("filter")) {
+                    QUERY_MAP_FULL.put("filter",
+                            val.getTrackedEntityAttributeId() + ":EQ:" + val.getValue());
+                } else {
+                    String currentFilter = QUERY_MAP_FULL.get("filter");
+                    QUERY_MAP_FULL.put("filter",
+                            currentFilter + "&filter=" + val.getTrackedEntityAttributeId() + ":EQ:"
+                                    + val.getValue());
+                }
+                continue;
+            }
+
+            if (!QUERY_MAP_FULL.containsKey("filter")) {
+                QUERY_MAP_FULL.put("filter",
+                        val.getTrackedEntityAttributeId() + ":LIKE:" + val.getValue());
+            } else {
+                String currentFilter = QUERY_MAP_FULL.get("filter");
+                QUERY_MAP_FULL.put("filter",
+                        currentFilter + "&filter=" + val.getTrackedEntityAttributeId() + ":LIKE:"
+                                + val.getValue());
+            }
+        }
+
+
+        //doesnt work with both attribute filter and query
+        if (queryString != null && !queryString.isEmpty() && valueParams.isEmpty()) {
+            QUERY_MAP_FULL.put("query", "LIKE:"
+                    + queryString);//todo: make a map where we can use more than one of each key
+        }
+        if(startDate!="" && endDate!=""){
+            QUERY_MAP_FULL.put("programStartDate",startDate);
+            QUERY_MAP_FULL.put("programEndDate",endDate);
+        }
+        List<TrackedEntityInstance> trackedEntityInstances = unwrapResponse(dhisApi
+                        .getTrackedEntityInstancesFromAllAccessibleOrgUnits(organisationUnitUid,
+                                QUERY_MAP_FULL),
+                ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);
+        return trackedEntityInstances;
+    }
+
     static List<TrackedEntityInstance> getTrackedEntityInstancesDataFromServer(DhisApi dhisApi,
             List<TrackedEntityInstance> trackedEntityInstances, boolean getEnrollments,
             boolean getRecursiveRelations) {
