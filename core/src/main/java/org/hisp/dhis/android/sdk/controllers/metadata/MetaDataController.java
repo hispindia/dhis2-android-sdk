@@ -668,13 +668,13 @@ public final class MetaDataController extends ResourceController {
         DateTime serverDateTime = serverSystemInfo.getServerDate();
         //some items depend on each other. Programs depend on AssignedPrograms because we need
         //the ids of programs to load.
-
         UiUtils.postProgressMessage("Assigned Organization Units", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.ASSIGNEDPROGRAMS)) {
             if (shouldLoad(serverDateTime, ResourceType.ASSIGNEDPROGRAMS)) {
                 getAssignedProgramsDataFromServer(dhisApi, serverDateTime);
             }
         }
+
         UiUtils.postProgressMessage("Program Related Metadata", LoadingMessageEvent.EventType.DATA_DOWNLOADING_CAPTION);
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.PROGRAMS)) {
             List<String> assignedPrograms = MetaDataController.getAssignedPrograms();
@@ -753,13 +753,23 @@ public final class MetaDataController extends ResourceController {
         String lang_value = entry.getValue();
         userAccount_.setUserSettings(lang_value);
         userAccount_.save();
-
+        List<Program> assignedProgramUids=new ArrayList<>();
         Map<String, Program> programMap = new HashMap<>();
-        List<Program> assignedProgramUids = userAccount.getPrograms();
+        for (OrganisationUnit otg:userAccount.getOrganisationUnits())
+        {
+            for(Program pro:otg.getPrograms())
+            {
+                assignedProgramUids.add(pro);
+            }
+
+        }
+
+//       assignedProgramUids = userAccount.getOrganisationUnits().get(0).getPrograms();
 
         for (Program program : assignedProgramUids) {
             programMap.put(program.getUid(), program);
         }
+
 
         List<OrganisationUnit> organisationUnitList = userAccount.getOrganisationUnits();
         for (OrganisationUnit organisationUnit : organisationUnitList) {
@@ -814,7 +824,6 @@ public final class MetaDataController extends ResourceController {
         }
 
         for (OrganisationUnit organisationUnit : organisationUnitList) {
-
             if (organisationUnit.getPrograms() != null && !organisationUnit.getPrograms().isEmpty()) {
                 List<Program> assignedProgramToUnit = new ArrayList<>();
                 for (Program program : organisationUnit.getPrograms()) {
@@ -825,10 +834,7 @@ public final class MetaDataController extends ResourceController {
                 organisationUnit.setPrograms(assignedProgramToUnit);
             }
         }
-
-
         List<DbOperation> operations = AssignedProgramsWrapper.getOperations(organisationUnitList);
-
         DbUtils.applyBatch(operations);
         DateTimeManager.getInstance()
                 .setLastUpdated(ResourceType.ASSIGNEDPROGRAMS, serverDateTime);
@@ -859,18 +865,12 @@ public final class MetaDataController extends ResourceController {
         locallangauge=dhisApi.getLocaleLanguage();
         Map.Entry<String,String> entry = locallangauge.entrySet().iterator().next();
         String lang_value = entry.getValue();
+        Log.d("lang_db_before",lang_value);
         if(!lang_value.equals("en") &&!lang_value.equals(null))
         {
-            // QUERY_MAP_FULL.put("fields",
-            //         "*,displayName~rename(name),name~rename(displayName),trackedEntity[*,displayName~rename(name),name~rename(displayName)],programIndicators[*],programStages[*,displayName~rename(name),name~rename(displayName),!dataEntryForm,program[id],programIndicators[*]," +
-            //                 "programStageSections[*,displayName~rename(name),name~rename(displayName),programStageDataElements[*,programStage[id]," +
-            //                 "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
-            //                 "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
-            //                 "[*,trackedEntityAttribute[*,displayName~rename(name),name~rename(displayName)]],!organisationUnits");
-
-            //Translation for default trackedentity
+            Log.d("lang_db",lang_value);
             QUERY_MAP_FULL.put("fields",
-                    "*,displayName~rename(name),name~rename(displayName),trackedEntity[*,displayName~rename(name),name~rename(displayName)],programIndicators[*],programStages[*,displayName~rename(name),name~rename(displayName),!dataEntryForm,program[id],programIndicators[*]," +
+                    "*,!access[data],trackedEntityType~rename(trackedEntity),displayName~rename(name),name~rename(displayName),trackedEntity[*,displayName~rename(name),name~rename(displayName)],programIndicators[*],programStages[*,!access[data],displayName~rename(name),name~rename(displayName),!dataEntryForm,program[id],programIndicators[*]," +
                             "programStageSections[*,displayName~rename(name),name~rename(displayName),programStageDataElements[*,programStage[id]," +
                             "dataElement[*,displayName~rename(name),name~rename(displayName),id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
                             "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
@@ -880,9 +880,9 @@ public final class MetaDataController extends ResourceController {
 
         else
         {
-          
+            Log.d("lang_db_else",lang_value);
             QUERY_MAP_FULL.put("fields",
-                    "*,trackedEntity[*],programIndicators[*],programStages[*,!dataEntryForm,program[id],programIndicators[*]," +
+                    "*,!access[data],trackedEntityType~rename(trackedEntity),trackedEntity[*],programIndicators[*],programStages[*,!access[data],!dataEntryForm,program[id],programIndicators[*]," +
                             "programStageSections[*,programStageDataElements[*,programStage[id]," +
                             "dataElement[*,displayName,name,id,attributeValues[*,attribute[*]],optionSet[id]]],programIndicators[*]],programStageDataElements" +
                             "[*,programStage[id],dataElement[*,optionSet[id]]]],programTrackedEntityAttributes" +
