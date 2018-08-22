@@ -97,6 +97,7 @@ import org.hisp.dhis.android.sdk.utils.comparators.EventDateComparator;
 import org.hisp.dhis.android.sdk.utils.services.ProgramIndicatorService;
 import org.hisp.dhis.android.sdk.utils.services.VariableService;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,6 +109,7 @@ import java.util.Map;
 public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFragmentForm> {
 
     public static final String TAG = EventDataEntryFragment.class.getSimpleName();
+    public static final String LAST_UNCOMPLETED_EVENT_DATE = "extra:lastuncompletedevent" ;
     private Map<String, List<ProgramRule>> programRulesForDataElements;
     private Map<String, List<ProgramIndicator>> programIndicatorsForDataElements;
 
@@ -132,6 +134,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
 
     public static final String QUARANTINE="IXdxLjRSFT8";
     private DateTime lastCompletedEventDate;
+    private DateTime lastUnCompletedEventDate;
 
     public EventDataEntryFragment() {
         setProgramRuleFragmentHelper(new EventDataEntryRuleHelper(this));
@@ -229,6 +232,9 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         }
         if(getArguments().getString(LAST_COMPLETED_EVENT_DATE)!=null){
             lastCompletedEventDate = new DateTime(getArguments().getString(LAST_COMPLETED_EVENT_DATE));
+        }
+        if(getArguments().getString(LAST_UNCOMPLETED_EVENT_DATE )!=null){
+            lastUnCompletedEventDate = new DateTime(getArguments().getString(LAST_UNCOMPLETED_EVENT_DATE));
         }
         indicatorEvaluatorThread.init(this);
     }
@@ -849,8 +855,25 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         completeEvent(eventClick);
     }
 
+    private boolean isEarliereventCompleted(){
+        if(lastUnCompletedEventDate!=null ){
+
+            Event tempEvent = form.getEvent();
+            if(tempEvent!= null && tempEvent.getEventDate()!=null){
+                DateTime tempDateTime = new DateTime(tempEvent.getEventDate());
+                if(tempDateTime.isAfter(lastUnCompletedEventDate)){
+//                            setEditableDataEntryRows(form,false,false);
+                    return false;
+                }
+            }
+        }
+        return  true;
+    }
+
     private void completeEvent(final OnCompleteEventClick eventClick) {
-        if (isValid()) {
+
+
+        if (isValid() && isEarliereventCompleted()) {
             if (!eventClick.getEvent().getStatus().equals(Event.STATUS_COMPLETED)) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
