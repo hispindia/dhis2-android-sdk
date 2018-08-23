@@ -110,6 +110,8 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
 
     public static final String TAG = EventDataEntryFragment.class.getSimpleName();
     public static final String LAST_UNCOMPLETED_EVENT_DATE = "extra:lastuncompletedevent" ;
+    private static final String RABIES_FOLLOW_UP = "MkiHGIm385w";
+    private static final String RABIES = "ww8DSCToHag";
     private Map<String, List<ProgramRule>> programRulesForDataElements;
     private Map<String, List<ProgramIndicator>> programIndicatorsForDataElements;
 
@@ -233,9 +235,9 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         if(getArguments().getString(LAST_COMPLETED_EVENT_DATE)!=null){
             lastCompletedEventDate = new DateTime(getArguments().getString(LAST_COMPLETED_EVENT_DATE));
         }
-        if(getArguments().getString(LAST_UNCOMPLETED_EVENT_DATE )!=null){
-            lastUnCompletedEventDate = new DateTime(getArguments().getString(LAST_UNCOMPLETED_EVENT_DATE));
-        }
+//        if(getArguments().getString(LAST_UNCOMPLETED_EVENT_DATE )!=null){
+//            lastUnCompletedEventDate = new DateTime(getArguments().getString(LAST_UNCOMPLETED_EVENT_DATE));
+//        }
         indicatorEvaluatorThread.init(this);
     }
 
@@ -432,7 +434,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             }
 
             initiateEvaluateProgramRules();
-
+            setlastUncomplete();
 
         }
     }
@@ -671,6 +673,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         if (hasIndicators(dataElement)) {
             initiateEvaluateProgramIndicators(dataElement);
         }
+
     }
 
     private boolean hasRules(String dataElement) {
@@ -718,6 +721,73 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         IndicatorRow indicatorRow = form.getIndicatorToIndicatorRowMap().get(programIndicator.getUid());
         updateIndicatorRow(indicatorRow, form.getEvent());
         refreshListView();
+
+    }
+
+    private void setlastUncomplete() {
+        if(form.getEvent().getProgramStageId().equals(QUARANTINE)){
+            List<Enrollment> enrollments = TrackerController.getEnrollments(form.getEvent().getProgramId(),
+                    TrackerController.getTrackedEntityInstance(form.getEvent().getTrackedEntityInstance()));
+
+            List<Event> events = new ArrayList<>();
+            for(Enrollment enrollment:enrollments){
+                events.addAll(TrackerController.getEventsByEnrollment(enrollment.getEnrollment()));
+            }
+
+            for(Event event:events){
+                if(event.getProgramStageId().equals(QUARANTINE)
+                        && (!event.getStatus().equals(Event.STATUS_COMPLETED))){
+                    if(lastUnCompletedEventDate==null) {
+                        lastUnCompletedEventDate = new DateTime(event.getEventDate());
+                    }else{
+                        if(lastUnCompletedEventDate.isAfter(new DateTime(event.getEventDate()))){
+                            lastUnCompletedEventDate = new DateTime(event.getEventDate());
+                        }
+                    }
+                }
+            }
+        }else if(form.getEvent().getProgramStageId().equals(RABIES_FOLLOW_UP)){
+            List<Enrollment> enrollments = TrackerController.getEnrollments(form.getEvent().getProgramId(),
+                    TrackerController.getTrackedEntityInstance(form.getEvent().getTrackedEntityInstance()));
+
+            List<Event> events = new ArrayList<>();
+            for(Enrollment enrollment:enrollments){
+                events.addAll(TrackerController.getEventsByEnrollment(enrollment.getEnrollment()));
+            }
+
+            for(Event event:events){
+                if(event.getProgramStageId().equals(RABIES)
+                        && (!event.getStatus().equals(Event.STATUS_COMPLETED))){
+                    if(lastUnCompletedEventDate==null) {
+                        lastUnCompletedEventDate = new DateTime(event.getEventDate());
+                    }else{
+                        if(lastUnCompletedEventDate.isAfter(new DateTime(event.getEventDate()))){
+                            lastUnCompletedEventDate = new DateTime(event.getEventDate());
+                        }
+                    }
+                }
+            }
+        }else{
+            List<Enrollment> enrollments = TrackerController.getEnrollments(form.getEvent().getProgramId(),
+                    TrackerController.getTrackedEntityInstance(form.getEvent().getTrackedEntityInstance()));
+
+            List<Event> events = new ArrayList<>();
+            for(Enrollment enrollment:enrollments){
+                events.addAll(TrackerController.getEventsByEnrollment(enrollment.getEnrollment()));
+            }
+
+            for(Event event:events){
+                if(!event.getStatus().equals(Event.STATUS_COMPLETED)){
+                    if(lastUnCompletedEventDate==null) {
+                        lastUnCompletedEventDate = new DateTime(event.getEventDate());
+                    }else{
+                        if(lastUnCompletedEventDate.isAfter(new DateTime(event.getEventDate()))){
+                            lastUnCompletedEventDate = new DateTime(event.getEventDate());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
