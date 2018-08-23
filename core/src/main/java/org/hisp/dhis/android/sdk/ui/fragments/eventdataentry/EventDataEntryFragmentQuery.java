@@ -263,7 +263,7 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
 
                 List<Row> rows = new ArrayList<>();
                 if (i == 0) {
-                    addStatusRow(context, form, rows);
+//                    addStatusRow(context, form, rows);
                     if(form.getEnrollment() != null) {
                         addDueDateRow(context, form, rows);
                     }
@@ -273,7 +273,11 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
                 populateDataEntryRows(form, section.getProgramStageDataElements(), rows, username, context);
                 populateIndicatorRows(form, section.getProgramIndicators(), rows);
                 form.getSections().add(new DataEntryFragmentSection(section.getName(), section.getUid(), rows));
+                if(i==stage.getProgramStageSections().size()-1){
+                    addStatusRow(context, form, rows);
+                }
             }
+
         }
         return form;
     }
