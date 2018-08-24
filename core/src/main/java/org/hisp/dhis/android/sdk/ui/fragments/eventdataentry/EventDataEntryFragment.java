@@ -80,6 +80,7 @@ import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowFactory;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowTypes;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DoubleElementRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.OnNextClick;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.RunProgramRulesEvent;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.events.OnCompleteEventClick;
@@ -1350,4 +1351,12 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
 
     }
 
+    @Subscribe
+    public void onItemClick(final OnNextClick eventClick) {
+        if (getActivity() != null) {
+            //ToDo in Case of Empty non-filling form
+            proceed();
+            getActivity().finish();
+        }
+    }
 }

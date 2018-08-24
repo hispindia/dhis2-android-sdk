@@ -64,6 +64,7 @@ import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventDatePickerRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventDueDatePickerRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.FileResourceRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.NextButtonRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.StatusRow;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragmentSection;
@@ -274,7 +275,9 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
                 populateIndicatorRows(form, section.getProgramIndicators(), rows);
                 form.getSections().add(new DataEntryFragmentSection(section.getName(), section.getUid(), rows));
                 if(i==stage.getProgramStageSections().size()-1){
+                    addNextRow(context,form,rows);
                     addStatusRow(context, form, rows);
+
                 }
             }
 
@@ -303,6 +306,12 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
         StatusRow row = new StatusRow(context, event, form.getStage());
         rows.add(row);
         form.setStatusRow(row);
+    }
+
+    private static void addNextRow(Context context, EventDataEntryFragmentForm form,
+                                     List<Row> rows) {
+        NextButtonRow nextButtonRow = new NextButtonRow();
+        rows.add(nextButtonRow);
     }
 
     private static void addDueDateRow(Context context, EventDataEntryFragmentForm form,
