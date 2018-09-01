@@ -47,6 +47,7 @@ import org.hisp.dhis.android.sdk.events.OnRowClick;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.events.OnTrackerItemClick;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -69,6 +70,8 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
     private String mSent;
     private String mError;
     private String mOffline;
+
+    private DateTime latestEvent;
 
     public TrackedEntityInstanceItemRow(Context context) {
         isNull(context, "Context must not be null");
@@ -264,5 +267,13 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
             }
             return false;
         }
+    }
+
+    public DateTime getLatestEvent() {
+        return latestEvent;
+    }
+
+    public void setLatestEvent(DateTime latestEvent) {
+        this.latestEvent = latestEvent;
     }
 }

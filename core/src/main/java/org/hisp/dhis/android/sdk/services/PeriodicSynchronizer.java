@@ -66,6 +66,7 @@ public class PeriodicSynchronizer extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+        Log.d(CLASS_TAG, " broadcast received ");
         if(!DhisController.isUserLoggedIn()) {
             cancelPeriodicSynchronizer(context);
             return;
@@ -84,9 +85,9 @@ public class PeriodicSynchronizer extends BroadcastReceiver {
 		AlarmManager am = (AlarmManager) context
 				.getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(context, PeriodicSynchronizer.class);
-        PendingIntent existingPi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_NO_CREATE);
+        PendingIntent existingPi = PendingIntent.getBroadcast(context, 987, i, PendingIntent.FLAG_NO_CREATE);
         if(existingPi == null) {
-            PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pi = PendingIntent.getBroadcast(context, 987, i, PendingIntent.FLAG_UPDATE_CURRENT);
             am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
                     1000 * 60 * minutes, pi); // Millisec * Second * Minute
         }
@@ -100,7 +101,7 @@ public class PeriodicSynchronizer extends BroadcastReceiver {
         Log.d(CLASS_TAG, "cancel periodic synchronizer");
         Intent intent = new Intent(context, PeriodicSynchronizer.class);
         PendingIntent sender = PendingIntent
-                .getBroadcast(context, 0, intent, PendingIntent.FLAG_NO_CREATE);
+                .getBroadcast(context, 987, intent, PendingIntent.FLAG_NO_CREATE);
         if(sender!=null) {
             AlarmManager alarmManager = (AlarmManager) context
                     .getSystemService(Context.ALARM_SERVICE);

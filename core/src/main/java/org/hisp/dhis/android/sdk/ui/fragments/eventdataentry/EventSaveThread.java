@@ -35,6 +35,7 @@ import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
 import org.hisp.dhis.android.sdk.persistence.models.Event;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.AsyncHelperThread;
+import org.joda.time.DateTime;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -63,6 +64,7 @@ public class EventSaveThread extends AsyncHelperThread {
         if (event != null) {
             this.event = event;
             if (event.getDataValues() != null) {
+
                 for (DataValue dataValue : event.getDataValues()) {
                     dataValues.put(dataValue.getDataElement(), dataValue);
                 }
@@ -126,7 +128,7 @@ public class EventSaveThread extends AsyncHelperThread {
         tempEvent.setName(event.getName());
         tempEvent.setDisplayName(event.getDisplayName());
         tempEvent.setCreated(event.getCreated());
-        tempEvent.setLastUpdated(event.getLastUpdated());
+        tempEvent.setLastUpdated(new DateTime().toString());
         tempEvent.setAccess(event.getAccess());
         tempEvent.save();
         event.setLocalId(tempEvent.getLocalId());
