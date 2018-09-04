@@ -45,13 +45,16 @@ import android.widget.TextView;
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.events.OnRowClick;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
+import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.events.OnTrackerItemClick;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hisp.dhis.android.sdk.utils.Preconditions.isNull;
 
@@ -72,6 +75,7 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
     private String mOffline;
 
     private DateTime latestEvent;
+    private Map<String,TrackedEntityAttributeValue> attributes;
 
     public TrackedEntityInstanceItemRow(Context context) {
         isNull(context, "Context must not be null");
@@ -267,6 +271,19 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
             }
             return false;
         }
+    }
+
+    public void addAtributeValue(String attrUID,TrackedEntityAttributeValue value){
+        if(attributes==null) attributes = new HashMap<>();
+        attributes.put(attrUID,value);
+    }
+
+    public Map<String, TrackedEntityAttributeValue> getAttributes() {
+        return attributes;
+    }
+
+    public TrackedEntityAttributeValue getAttributeValue (String attrUID){
+        return attributes.get(attrUID);
     }
 
     public DateTime getLatestEvent() {
