@@ -33,7 +33,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="349dp"
+        android:layout_height="113dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/rabies_logo" />
     <ListView
+        android:layout_below="@+id/logo"
         android:id="@+id/datavalues_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
