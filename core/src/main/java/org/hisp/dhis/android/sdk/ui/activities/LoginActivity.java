@@ -132,7 +132,7 @@ public class LoginActivity extends Activity implements OnClickListener {
         if (server == null) {
             server = mPrefs.getServerUrl();
             if(server == null) {
-                server = "https://";
+                server = "http://apps.hispindia.org/ibcm";
             }
         }
 

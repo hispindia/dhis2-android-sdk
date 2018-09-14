@@ -410,7 +410,8 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                             totalRows.add(row);
                         }
                         totalRows.addAll(section.getRows());
-                        if(addLater)totalRows.add(3,row);
+                        // ToDO section rows after coordinates detele
+                        if(addLater)totalRows.add(2,row);
 
 
                     }
