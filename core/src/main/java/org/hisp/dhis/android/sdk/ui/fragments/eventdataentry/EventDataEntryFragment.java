@@ -39,6 +39,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,6 +71,7 @@ import org.hisp.dhis.android.sdk.persistence.models.ProgramRule;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramStage;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramStageDataElement;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.adapters.SectionAdapter;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowTypes;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
@@ -99,10 +101,8 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
     public static final String TAG = EventDataEntryFragment.class.getSimpleName();
     private Map<String, List<ProgramRule>> programRulesForDataElements;
     private Map<String, List<ProgramIndicator>> programIndicatorsForDataElements;
-
     private IndicatorEvaluatorThread indicatorEvaluatorThread;
     private EventSaveThread saveThread;
-
     public static final String ORG_UNIT_ID = "extra:orgUnitId";
     public static final String PROGRAM_ID = "extra:ProgramId";
     public static final String PROGRAM_STAGE_ID = "extra:ProgramStageId";
@@ -115,7 +115,8 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
     private SectionAdapter spinnerAdapter;
     private EventDataEntryFragmentForm form;
     private DateTime scheduledDueDate;
-
+    private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
     public EventDataEntryFragment() {
         setProgramRuleFragmentHelper(new EventDataEntryRuleHelper(this));
     }
@@ -249,7 +250,6 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             spinnerAdapter.hideSection(programStageSectionId);
         }
     }
-
     @Override
     public Loader<EventDataEntryFragmentForm> onCreateLoader(int id, Bundle args) {
         if (LOADER_ID == id && isAdded()) {
@@ -413,6 +413,14 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                     }
                 }
             });
+//            int currentPosition = spinner.getSelectedItemPosition();
+//            if (!(currentPosition + 1 >= spinnerAdapter.getCount())) {
+//                nextSectionButton.setVisibility(View.VISIBLE);
+//            }
+//            else
+//            {
+//                nextSectionButton.setVisibility(View.INVISIBLE);
+//            }
             nextSectionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -420,6 +428,26 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                     if (!(currentPosition + 1 >= spinnerAdapter.getCount())) {
                         currentPosition = currentPosition + 1;
                         spinner.setSelection(currentPosition);
+                    }
+                    else
+                    {
+                        currentPosition = 0;
+                        spinner.setSelection(currentPosition);
+                        final UserAccount uslocal=MetaDataController.getUserLocalLang();
+                        String user_locallang=uslocal.getUserSettings().toString();
+                        String localdblang=user_locallang;
+                        if(localdblang.equals(TZ_LANG))
+                        {
+                            Toast.makeText(getActivity(), "Hakuna Sehemu Zaidi", Toast.LENGTH_LONG).show();
+                        }
+                        else if(localdblang.equals(VI_LANG))
+                        {
+                            Toast.makeText(getActivity(), "Không có phần nào khác", Toast.LENGTH_LONG).show();
+                        }
+                        else
+                        {
+                            Toast.makeText(getActivity(), "No More Sections", Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
             });
@@ -447,6 +475,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         DataEntryFragmentSection section = (DataEntryFragmentSection)
                 spinnerAdapter.getItem(position);
         form.setCurrentSection(section);
+
         if (section != null) {
             listView.smoothScrollToPosition(INITIAL_POSITION);
             listViewAdapter.swapData(section.getRows());
@@ -629,7 +658,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             } else {
                 previousSectionButton.setVisibility(View.VISIBLE);
             }
-            if (spinner.getSelectedItemPosition() + 1 >= spinnerAdapter.getCount()) {
+            if (spinner.getSelectedItemPosition()+1>spinnerAdapter.getCount()) {
                 nextSectionButton.setVisibility(View.INVISIBLE);
             } else {
                 nextSectionButton.setVisibility(View.VISIBLE);
@@ -721,77 +750,188 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                     @Override
                     public void run() {
 
-                        UiUtils.showConfirmDialog(getActivity(), eventClick.getLabel(), eventClick.getAction(),
-                                eventClick.getLabel(), getActivity().getString(
-                                        R.string.cancel), new DialogInterface.OnClickListener() {
+                        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                        String user_locallang=uslocal.getUserSettings().toString();
+                        String localdblang=user_locallang;
+                        if(localdblang.equals("in"))
+                        {
+                            UiUtils.showConfirmDialog(getActivity(), eventClick.getLabel(), eventClick.getAction(),
+                                    eventClick.getLabel(), getActivity().getString(
+                                            R.string.cancel_in), new DialogInterface.OnClickListener() {
 
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
 
-                                        String labelForCompleteButton = "";
-                                        if (form.getStage().isBlockEntryForm()) {
-                                            labelForCompleteButton = getString(R.string.edit);
-                                        } else {
-                                            labelForCompleteButton = getString(R.string.incomplete);
-                                        }
-
-                                        eventClick.getComplete().setText(labelForCompleteButton);
-                                        eventClick.getEvent().setStatus(Event.STATUS_COMPLETED);
-                                        form.getEvent().setFromServer(false);
-                                        form.getEnrollment().setFromServer(false);
-                                        TrackedEntityInstance trackedEntityInstance =
-                                                TrackerController.getTrackedEntityInstance(form.getEnrollment().getTrackedEntityInstance());
-                                        trackedEntityInstance.setFromServer(false);
-                                        trackedEntityInstance.save();
-                                        ProgramStage currentProgramStage = MetaDataController
-                                                .getProgramStage(form.getEvent().getProgramStageId());
-
-                                        // checking if should schedule new event
-                                        boolean isShowingSchedulingOfNewEvent = false;
-                                        if (currentProgramStage.getAllowGenerateNextVisit()) {
-                                            if (currentProgramStage.getRepeatable()) {
-                                                DateTime scheduleTime = calculateScheduledDate(currentProgramStage, form.getEnrollment());
-                                                isShowingSchedulingOfNewEvent = true;
-                                                showDatePicker(currentProgramStage, scheduleTime); // datePicker will close this fragment when date is picked and new event is scheduled
+                                            String labelForCompleteButton = "";
+                                            if (form.getStage().isBlockEntryForm()) {
+                                                labelForCompleteButton = getString(R.string.edit);
                                             } else {
-                                                int sortOrder = currentProgramStage.getSortOrder();
-                                                Program currentProgram = currentProgramStage.getProgram();
-                                                ProgramStage programStageToSchedule = null;
-                                                programStageToSchedule = getNextValidProgramStage(
-                                                        sortOrder, currentProgram,
-                                                        programStageToSchedule);
-                                                if(programStageToSchedule == null) {
-                                                    programStageToSchedule =
-                                                            getFirstValidProgramStage(
-                                                                    currentProgram,
-                                                                    programStageToSchedule);
+                                                final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                                                String user_locallang=uslocal.getUserSettings().toString();
+                                                String localdblang=user_locallang;
+                                                if(localdblang.equals("in"))
+                                                {
+                                                    labelForCompleteButton = "Tidak lengkap";
                                                 }
-                                                if (programStageToSchedule != null) {
-                                                    DateTime dateTime = calculateScheduledDate(programStageToSchedule, form.getEnrollment());
+                                                else
+                                                {
+                                                    labelForCompleteButton = getString(R.string.incomplete);
+                                                }
+
+                                            }
+
+                                            eventClick.getComplete().setText(labelForCompleteButton);
+                                            eventClick.getEvent().setStatus(Event.STATUS_COMPLETED);
+                                            form.getEvent().setFromServer(false);
+                                            form.getEnrollment().setFromServer(false);
+                                            TrackedEntityInstance trackedEntityInstance =
+                                                    TrackerController.getTrackedEntityInstance(form.getEnrollment().getTrackedEntityInstance());
+                                            trackedEntityInstance.setFromServer(false);
+                                            trackedEntityInstance.save();
+                                            ProgramStage currentProgramStage = MetaDataController
+                                                    .getProgramStage(form.getEvent().getProgramStageId());
+
+                                            // checking if should schedule new event
+                                            boolean isShowingSchedulingOfNewEvent = false;
+                                            if (currentProgramStage.getAllowGenerateNextVisit()) {
+                                                if (currentProgramStage.getRepeatable()) {
+                                                    DateTime scheduleTime = calculateScheduledDate(currentProgramStage, form.getEnrollment());
                                                     isShowingSchedulingOfNewEvent = true;
-                                                    showDatePicker(programStageToSchedule, dateTime); // datePicker will close this fragment when date is picked and new event is scheduled
+                                                    showDatePicker(currentProgramStage, scheduleTime); // datePicker will close this fragment when date is picked and new event is scheduled
+                                                } else {
+                                                    int sortOrder = currentProgramStage.getSortOrder();
+                                                    Program currentProgram = currentProgramStage.getProgram();
+                                                    ProgramStage programStageToSchedule = null;
+                                                    programStageToSchedule = getNextValidProgramStage(
+                                                            sortOrder, currentProgram,
+                                                            programStageToSchedule);
+                                                    if(programStageToSchedule == null) {
+                                                        programStageToSchedule =
+                                                                getFirstValidProgramStage(
+                                                                        currentProgram,
+                                                                        programStageToSchedule);
+                                                    }
+                                                    if (programStageToSchedule != null) {
+                                                        DateTime dateTime = calculateScheduledDate(programStageToSchedule, form.getEnrollment());
+                                                        isShowingSchedulingOfNewEvent = true;
+                                                        showDatePicker(programStageToSchedule, dateTime); // datePicker will close this fragment when date is picked and new event is scheduled
+                                                    }
                                                 }
                                             }
-                                        }
-                                        // Checking if dataEntryForm should be blocked after completed
-                                        if (currentProgramStage.isBlockEntryForm()) {
-                                            setEditableDataEntryRows(form, false, true);
-                                        }
+                                            // Checking if dataEntryForm should be blocked after completed
+                                            if (currentProgramStage.isBlockEntryForm()) {
+                                                setEditableDataEntryRows(form, false, true);
+                                            }
 
-                                        eventClick.getEvent().setCompletedDate(new DateTime().toString());
+                                            eventClick.getEvent().setCompletedDate(new DateTime().toString());
 
-                                        Dhis2Application.getEventBus().post(new RowValueChangedEvent(null, null));
-                                        //Exit the activity if it has just been completed.
-                                        if (currentProgramStage.isBlockEntryForm() && !isShowingSchedulingOfNewEvent) {
-                                            goBackToPreviousActivity();
+                                            Dhis2Application.getEventBus().post(new RowValueChangedEvent(null, null));
+                                            //Exit the activity if it has just been completed.
+                                            if (currentProgramStage.isBlockEntryForm() && !isShowingSchedulingOfNewEvent) {
+                                                goBackToPreviousActivity();
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                        }
+                        else
+                        {
+                            UiUtils.showConfirmDialog(getActivity(), eventClick.getLabel(), eventClick.getAction(),
+                                    eventClick.getLabel(), getActivity().getString(
+                                            R.string.cancel), new DialogInterface.OnClickListener() {
+
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            String labelForCompleteButton = "";
+                                            if (form.getStage().isBlockEntryForm()) {
+                                                labelForCompleteButton = getString(R.string.edit);
+                                            } else {
+                                                final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                                                String user_locallang=uslocal.getUserSettings().toString();
+                                                String localdblang=user_locallang;
+                                                if(localdblang.equals("in"))
+                                                {
+                                                    labelForCompleteButton = "Tidak lengkap";
+                                                }
+                                                else
+                                                {
+                                                    labelForCompleteButton = getString(R.string.incomplete);
+                                                }
+
+                                            }
+
+                                            eventClick.getComplete().setText(labelForCompleteButton);
+                                            eventClick.getEvent().setStatus(Event.STATUS_COMPLETED);
+                                            form.getEvent().setFromServer(false);
+                                            form.getEnrollment().setFromServer(false);
+                                            TrackedEntityInstance trackedEntityInstance =
+                                                    TrackerController.getTrackedEntityInstance(form.getEnrollment().getTrackedEntityInstance());
+                                            trackedEntityInstance.setFromServer(false);
+                                            trackedEntityInstance.save();
+                                            ProgramStage currentProgramStage = MetaDataController
+                                                    .getProgramStage(form.getEvent().getProgramStageId());
+
+                                            // checking if should schedule new event
+                                            boolean isShowingSchedulingOfNewEvent = false;
+                                            if (currentProgramStage.getAllowGenerateNextVisit()) {
+                                                if (currentProgramStage.getRepeatable()) {
+                                                    DateTime scheduleTime = calculateScheduledDate(currentProgramStage, form.getEnrollment());
+                                                    isShowingSchedulingOfNewEvent = true;
+                                                    showDatePicker(currentProgramStage, scheduleTime); // datePicker will close this fragment when date is picked and new event is scheduled
+                                                } else {
+                                                    int sortOrder = currentProgramStage.getSortOrder();
+                                                    Program currentProgram = currentProgramStage.getProgram();
+                                                    ProgramStage programStageToSchedule = null;
+                                                    programStageToSchedule = getNextValidProgramStage(
+                                                            sortOrder, currentProgram,
+                                                            programStageToSchedule);
+                                                    if(programStageToSchedule == null) {
+                                                        programStageToSchedule =
+                                                                getFirstValidProgramStage(
+                                                                        currentProgram,
+                                                                        programStageToSchedule);
+                                                    }
+                                                    if (programStageToSchedule != null) {
+                                                        DateTime dateTime = calculateScheduledDate(programStageToSchedule, form.getEnrollment());
+                                                        isShowingSchedulingOfNewEvent = true;
+                                                        showDatePicker(programStageToSchedule, dateTime); // datePicker will close this fragment when date is picked and new event is scheduled
+                                                    }
+                                                }
+                                            }
+                                            // Checking if dataEntryForm should be blocked after completed
+                                            if (currentProgramStage.isBlockEntryForm()) {
+                                                setEditableDataEntryRows(form, false, true);
+                                            }
+
+                                            eventClick.getEvent().setCompletedDate(new DateTime().toString());
+
+                                            Dhis2Application.getEventBus().post(new RowValueChangedEvent(null, null));
+                                            //Exit the activity if it has just been completed.
+                                            if (currentProgramStage.isBlockEntryForm() && !isShowingSchedulingOfNewEvent) {
+                                                goBackToPreviousActivity();
+                                            }
+                                        }
+                                    });
+                        }
+
+
 
                     }
                 });
             } else {
-                eventClick.getComplete().setText(R.string.complete);
+                final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                String user_locallang=uslocal.getUserSettings().toString();
+                String localdblang=user_locallang;
+                if(localdblang.equals("in"))
+                {
+                    eventClick.getComplete().setText("Lengkap");
+                }
+                else
+                {
+                    eventClick.getComplete().setText(R.string.complete);
+                }
+
+
                 form.getEvent().setStatus(Event.STATUS_ACTIVE);
                 form.getEvent().setFromServer(false);
 
@@ -851,20 +991,20 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
 
     @Nullable
     private ProgramStage getFirstValidProgramStage(Program currentProgram,
-            ProgramStage programStageToSchedule) {
-            for (ProgramStage programStage : currentProgram.getProgramStages()) {
-                if (programStageToSchedule == null) {
-                    programStageToSchedule = getValidProgramStage(programStageToSchedule, programStage);
-                }else{
-                    return programStageToSchedule;
-                }
+                                                   ProgramStage programStageToSchedule) {
+        for (ProgramStage programStage : currentProgram.getProgramStages()) {
+            if (programStageToSchedule == null) {
+                programStageToSchedule = getValidProgramStage(programStageToSchedule, programStage);
+            }else{
+                return programStageToSchedule;
             }
+        }
         return programStageToSchedule;
     }
 
     @Nullable
     private ProgramStage getNextValidProgramStage(int sortOrder, Program currentProgram,
-            ProgramStage programStageToSchedule) {
+                                                  ProgramStage programStageToSchedule) {
         for (ProgramStage programStage : currentProgram.getProgramStages()) {
             if (programStage.getSortOrder() >= (sortOrder + 1) && programStageToSchedule == null) {
                 programStageToSchedule = getValidProgramStage(programStageToSchedule, programStage);
@@ -877,7 +1017,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
     }
 
     private ProgramStage getValidProgramStage(ProgramStage programStageToSchedule,
-            ProgramStage programStage) {
+                                              ProgramStage programStage) {
         if(programStage.isRepeatable()) {
             programStageToSchedule = programStage;
         }else if(TrackerController.getEvent(form.getEnrollment().getLocalId(), programStage.getUid()) != null){
@@ -914,7 +1054,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         }
 
         //if rowType is coordinate or event date, save the event
-       if(event.getRowType() == null
+        if(event.getRowType() == null
                 || DataEntryRowTypes.EVENT_COORDINATES.toString().equals(event.getRowType())
                 || DataEntryRowTypes.EVENT_DATE.toString().equals(event.getRowType())) {
             //save event
@@ -1065,7 +1205,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             doBack();
             return true;
         }else
-        return super.onOptionsItemSelected(menuItem);
+            return super.onOptionsItemSelected(menuItem);
     }
 
     @Override
