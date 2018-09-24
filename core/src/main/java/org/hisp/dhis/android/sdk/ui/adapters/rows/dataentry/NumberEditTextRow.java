@@ -185,8 +185,10 @@ public class NumberEditTextRow extends TextRow {
                     String decimals = text.substring(text.indexOf("."),
                             text.length());
                     text = new Integer(text.substring(0, text.indexOf("."))).toString() + decimals;
-                } else {
-                    text = new Integer(text).toString();
+                }
+
+                else {
+                   text=text.substring(0, text.length());
                 }
             }
             return text;
