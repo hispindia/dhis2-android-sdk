@@ -11,15 +11,22 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
 
 public class EmailAddressEditTextRow extends TextRow {
     private static String rowTypeTemp;
-
+    private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
+    private static final String MY_LANG= "my";
+    private static final String IN_LANG= "in";
+    private static final String TZ_EMAIL= "Ingiza barua pepe";
+    private static final String VI_EMAIL= "Nhập địa chỉ email";
     public EmailAddressEditTextRow(String label, boolean mandatory, String warning,
-            BaseValue baseValue,
-            DataEntryRowTypes rowType) {
+                                   BaseValue baseValue,
+                                   DataEntryRowTypes rowType) {
         mLabel = label;
         mMandatory = mandatory;
         mWarning = warning;
@@ -39,7 +46,7 @@ public class EmailAddressEditTextRow extends TextRow {
 
     @Override
     public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-            View convertView, ViewGroup container) {
+                        View convertView, ViewGroup container) {
         View view;
         final ValueEntryHolder holder;
 
@@ -54,10 +61,33 @@ public class EmailAddressEditTextRow extends TextRow {
             TextView warningLabel = (TextView) root.findViewById(R.id.warning_label);
             TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
             EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
-//            detailedInfoButton = root.findViewById(R.id.detailed_info_button_layout);
+//          detailedInfoButton = root.findViewById(R.id.detailed_info_button_layout);
 
             editText.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-            editText.setHint(R.string.enter_email);
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals(TZ_LANG))
+            {
+                editText.setHint(TZ_EMAIL);
+            }
+            else if(localdblang.equals(VI_LANG))
+            {
+                editText.setHint(VI_EMAIL);
+            }
+            else if(localdblang.equals(IN_LANG))
+            {
+                editText.setHint("Masukkan email");
+            }
+            else if(localdblang.equals(MY_LANG))
+            {
+                editText.setHint("အီးေမးလ္႐ိုက္ထည့္ျခင္း");
+            }
+            else
+            {
+                editText.setHint(R.string.enter_email);
+            }
+
             editText.setSingleLine(true);
 
             EmailWatcher listener = new EmailWatcher(editText, errorLabel);
@@ -140,11 +170,11 @@ public class EmailAddressEditTextRow extends TextRow {
         public void validateEmail(String email) {
             String regExp = "[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)"
                     + "*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
-                if(!email.matches(regExp) && email.length()>0){
-                    setError(R.string.error_email);
-                }else{
-                    setError(null);
-                }
+            if(!email.matches(regExp) && email.length()>0){
+                setError(R.string.error_email);
+            }else{
+                setError(null);
+            }
         }
 
 
