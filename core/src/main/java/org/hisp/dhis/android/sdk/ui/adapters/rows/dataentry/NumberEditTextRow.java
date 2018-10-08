@@ -16,15 +16,22 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
 
 public class NumberEditTextRow extends TextRow {
     private static String rowTypeTemp;
-
+    private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
+    private static final String IN_LANG= "in";
+    private static final String MY_LANG= "my";
+    private static final String TZ_ENTERNUMBER= "Ingiza Nambari";
+    private static final String VI_ENTERNUMBER= "Nhập số";
     public NumberEditTextRow(String label, boolean mandatory, String warning,
-            BaseValue baseValue,
-            DataEntryRowTypes rowType) {
+                             BaseValue baseValue,
+                             DataEntryRowTypes rowType) {
         mLabel = label;
         mMandatory = mandatory;
         mWarning = warning;
@@ -44,7 +51,7 @@ public class NumberEditTextRow extends TextRow {
 
     @Override
     public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-            View convertView, ViewGroup container) {
+                        View convertView, ViewGroup container) {
         View view;
         final ValueEntryHolder holder;
 
@@ -64,7 +71,32 @@ public class NumberEditTextRow extends TextRow {
             editText.setInputType(InputType.TYPE_CLASS_NUMBER |
                     InputType.TYPE_NUMBER_FLAG_DECIMAL |
                     InputType.TYPE_NUMBER_FLAG_SIGNED);
-            editText.setHint(R.string.enter_number);
+
+            //TODO
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals(TZ_LANG))
+            {
+                editText.setHint(TZ_ENTERNUMBER);
+            }
+            else if(localdblang.equals(VI_LANG))
+            {
+                editText.setHint(VI_ENTERNUMBER);
+            }
+            else if(localdblang.equals(IN_LANG))
+            {
+                editText.setHint("Masukkan nomor");
+            }
+            else if(localdblang.equals(MY_LANG))
+            {
+                editText.setHint("နံပါတ္ထည့္ျခင္း");
+            }
+            else
+            {
+                editText.setHint(R.string.enter_number);
+            }
+
             editText.setFilters(new InputFilter[]{new NumberFilter()});
             editText.setOnFocusChangeListener(new OnNumberFocusChangeListener(editText));
             editText.setSingleLine(true);
@@ -88,6 +120,13 @@ public class NumberEditTextRow extends TextRow {
         if (!isEditable()) {
             holder.editText.setEnabled(false);
         } else {
+            holder.editText.setEnabled(true);
+        }
+        if (isShouldNeverBeEdited()) {
+            holder.editText.setEnabled(false);
+        }
+        else
+        {
             holder.editText.setEnabled(true);
         }
 
@@ -185,8 +224,9 @@ public class NumberEditTextRow extends TextRow {
                     String decimals = text.substring(text.indexOf("."),
                             text.length());
                     text = new Integer(text.substring(0, text.indexOf("."))).toString() + decimals;
-                } else {
-                    text = new Integer(text).toString();
+                }
+                else {
+                    text=text.substring(0, text.length());
                 }
             }
             return text;
@@ -204,7 +244,7 @@ public class NumberEditTextRow extends TextRow {
 
         @Override
         public CharSequence filter(CharSequence str, int start, int end,
-                Spanned spn, int spnStart, int spnEnd) {
+                                   Spanned spn, int spnStart, int spnEnd) {
 
             if (ifStartsWithPointReturnEmpty(str, spnStart, spnEnd)) return EMPTY_FIELD;
 

@@ -42,6 +42,7 @@ import android.widget.Button;
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramStage;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.events.OnDetailedInfoButtonClick;
 import org.hisp.dhis.android.sdk.ui.fragments.eventdataentry.EventDataEntryFragment;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.ValidationErrorDialog;
@@ -51,6 +52,7 @@ import org.hisp.dhis.android.sdk.ui.adapters.rows.events.OnCompleteEventClick;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.events.OnDetailedInfoButtonClick;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.ValidationErrorDialog;
 import org.hisp.dhis.android.sdk.ui.fragments.eventdataentry.EventDataEntryFragment;
+import org.hisp.dhis.android.sdk.ui.views.FontTextView;
 
 import java.util.ArrayList;
 
@@ -62,7 +64,10 @@ public final class StatusRow extends Row {
     private StatusViewHolder holder;
     private FragmentActivity fragmentActivity;
     private ProgramStage programStage;
-
+    private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
+    private static final String MY_LANG= "my";
+    private static final String IN_LANG= "in";
     public StatusRow(Context context, Event event, ProgramStage programStage) {
         this.context = context;
         mEvent = event;
@@ -77,17 +82,39 @@ public final class StatusRow extends Row {
     public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
                         View convertView, ViewGroup container) {
         View view;
+        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
 
         if (convertView != null && convertView.getTag() instanceof StatusViewHolder) {
             view = convertView;
             holder = (StatusViewHolder) view.getTag();
+
         } else {
+            //@Sou trans for event_status
             View root = inflater.inflate(
                     R.layout.listview_row_status, container, false);
             holder = new StatusViewHolder(context, root, mEvent, programStage);
 
             root.setTag(holder);
             view = root;
+            FontTextView event_status_tz = (FontTextView) view.findViewById(R.id.event_status_tz);
+            if(localdblang.equals(TZ_LANG))
+            {
+                event_status_tz.setText("Hali ya tukio");
+            }
+            else if(localdblang.equals(VI_LANG))
+            {
+                event_status_tz.setText("Tình trạng");
+            }
+            else if(localdblang.equals(MY_LANG))
+            {
+                event_status_tz.setText("အဆင့္အတန္း");
+            }
+            else if(localdblang.equals(IN_LANG))
+            {
+                event_status_tz.setText("Status acara");
+            }
         }
         holder.onValidateButtonClickListener.setFragmentActivity(fragmentActivity);
         holder.onCompleteButtonClickListener.setActivity(fragmentActivity);
@@ -95,13 +122,16 @@ public final class StatusRow extends Row {
 
         if(!isEditable())
         {
+
             holder.complete.setEnabled(false);
             holder.validate.setEnabled(false);
+
         }
         else
         {
             holder.complete.setEnabled(true);
             holder.validate.setEnabled(true);
+
         }
 
         return view;
@@ -133,6 +163,26 @@ public final class StatusRow extends Row {
 //            this.detailedInfoButton = detailedInfoButton;
 
             /* text watchers and click listener */
+
+            //@Sou trans for complete button
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+
+//            if(localdblang.equals(TZ_LANG))
+//            {
+//                complete.setText("Maliza");
+//            }
+//
+//          else if(localdblang.equals(VI_LANG))
+//            {
+//                complete.setText("Hoàn thành");
+//            }
+             if(localdblang.equals(IN_LANG))
+            {
+                complete.setText("Lengkap");
+            }
+
             onCompleteButtonClickListener = new OnCompleteClickListener(context, complete, this.event, this.programStage);
             onValidateButtonClickListener = new OnValidateClickListener(context, validate, this.event);
             complete.setOnClickListener(onCompleteButtonClickListener);
@@ -148,11 +198,57 @@ public final class StatusRow extends Row {
                         button.setText(context.getString(R.string.edit));
                     }
                     else {
-                        button.setText(context.getString(R.string.incomplete));
+                        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                        String user_locallang=uslocal.getUserSettings().toString();
+                        String localdblang=user_locallang;
+//                        if(localdblang.equals(TZ_LANG))
+//                        {
+//                            button.setText(R.string.complete_tz);
+//                        }
+//                        else if(localdblang.equals(VI_LANG))
+//                        {
+//                            button.setText(R.string.complete_vi);
+//                        }
+                         if(localdblang.equals(IN_LANG))
+                        {
+                            button.setText("Tidak lengkap");
+                        }
+//                        else if(localdblang.equals("my"))
+//                        {
+//                            button.setText("ပြဲျပဳလုပ္မည့္ရက္");
+//                        }
+                        else
+                        {
+                            button.setText(R.string.incomplete);
+                        }
+
                     }
                 }
             } else {
-                button.setText(R.string.complete);
+                final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                String user_locallang=uslocal.getUserSettings().toString();
+                String localdblang=user_locallang;
+                if(localdblang.equals(TZ_LANG))
+                {
+                    button.setText(R.string.complete_tz);
+                }
+                else if(localdblang.equals(VI_LANG))
+                {
+                    button.setText(R.string.complete_vi);
+                }
+                else if(localdblang.equals(IN_LANG))
+                {
+                    button.setText("Lengkap");
+                }
+                else if(localdblang.equals("my"))
+                {
+                    button.setText("ပြဲျပဳလုပ္မည့္ရက္");
+                }
+                else
+                {
+                    button.setText(R.string.complete);
+                }
+
             }
         }
     }
@@ -174,13 +270,59 @@ public final class StatusRow extends Row {
         @Override
         public void onClick(View v) {
             if(activity==null) return;
-            String label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
-                    activity.getString(R.string.incomplete) : activity.getString(R.string.complete);
-            String action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
-                    activity.getString(R.string.incomplete_confirm) : activity.getString(R.string.complete_confirm);
+
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals(TZ_LANG))
+            {
+                String label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        activity.getString(R.string.incomplete) : activity.getString(R.string.complete_tz);
+
+                String action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        "Una uhakika unataka kukamilika tukio hilo?" : "Una uhakika unataka kukamilisha tukio hilo?";
+                Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete));
+            }
+            else if(localdblang.equals(VI_LANG))
+            {
+                String label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        activity.getString(R.string.incomplete) : activity.getString(R.string.complete_vi);
+
+                String action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        "Bạn có chắc chắn muốn không hoàn thành sự kiện không?" : "Bạn có chắc chắn muốn hoàn thành sự kiện không?";
+                Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete));
+            }
+            else if(localdblang.equals(IN_LANG))
+            {
+                String label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        "Tidak lengkap" : "Lengkap";
+
+                String action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        "Anda yakin ingin menyelesaikan acara?" : "Anda yakin ingin menyelesaikan acara?";
+                Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete));
+            }
+            else if(localdblang.equals("my"))
+            {
+                String label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        "မစုံလင်သော" : "ပြည့်စုံသော";
+
+                String action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        "သငျသညျမပြည့်စုံဖြစ်ရပ်ချင်သင်သေချာပါသလား?" : "သငျသညျထိုအဖြစ်အပျက်ဖြည့်စွက်လိုသည်မှာသင်သေချာလား?";
+                Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete));
+            }
+            else
+            {
+                String label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        activity.getString(R.string.incomplete) : activity.getString(R.string.complete);
+
+                String action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        activity.getString(R.string.incomplete_confirm) : activity.getString(R.string.complete_confirm);
+                Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete));
+            }
+
 //            Dhis2.showConfirmDialog(activity, label, action, label, activity.getString(R.string.cancel), this);
 
-            Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete));
+
         }
 
         private void setActivity(Activity activity) {
@@ -190,6 +332,7 @@ public final class StatusRow extends Row {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             if(event.getStatus().equals(Event.STATUS_COMPLETED)) {
+
                 event.setStatus(Event.STATUS_ACTIVE);
             } else {
                 event.setStatus(Event.STATUS_COMPLETED);
