@@ -7,8 +7,10 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.models.Option;
 import org.hisp.dhis.android.sdk.persistence.models.Option$Table;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.dialogs.AutoCompleteDialogAdapter;
 import org.hisp.dhis.android.sdk.ui.dialogs.AutoCompleteDialogFragment;
 
@@ -17,7 +19,9 @@ import java.util.List;
 
 public class OptionDialogFragment extends AutoCompleteDialogFragment {
     private static final String EXTRA_OPTIONSET = "extra:optionsset";
-
+    private static final String VI_LANG= "vi";
+    private static final String TZ_LANG= "sw";
+    private static final String IN_LANG= "in";
     public static OptionDialogFragment newInstance(String optionSetId,
                                                    OnOptionSelectedListener listener) {
         OptionDialogFragment dialogFragment = new OptionDialogFragment();
@@ -45,7 +49,30 @@ public class OptionDialogFragment extends AutoCompleteDialogFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setDialogLabel(R.string.find_option);
+        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(VI_LANG))
+        {
+            setDialogLabel("Tìm kiếm");
+        }
+        else if(localdblang.equals(TZ_LANG))
+        {
+            setDialogLabel("Pata Chaguo");
+        }
+        else if(localdblang.equals(IN_LANG))
+        {
+            setDialogLabel("Temukan opsi");
+        }
+        else if(localdblang.equals("my"))
+        {
+            setDialogLabel("ေရြးခ်ယ္မႈမ်ားေတြ႕ျခင္း");
+        }
+        else
+        {
+            setDialogLabel(R.string.find_option);
+        }
+
         getAdapter().swapData(getOptions());
     }
 }
