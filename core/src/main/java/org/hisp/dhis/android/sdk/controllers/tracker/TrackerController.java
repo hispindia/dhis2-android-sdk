@@ -67,6 +67,7 @@ import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue$Table;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance$Table;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.persistence.preferences.DateTimeManager;
 import org.hisp.dhis.android.sdk.persistence.preferences.ResourceType;
 import org.hisp.dhis.android.sdk.utils.UiUtils;
@@ -85,7 +86,9 @@ import java.util.List;
 public final class TrackerController extends ResourceController {
 
     private static final String CLASS_TAG = "DataValueController";
-
+    private static final String VI_LANG= "vi";
+    private static final String TZ_LANG= "sw";
+    private static final String IN_LANG= "in";
     private TrackerController() {
     }
 
@@ -140,7 +143,7 @@ public final class TrackerController extends ResourceController {
     }
 
     public static List<Enrollment> getEnrollments(TrackedEntityInstance trackedEntityInstance,
-            String programUId, String orgUnit) {
+                                                  String programUId, String orgUnit) {
         return new Select().from(Enrollment.class).where(Condition.column(Enrollment$Table.LOCALTRACKEDENTITYINSTANCEID).
                 is(trackedEntityInstance.getLocalId()))
                 .and(Condition.column(Enrollment$Table.STATUS).is(Enrollment.COMPLETED))
@@ -164,7 +167,7 @@ public final class TrackerController extends ResourceController {
     }
 
     public static Enrollment getLastEnrollment(String program,
-            TrackedEntityInstance trackedEntityInstance) {
+                                               TrackedEntityInstance trackedEntityInstance) {
         Enrollment enrollments = new Select().from(Enrollment.class).
                 where(Condition.column(Enrollment$Table.PROGRAM).is(program)).
                 and(Condition.column(Enrollment$Table.LOCALTRACKEDENTITYINSTANCEID).
@@ -242,12 +245,12 @@ public final class TrackerController extends ResourceController {
      * Returns a list of events for a given org unit and from server
      */
     public static List<Event> getAllConflictingAndNotConflictingEvents(String organisationUnitId, String programId,
-            boolean isFromServer) {
+                                                                       boolean isFromServer) {
         List<Event> events = new Select().from(Event.class)
                 .join(FailedItem.class, Join.JoinType.LEFT)
                 .on(Condition.column(FailedItem$Table.ITEMID).eq(Event$Table.LOCALID)).where(Condition.column
-                (Event$Table.ORGANISATIONUNITID).is(organisationUnitId)).
-                and(Condition.column(Event$Table.PROGRAMID).is(programId))
+                        (Event$Table.ORGANISATIONUNITID).is(organisationUnitId)).
+                        and(Condition.column(Event$Table.PROGRAMID).is(programId))
                 .and(Condition.column(Event$Table.FROMSERVER).is(isFromServer))
                 .or(Condition.column(FailedItem$Table.ITEMTYPE).is("Event"))
                 .orderBy(false, Event$Table.LASTUPDATED).queryList();
@@ -396,11 +399,11 @@ public final class TrackerController extends ResourceController {
         return new Select().from(TrackedEntityInstance.class).queryList();
     }
     /*
-   * Returns a list of tracked entity attribute values for an instance in a selected program
-   * @param trackedEntityInstance
-   * @param program
-   * @return
-   */
+     * Returns a list of tracked entity attribute values for an instance in a selected program
+     * @param trackedEntityInstance
+     * @param program
+     * @return
+     */
     public static List<TrackedEntityAttributeValue> getProgramTrackedEntityAttributeValues(Program program, TrackedEntityInstance trackedEntityInstance) {
         List<TrackedEntityAttributeValue> programTrackedEntityAttributeValues = new ArrayList<>();
         List<ProgramTrackedEntityAttribute> programTrackedEntityAttributes = MetaDataController.getProgramTrackedEntityAttributes(program.getUid());
@@ -540,9 +543,39 @@ public final class TrackerController extends ResourceController {
     /**
      * Loads datavalues from the server and stores it in local persistence.
      */
+    //@Sou trans for loading metadata
+
+
     public static void loadDataValues(Context context, DhisApi dhisApi, SyncStrategy syncStrategy) throws APIException {
-        UiUtils.postProgressMessage(context.getString(R.string.loading_metadata), LoadingMessageEvent.EventType.METADATA);
-        TrackerDataLoader.updateDataValueDataItems(context, dhisApi, syncStrategy);
+        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(VI_LANG))
+        {
+            UiUtils.postProgressMessage(context.getString(R.string.loading_metadata_vi), LoadingMessageEvent.EventType.METADATA);
+            TrackerDataLoader.updateDataValueDataItems(context, dhisApi, syncStrategy);
+        }
+        else if(localdblang.equals(TZ_LANG))
+        {
+            UiUtils.postProgressMessage("Inapakia metadata", LoadingMessageEvent.EventType.METADATA);
+            TrackerDataLoader.updateDataValueDataItems(context, dhisApi, syncStrategy);
+        }
+        else if(localdblang.equals(IN_LANG))
+        {
+            UiUtils.postProgressMessage("Memuat metadata", LoadingMessageEvent.EventType.METADATA);
+            TrackerDataLoader.updateDataValueDataItems(context, dhisApi, syncStrategy);
+        }
+        else if(localdblang.equals("my"))
+        {
+            UiUtils.postProgressMessage("မီတာေဒတာလုပ္ေဆာင္ျခင္း", LoadingMessageEvent.EventType.METADATA);
+            TrackerDataLoader.updateDataValueDataItems(context, dhisApi, syncStrategy);
+        }
+        else
+        {
+            UiUtils.postProgressMessage(context.getString(R.string.loading_metadata), LoadingMessageEvent.EventType.METADATA);
+            TrackerDataLoader.updateDataValueDataItems(context, dhisApi, syncStrategy);
+        }
+
     }
 
     public static List<TrackedEntityInstance> queryTrackedEntityInstancesDataFromServer(DhisApi dhisApi,
@@ -632,9 +665,9 @@ public final class TrackerController extends ResourceController {
     }
 
     /*
-    * DBFlow does not support collections for IN statements (DBFlow v2.2.1 as of now).
-    * Use raw SQL statement to get around this
-    * */
+     * DBFlow does not support collections for IN statements (DBFlow v2.2.1 as of now).
+     * Use raw SQL statement to get around this
+     * */
     @NonNull
     private static String getSqlSafeStringFromListOfEnrollments(List<Enrollment> activeEnrollments) {
         String activeEnrollmentsSqlSafeString = "(";
@@ -674,7 +707,7 @@ public final class TrackerController extends ResourceController {
     }
 
     public static void updateTrackedEntityInstances(DhisApi dhisApi,
-            List<TrackedEntityInstance> trackedEntityInstances, DateTime serverDateTime) {
+                                                    List<TrackedEntityInstance> trackedEntityInstances, DateTime serverDateTime) {
         for(TrackedEntityInstance trackedEntityInstance:trackedEntityInstances) {
             TrackerDataLoader.getTrackedEntityInstanceDataFromServer(
                     dhisApi, trackedEntityInstance.getUid(), true, true,
