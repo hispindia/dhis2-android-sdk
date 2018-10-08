@@ -81,6 +81,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         OnBackPressedListener {
     public static final String TAG = DataEntryFragment.class.getSimpleName();
     private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
     protected static final int LOADER_ID = 17;
     protected static final int INITIAL_POSITION = 0;
     protected static final String EXTRA_ARGUMENTS = "extra:Arguments";
@@ -133,7 +134,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_data_entry, container, false);
     }
 
@@ -145,7 +146,6 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     public void onViewCreated(View view, Bundle savedInstanceState) {
         progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
         progressBar.setVisibility(View.GONE);
-
         listView = (ListView) view.findViewById(R.id.datavalues_listview);
         listView.setRecyclerListener(new AbsListView.RecyclerListener() {
             @Override
@@ -172,6 +172,18 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         if(localdblang.equals(TZ_LANG))
         {
             upbutton_tz.setText("Juu");
+        }
+        else if(localdblang.equals(VI_LANG))
+        {
+            upbutton_tz.setText("lên");
+        }
+        else if(localdblang.equals("my"))
+        {
+            upbutton_tz.setText("အထက္");
+        }
+        else if(localdblang.equals("in"))
+        {
+            upbutton_tz.setText("naik");
         }
         else
         {
@@ -227,7 +239,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     public static void resetHidingAndWarnings(DataValueAdapter dataValueAdapter,
-            SectionAdapter sectionAdapter) {
+                                              SectionAdapter sectionAdapter) {
         if (dataValueAdapter != null) {
             dataValueAdapter.resetHiding();
             dataValueAdapter.resetDisabled();
@@ -279,12 +291,42 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
 
     private void showErrorsDialog(ArrayList<String> errors) {
         if (!errors.isEmpty()) {
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals(TZ_LANG))
+            {
+                validationErrorDialog = ValidationErrorDialog
+                        .newInstance(
+                                "Haiwezi kukamilisha usajili." + " "
+                                        + "Tafadhali kagua makosa hapa chini na jaribu tena", errors);
+                validationErrorDialog.show(getChildFragmentManager());
+            }
+            else if(localdblang.equals(VI_LANG))
+            {
+                validationErrorDialog = ValidationErrorDialog
+                        .newInstance(
+                                "Không thể hoàn tất đăng ký" + " "
+                                        + "Vui lòng xem lại các lỗi bên dưới và thử lại.", errors);
+                validationErrorDialog.show(getChildFragmentManager());
+            }
+            else if(localdblang.equals("my"))
+            {
+                validationErrorDialog = ValidationErrorDialog
+                        .newInstance(
+                                "မှတ်ပုံတင်ဖြည့်စွက်ရန် လုပ်. မရပါ။" + " "
+                                        + "အောက်ပါအမှားများကိုပြန်လည်သုံးသပ်ရန်နှင့်ထပ်ကြိုးစားပါ။", errors);
+                validationErrorDialog.show(getChildFragmentManager());
+            }
 
-            validationErrorDialog = ValidationErrorDialog
-                    .newInstance(
-                            getActivity().getString(R.string.unable_to_complete_registration) + " "
-                                    + getActivity().getString(R.string.review_errors), errors);
-            validationErrorDialog.show(getChildFragmentManager());
+            else
+            {
+                validationErrorDialog = ValidationErrorDialog
+                        .newInstance(
+                                getActivity().getString(R.string.unable_to_complete_registration) + " "
+                                        + getActivity().getString(R.string.review_errors), errors);
+                validationErrorDialog.show(getChildFragmentManager());
+            }
         } else {
             Toast.makeText(getContext(), R.string.unable_to_complete_registration,
                     Toast.LENGTH_LONG).show();
@@ -294,8 +336,32 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
 
     protected void showValidationErrorDialog(HashMap<ErrorType, ArrayList<String>> errorsMap) {
         ArrayList<String> errors = new ArrayList<>();
-        addErrors(errorsMap.get(ErrorType.MANDATORY), errors,
-                getActivity().getString(R.string.missing_mandatory_field));
+        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(TZ_LANG))
+        {
+            addErrors(errorsMap.get(ErrorType.MANDATORY), errors,
+                    "Inapoteza shamba la lazima\n" +
+                            "Sawa");
+        }
+        else   if(localdblang.equals(VI_LANG))
+        {
+            addErrors(errorsMap.get(ErrorType.MANDATORY), errors,
+                    "Thiếu trường bắt buộc");
+        }
+        else   if(localdblang.equals("my"))
+        {
+            addErrors(errorsMap.get(ErrorType.MANDATORY), errors,
+                    "ပျောက်ဆုံးနေမဖြစ်မနေလယ်ပြင်");
+        }
+        else
+        {
+            addErrors(errorsMap.get(ErrorType.MANDATORY), errors,
+                    getActivity().getString(R.string.missing_mandatory_field));
+        }
+
+
         addErrors(errorsMap.get(ErrorType.UNIQUE), errors,
                 getActivity().getString(R.string.unique_value_form_empty));
         addErrors(errorsMap.get(ErrorType.PROGRAM_RULE), errors,
@@ -306,7 +372,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     private void addErrors(ArrayList<String> programRulesErrors,
-            ArrayList<String> errors, String errorMessage) {
+                           ArrayList<String> errors, String errorMessage) {
         if (programRulesErrors != null) {
             for (String programRulesError : programRulesErrors) {
                 errors.add(errorMessage + ": " + programRulesError);
