@@ -55,6 +55,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.DhisController;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.hisp.dhis.android.sdk.job.JobExecutor;
 import org.hisp.dhis.android.sdk.job.NetworkJob;
@@ -66,6 +67,7 @@ import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
 import org.hisp.dhis.android.sdk.persistence.models.Event;
 import org.hisp.dhis.android.sdk.persistence.models.FailedItem;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.persistence.preferences.ResourceType;
 import org.hisp.dhis.android.sdk.synchronization.data.enrollment.EnrollmentLocalDataSource;
 import org.hisp.dhis.android.sdk.synchronization.data.enrollment.EnrollmentRemoteDataSource;
@@ -93,7 +95,10 @@ import java.util.List;
 public abstract class ItemStatusDialogFragment extends DialogFragment
         implements View.OnClickListener, LoaderManager.LoaderCallbacks<ItemStatusDialogFragmentForm> {
     private static final String TAG = ItemStatusDialogFragment.class.getSimpleName();
-
+    private static final String TZ_LANG= "sw";
+    private static final String MY_LANG= "my";
+    private static final String VI_LANG= "vi";
+    private static final String IN_LANG= "in";
     private static final int LOADER_ID = 9564013;
 
     private ItemStatusDialogFragmentForm mForm;
@@ -102,7 +107,6 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
     private FontTextView mDetails;
     private FontTextView mStatus;
     private int mDialogId;
-
     public static final String EXTRA_ID = "extra:id";
     public static final String EXTRA_TYPE = "extra:type";
     public static final String EXTRA_ARGUMENTS = "extra:Arguments";
@@ -132,7 +136,6 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
         mDetails = (FontTextView) view.findViewById(R.id.item_detailed_info);
 
         mStatus = (FontTextView) view.findViewById(R.id.statusinfo);
-
         ImageView syncDialogButton = (ImageView) view
                 .findViewById(R.id.sync_dialog_button);
         ImageView closeDialogButton = (ImageView) view
@@ -144,8 +147,27 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
         syncDialogButton.setOnClickListener(this);
         mDetails.setOnClickListener(this);
         registerForContextMenu(mDetails);
+        //TODO status
+        final UserAccount uslocal= MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(VI_LANG))
+        {
+            setDialogLabel("Tình trạng");
+        }
+        else if(localdblang.equals(TZ_LANG))
+        {
+            setDialogLabel("Hali ya tukio");
+        }
+        else if(localdblang.equals(MY_LANG))
+        {
+            setDialogLabel("အဆင့္အတန္း");
+        }
 
-        setDialogLabel(R.string.status);
+        else
+        {
+            setDialogLabel(R.string.status);
+        }
     }
 
     @Override
@@ -188,10 +210,35 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
         if (loader.getId() == LOADER_ID && isAdded())
         {
             mForm = data;
+
             switch (mForm.getStatus()) {
+
                 case SENT:
+                    final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                    String user_locallang=uslocal.getUserSettings().toString();
+                    String localdblang=user_locallang;
+                    if(localdblang.equals(VI_LANG))
+                    {
+                        mStatus.setText("Dữ liệu đã được đồng bộ với máy chủ");
+                    }
+                    else if(localdblang.equals(TZ_LANG))
+                    {
+                        mStatus.setText("Taarifa hii imetumwa kikamilifu kwenye seva");
+                    }
+                    else if(localdblang.equals("my"))
+                    {
+                        mStatus.setText("ဒီအခ်က္လက္သည္ထိန္းခ်ဳပ္မႈႏွင့္ေအာင္ျမင္စြာကိုက္ညီသည္");
+                    }
+                    else if(localdblang.equals(IN_LANG))
+                    {
+                        mStatus.setText("Item ini telah berhasil disinkronkan dengan server");
+                    }
+                    else
+                    {
+                        mStatus.setText(getString(R.string.status_sent_description));
+                    }
                     mItemStatusImage.setImageResource(R.drawable.ic_from_server);
-                    mStatus.setText(getString(R.string.status_sent_description));
+
                     break;
                 case ERROR: {
                     FailedItem failedItem = TrackerController.getFailedItem(data.getType(), data.getItem().getLocalId());
@@ -219,9 +266,32 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
                         mDetails.setText(details);
                     }
                 }
-                    break;
+                break;
                 case OFFLINE:
-                    mStatus.setText(getString(R.string.status_offline_description));
+                    final UserAccount uslocal_= MetaDataController.getUserLocalLang();
+                    String user_locallang_=uslocal_.getUserSettings().toString();
+                    String localdblang_=user_locallang_;
+                    if(localdblang_.equals(VI_LANG))
+                    {
+                        mStatus.setText("Dữ liệu chưa được đồng bộ với máy chủ");
+                    }
+                    else if(localdblang_.equals(TZ_LANG))
+                    {
+                        mStatus.setText("Taarifa hii hajatumwa/zamishwa kwenye seva");
+                    }
+                    else if(localdblang_.equals("my"))
+                    {
+                        mStatus.setText("ဒီအခ်က္လက္သည္ထိန္းခ်ဳပ္မႈစနစ္ႏွင့္မကိုက္ညီရေသးပါ");
+                    }
+                    else if(localdblang_.equals(IN_LANG))
+                    {
+                        mStatus.setText("Item ini belum disinkronkan dengan server");
+                    }
+                    else
+                    {
+                        mStatus.setText(getString(R.string.status_offline_description));
+                    }
+
                     mItemStatusImage.setImageResource(R.drawable.ic_offline);
                     break;
             }
@@ -305,7 +375,30 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.sync_dialog_button) {
-            Toast.makeText(getActivity(), getString(R.string.sending_data_server), Toast.LENGTH_LONG).show();
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals(TZ_LANG))
+            {
+                Toast.makeText(getActivity(), getString(R.string.sending_data_server_tz), Toast.LENGTH_LONG).show();
+            }
+            else if(localdblang.equals(VI_LANG))
+            {
+                Toast.makeText(getActivity(), getString(R.string.sending_data_server_vi), Toast.LENGTH_LONG).show();
+            }
+            else if(localdblang.equals("my"))
+            {
+                Toast.makeText(getActivity(), "ထိန္းခ်ဳပ္မႈစနစ္ထံအခ်က္လက္ေပးပို႔ျခင္း", Toast.LENGTH_LONG).show();
+            }
+            else if(localdblang.equals(IN_LANG))
+            {
+                Toast.makeText(getActivity(), "Mengirim data ke server", Toast.LENGTH_LONG).show();
+            }
+            else
+            {
+                Toast.makeText(getActivity(), getString(R.string.sending_data_server), Toast.LENGTH_LONG).show();
+            }
+
             sendToServer(mForm.getItem(), this);
             ItemStatusDialogFragment.this.dismiss();
         } else if(v.getId() == R.id.close_dialog_button) {
@@ -371,32 +464,32 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
 
 
 
-        private class MediaScanner implements MediaScannerConnection.MediaScannerConnectionClient
+    private class MediaScanner implements MediaScannerConnection.MediaScannerConnectionClient
+    {
+
+        private MediaScannerConnection mediaScannerConnection;
+        private String pathToFile;
+
+
+        public MediaScanner(Context context, String pathToFile)
         {
-
-            private MediaScannerConnection mediaScannerConnection;
-            private String pathToFile;
-
-
-            public MediaScanner(Context context, String pathToFile)
-            {
-                this.pathToFile = pathToFile;
-                mediaScannerConnection = new MediaScannerConnection(context, this);
-                mediaScannerConnection.connect();
-            }
-
-            @Override
-            public void onMediaScannerConnected()
-            {
-                mediaScannerConnection.scanFile(pathToFile, null); // when passing null reference, grabbing extension from file path (.txt for a text file)
-            }
-
-            @Override
-            public void onScanCompleted(String path, Uri uri)
-            {
-                mediaScannerConnection.disconnect();
-            }
+            this.pathToFile = pathToFile;
+            mediaScannerConnection = new MediaScannerConnection(context, this);
+            mediaScannerConnection.connect();
         }
+
+        @Override
+        public void onMediaScannerConnected()
+        {
+            mediaScannerConnection.scanFile(pathToFile, null); // when passing null reference, grabbing extension from file path (.txt for a text file)
+        }
+
+        @Override
+        public void onScanCompleted(String path, Uri uri)
+        {
+            mediaScannerConnection.disconnect();
+        }
+    }
 
 
     public static void sendEvent(final Event event) {
