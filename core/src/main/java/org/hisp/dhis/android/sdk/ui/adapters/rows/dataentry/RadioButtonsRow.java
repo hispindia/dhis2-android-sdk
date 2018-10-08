@@ -38,6 +38,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
@@ -50,7 +52,16 @@ public class RadioButtonsRow extends Row {
     public static final String FEMALE = "gender_female";
     public static final String MALE = "gender_male";
     public static final String OTHER = "gender_other";
-
+    private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
+    private static final String MY_LANG= "my";
+    private static final String IN_LANG= "in";
+    private static final String TZ_YES= "Ndio";
+    private static final String VI_YES= "Có";
+    private static final String TZ_NO= "Hapana";
+    private static final String VI_NO= "Không";
+    private static final String TZ_MALE= "kiume";
+    private static final String TZ_FEMALE= "kike";
     public RadioButtonsRow(String label, boolean mandatory, String warning, BaseValue baseValue, DataEntryRowTypes type) {
         if (!DataEntryRowTypes.GENDER.equals(type) && !DataEntryRowTypes.BOOLEAN.equals(type)) {
             throw new IllegalArgumentException("Unsupported row type");
@@ -96,11 +107,50 @@ public class RadioButtonsRow extends Row {
 
 
             if (DataEntryRowTypes.BOOLEAN.equals(mRowType)) {
-                firstButton.setText(R.string.yes);
-                secondButton.setText(R.string.no);
+                final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                String user_locallang=uslocal.getUserSettings().toString();
+                String localdblang=user_locallang;
+                if(localdblang.equals(TZ_LANG))
+                {
+                    firstButton.setText(TZ_YES);
+                    secondButton.setText(TZ_NO);
+                }
+                else if(localdblang.equals(VI_LANG))
+                {
+                    firstButton.setText(VI_YES);
+                    secondButton.setText(VI_NO);
+                }
+                else if(localdblang.equals(IN_LANG))
+                {
+                    firstButton.setText("Ya");
+                    secondButton.setText("Tidak");
+                }
+                else if(localdblang.equals(MY_LANG))
+                {
+                    firstButton.setText("ဟုတ်ကဲ့");
+                    secondButton.setText("အဘယ်သူမျှမ");
+                }
+                else
+                {
+                    firstButton.setText(R.string.yes);
+                    secondButton.setText(R.string.no);
+                }
+
             } else if (DataEntryRowTypes.GENDER.equals(mRowType)) {
-                firstButton.setText(R.string.gender_male);
-                secondButton.setText(R.string.gender_female);
+                final UserAccount uslocal= MetaDataController.getUserLocalLang();
+                String user_locallang=uslocal.getUserSettings().toString();
+                String localdblang=user_locallang;
+                if(localdblang.equals(TZ_LANG))
+                {
+                    firstButton.setText(TZ_MALE);
+                    secondButton.setText(TZ_FEMALE);
+                }
+                else
+                {
+                    firstButton.setText(R.string.gender_male);
+                    secondButton.setText(R.string.gender_female);
+                }
+
             }
 
             OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener();
@@ -120,7 +170,10 @@ public class RadioButtonsRow extends Row {
             holder.firstButton.setEnabled(true);
             holder.secondButton.setEnabled(true);
         }
-
+        if (isShouldNeverBeEdited()) {
+            holder.firstButton.setEnabled(false);
+            holder.secondButton.setEnabled(false);
+        }
 //        holder.detailedInfoButton.setOnClickListener(new OnDetailedInfoButtonClick(this));
         holder.updateViews(mLabel, mValue);
 
@@ -168,7 +221,7 @@ public class RadioButtonsRow extends Row {
         final CompoundButton firstButton;
         final CompoundButton secondButton;
         final RadioGroup radioGroup;
-//        final View detailedInfoButton;
+        //        final View detailedInfoButton;
         final OnCheckedChangeListener radioGroupCheckedChangeListener;
         final DataEntryRowTypes type;
 
