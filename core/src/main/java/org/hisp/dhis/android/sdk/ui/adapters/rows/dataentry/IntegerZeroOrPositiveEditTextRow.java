@@ -12,15 +12,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
 
 public class IntegerZeroOrPositiveEditTextRow extends TextRow {
     private static String rowTypeTemp;
 
     public IntegerZeroOrPositiveEditTextRow(String label, boolean mandatory, String warning,
-            BaseValue baseValue,
-            DataEntryRowTypes rowType) {
+                                            BaseValue baseValue,
+                                            DataEntryRowTypes rowType) {
         mLabel = label;
         mMandatory = mandatory;
         mWarning = warning;
@@ -40,7 +42,7 @@ public class IntegerZeroOrPositiveEditTextRow extends TextRow {
 
     @Override
     public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-            View convertView, ViewGroup container) {
+                        View convertView, ViewGroup container) {
         View view;
         final ValueEntryHolder holder;
 
@@ -58,7 +60,30 @@ public class IntegerZeroOrPositiveEditTextRow extends TextRow {
 //            detailedInfoButton = root.findViewById(R.id.detailed_info_button_layout);
 
             editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-            editText.setHint(R.string.enter_positive_integer_or_zero);
+
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals("in"))
+            {
+                editText.setHint("Masukkan bilangan bulat positif atau nol");
+            }
+            else if(localdblang.equals("vi"))
+            {
+                editText.setHint("Nhập số nguyên dương hoặc số không");
+            }
+            else if(localdblang.equals("sw"))
+            {
+                editText.setHint("Ingiza integer nzuri au sifuri");
+            }
+            else if(localdblang.equals("my"))
+            {
+                editText.setHint("အပြုသဘော integer ဖြစ်တဲ့အတွက်သို့မဟုတ်သုည Enter");
+            }
+            else
+            {
+                editText.setHint(R.string.enter_positive_integer_or_zero);
+            }
             editText.setFilters(new InputFilter[]{new PosOrZeroFilter()});
             editText.setSingleLine(true);
 
@@ -125,7 +150,7 @@ public class IntegerZeroOrPositiveEditTextRow extends TextRow {
 
         @Override
         public CharSequence filter(CharSequence str, int start, int end,
-                Spanned spn, int spStart, int spEnd) {
+                                   Spanned spn, int spStart, int spEnd) {
 
             if ((str.length() > 0) && (spn.length() > 0) && (spn.charAt(0) == '0')) {
                 return "";
