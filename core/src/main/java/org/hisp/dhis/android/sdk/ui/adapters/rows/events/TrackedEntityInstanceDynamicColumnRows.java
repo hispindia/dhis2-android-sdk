@@ -37,7 +37,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
+import org.hisp.dhis.android.sdk.ui.views.FontTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +54,9 @@ public class TrackedEntityInstanceDynamicColumnRows implements EventRow
     private String mTitle;
     private String mTrackedEntity;
     private View view;
-
+    private static final String VI_LANG= "vi";
+    private static final String MY_LANG= "my";
+    private static final String TZ_LANG= "sw";
     @Override
     public View getView(LayoutInflater inflater, View convertView, ViewGroup container) {
 
@@ -59,7 +64,23 @@ public class TrackedEntityInstanceDynamicColumnRows implements EventRow
 
         if (convertView == null) {
             view = inflater.inflate(R.layout.listview_column_names_item, container, false);
+            FontTextView status=(FontTextView)view.findViewById(R.id.status_column);
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
 
+            String localdblang=user_locallang;
+            if(localdblang.equals(VI_LANG))
+            {
+                status.setText("Tình trạng");
+            }
+            else if(localdblang.equals(TZ_LANG))
+            {
+                status.setText("Hali ya tukio");
+            }
+            else if(localdblang.equals(MY_LANG))
+            {
+                status.setText("အဆင့္အတန္း");
+            }
             holder = new ViewHolder(
                     (TextView) view.findViewById(R.id.tracked_entity_title),
                     (TextView) view.findViewById(R.id.column_name),
@@ -172,12 +193,12 @@ public class TrackedEntityInstanceDynamicColumnRows implements EventRow
             @Override
             public void onClick(View view)
             {
-                if(view.getId() == R.id.column_name)
-                    Dhis2Application.getEventBus().post(
-                            new OnTrackedEntityInstanceColumnClick(OnTrackedEntityInstanceColumnClick.FIRST_COLUMN));
-                else if(view.getId() == R.id.status_column)
-                    Dhis2Application.getEventBus().post(
-                            new OnTrackedEntityInstanceColumnClick(OnTrackedEntityInstanceColumnClick.STATUS_COLUMN));
+//                if(view.getId() == R.id.column_name)
+//                    Dhis2Application.getEventBus().post(
+//                            new OnTrackedEntityInstanceColumnClick(OnTrackedEntityInstanceColumnClick.FIRST_COLUMN));
+//                else if(view.getId() == R.id.status_column)
+//                    Dhis2Application.getEventBus().post(
+//                            new OnTrackedEntityInstanceColumnClick(OnTrackedEntityInstanceColumnClick.STATUS_COLUMN));
             }
 
         }

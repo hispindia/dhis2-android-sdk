@@ -10,15 +10,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
 
 public class IntegerEditTextRow extends TextRow {
     private static String rowTypeTemp;
-
+    private static final String VI_LANG= "vi";
+    private static final String TZ_LANG= "sw";
     public IntegerEditTextRow(String label, boolean mandatory, String warning,
-            BaseValue baseValue,
-            DataEntryRowTypes rowType) {
+                              BaseValue baseValue,
+                              DataEntryRowTypes rowType) {
         mLabel = label;
         mMandatory = mandatory;
         mWarning = warning;
@@ -38,7 +41,7 @@ public class IntegerEditTextRow extends TextRow {
 
     @Override
     public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-            View convertView, ViewGroup container) {
+                        View convertView, ViewGroup container) {
         View view;
         final ValueEntryHolder holder;
 
@@ -58,7 +61,25 @@ public class IntegerEditTextRow extends TextRow {
 
             editText.setInputType(InputType.TYPE_CLASS_NUMBER |
                     InputType.TYPE_NUMBER_FLAG_SIGNED);
-            editText.setHint(R.string.enter_integer);
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals(VI_LANG))
+            {
+                editText.setHint("Nhập số nguyên");
+            }
+            else  if(localdblang.equals(TZ_LANG))
+            {
+                editText.setHint("Ingiza Kipengee");
+            }
+            else  if(localdblang.equals("my"))
+            {
+                editText.setHint("အျပည့္အဝဝင္ေရာက္ျခင္း");
+            }
+            else
+            {
+                editText.setHint(R.string.enter_integer);
+            }
             editText.setSingleLine(true);
 
             OnTextChangeListener listener = new OnTextChangeListener();
