@@ -43,9 +43,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.models.DataValue;
 import org.hisp.dhis.android.sdk.persistence.models.Event;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -54,7 +56,11 @@ public class EventDueDatePickerRow extends AbsDatePickerRow {
     private static final String TAG = "EventDueDatePickerRow";
     private final Event mEvent;
     private final boolean mAllowDatesInFuture;
-
+    private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
+    private static final String IN_LANG= "in";
+    private static final String TZ_DATE= "Ingiza tarehe";
+    private static final String VI_DATE= "Nhập ngày";
     public EventDueDatePickerRow(String label, Event event, boolean allowDatesInFuture) {
         this.mAllowDatesInFuture = allowDatesInFuture;
         mLabel = label;
@@ -116,7 +122,7 @@ public class EventDueDatePickerRow extends AbsDatePickerRow {
         final TextView textLabel;
         final TextView pickerInvoker;
         final ImageButton clearButton;
-//        final View detailedInfoButton;
+        //        final View detailedInfoButton;
         final DateSetListener dateSetListener;
         final OnEditTextClickListener invokerListener;
         final ClearButtonListener clearButtonListener;
@@ -126,6 +132,27 @@ public class EventDueDatePickerRow extends AbsDatePickerRow {
             pickerInvoker = (TextView) root.findViewById(R.id.date_picker_text_view);
             clearButton = (ImageButton) root.findViewById(R.id.clear_text_view);
 //            this.detailedInfoButton = detailedInfoButton;
+
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals(TZ_LANG))
+            {
+                pickerInvoker.setHint(TZ_DATE);
+            }
+            else if(localdblang.equals(VI_LANG))
+            {
+                pickerInvoker.setHint(VI_DATE);
+            }
+            else if(localdblang.equals("my"))
+            {
+                pickerInvoker.setHint("ဝင္ေရာက္သည့္ရက္");
+            }
+            else if(localdblang.equals(IN_LANG))
+            {
+                pickerInvoker.setHint("Masukkan tanggal");
+            }
+
 
             dateSetListener = new DateSetListener(pickerInvoker);
             invokerListener = new OnEditTextClickListener(context, dateSetListener,
