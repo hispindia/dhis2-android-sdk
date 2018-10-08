@@ -36,7 +36,6 @@ import static org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController.
 import android.content.Context;
 
 import com.crashlytics.android.Crashlytics;
-
 import org.hisp.dhis.android.sdk.R;
 import org.hisp.dhis.android.sdk.controllers.DhisController;
 import org.hisp.dhis.android.sdk.controllers.GpsController;
@@ -53,6 +52,7 @@ import org.hisp.dhis.android.sdk.persistence.models.ProgramStageDataElement;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramStageSection;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowFactory;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventCoordinatesRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EventDatePickerRow;
@@ -76,10 +76,12 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
 
     private static final String EMPTY_FIELD = "";
     private static final String DEFAULT_SECTION = "defaultSection";
-
     private final String orgUnitId;
     private final String programId;
     private final String programStageId;
+    private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
+    private static final String IN_LANG= "in";
     private final long eventId;
     private final long enrollmentId;
 
@@ -191,6 +193,10 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
         }
     }
 
+    //@Sou trans for event/due/report date
+
+
+
     private static void addStatusRow(Context context, EventDataEntryFragmentForm form,
                                      List<Row> rows) {
         Event event = form.getEvent();
@@ -201,16 +207,72 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
     }
 
     private static void addDueDateRow(Context context, EventDataEntryFragmentForm form,
-                                        List<Row> rows) {
-        String reportDateDescription = context.getString(R.string.duedate);
-        rows.add(new EventDueDatePickerRow(reportDateDescription, form.getEvent(), true));
+                                      List<Row> rows) {
+        final UserAccount uslocal=MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(TZ_LANG))
+        {
+            String reportDateDescription = context.getString(R.string.duedate_tz);
+            rows.add(new EventDueDatePickerRow(reportDateDescription, form.getEvent(), true));
+        }
+        else if(localdblang.equals(VI_LANG))
+        {
+            String reportDateDescription = context.getString(R.string.duedate_vi);
+            rows.add(new EventDueDatePickerRow(reportDateDescription, form.getEvent(), true));
+        }
+        else if(localdblang.equals(IN_LANG))
+        {
+            String reportDateDescription = "Batas tanggal terakhir";
+            rows.add(new EventDueDatePickerRow(reportDateDescription, form.getEvent(), true));
+        }
+        else if(localdblang.equals("my"))
+        {
+            String reportDateDescription = "သတ္မွတ္ရက္";
+            rows.add(new EventDueDatePickerRow(reportDateDescription, form.getEvent(), true));
+        }
+        else
+        {
+            String reportDateDescription = context.getString(R.string.duedate);
+            rows.add(new EventDueDatePickerRow(reportDateDescription, form.getEvent(), true));
+        }
+
+
     }
 
     private static void addEventDateRow(Context context, EventDataEntryFragmentForm form,
                                         List<Row> rows) {
-        String reportDateDescription = form.getStage().getExecutionDateLabel()== null ?
-                context.getString(R.string.report_date) : form.getStage().getExecutionDateLabel();
-        rows.add(new EventDatePickerRow(reportDateDescription, form.getEvent(), false));
+        final UserAccount uslocal=MetaDataController.getUserLocalLang();
+        String user_locallang=uslocal.getUserSettings().toString();
+        String localdblang=user_locallang;
+        if(localdblang.equals(TZ_LANG))
+        {
+            String reportDateDescription = context.getString(R.string.report_date_tz);
+            rows.add(new EventDatePickerRow(reportDateDescription, form.getEvent(), false));
+        }
+        else if(localdblang.equals(VI_LANG))
+        {
+            String reportDateDescription = context.getString(R.string.report_date_vi);
+            rows.add(new EventDatePickerRow(reportDateDescription, form.getEvent(), false));
+        }
+        else if(localdblang.equals("my"))
+        {
+            String reportDateDescription = "အစီရင္ခံစာတင္ရက္";
+            rows.add(new EventDatePickerRow(reportDateDescription, form.getEvent(), false));
+        }
+        else if(localdblang.equals(IN_LANG))
+        {
+            String reportDateDescription = "Tanggal laporan";
+            rows.add(new EventDatePickerRow(reportDateDescription, form.getEvent(), false));
+        }
+        else
+        {
+            String reportDateDescription = form.getStage().getExecutionDateLabel()== null ?
+                    context.getString(R.string.report_date) : form.getStage().getExecutionDateLabel();
+            rows.add(new EventDatePickerRow(reportDateDescription, form.getEvent(), false));
+
+        }
+
     }
 
     private static void addCoordinateRow(EventDataEntryFragmentForm form, List<Row> rows) {
