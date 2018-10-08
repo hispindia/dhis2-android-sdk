@@ -45,8 +45,10 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 
 import java.text.ParseException;
@@ -57,11 +59,16 @@ import java.util.Date;
 public class DateTimePickerRow extends Row {
     private static final String EMPTY_FIELD = "";
     final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm";
+    private static final String TZ_LANG= "sw";
+    private static final String VI_LANG= "vi";
+    private static final String IN_LANG= "in";
+    private static final String TZ_DATE= "Ingiza tarehe";
+    private static final String VI_DATE= "Nhập ngày";
     private final boolean mAllowDatesInFuture;
     Context mContext;
 
     public DateTimePickerRow(String label, boolean mandatory, String warning, BaseValue value,
-            boolean allowDatesInFuture) {
+                             boolean allowDatesInFuture) {
         mAllowDatesInFuture = allowDatesInFuture;
         mLabel = label;
         mMandatory = mandatory;
@@ -73,7 +80,7 @@ public class DateTimePickerRow extends Row {
 
     @Override
     public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-            View convertView, ViewGroup container) {
+                        View convertView, ViewGroup container) {
         View view;
         DatePickerRowHolder holder;
 
@@ -168,8 +175,25 @@ public class DateTimePickerRow extends Row {
 //            this.detailedInfoButton = detailedInfoButton;
 
             mContext = context;
-
-
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
+            String localdblang=user_locallang;
+            if(localdblang.equals(TZ_LANG))
+            {
+                pickerInvoker.setHint(TZ_DATE);
+            }
+            else if(localdblang.equals(VI_LANG))
+            {
+                pickerInvoker.setHint(VI_DATE);
+            }
+            else if(localdblang.equals("my"))
+            {
+                pickerInvoker.setHint("ဝင္ေရာက္သည့္ရက္");
+            }
+            else if(localdblang.equals(IN_LANG))
+            {
+                pickerInvoker.setHint("Masukkan tanggal");
+            }
             dialogView = View.inflate(mContext, R.layout.time_date_picker, null);
             datePicker = (DatePicker) dialogView.findViewById(R.id.datePicker);
             timePicker = (TimePicker) dialogView.findViewById(R.id.timePicker);
@@ -181,7 +205,7 @@ public class DateTimePickerRow extends Row {
         }
 
         private AlertDialog createDialog(Context context, final TextView pickerInvoker,
-                final BaseValue baseValue) {
+                                         final BaseValue baseValue) {
             final String VALUE_FORMAT = "%s-%s-%sT%s:%s";
             final AlertDialog alertDialog = new AlertDialog.Builder(context).create();
             timePicker.setIs24HourView(true);
@@ -243,8 +267,8 @@ public class DateTimePickerRow extends Row {
         }
 
         public void updateViews(String label,
-                DatePickerRowHolder holder,
-                BaseValue baseValue) {
+                                DatePickerRowHolder holder,
+                                BaseValue baseValue) {
             if (mValue != null && mValue.getValue()!=null && !mValue.getValue().equals("")) {
                 holder.datePicker.updateDate(getDateType(mValue, Calendar.YEAR),
                         getDateType(mValue, Calendar.MONTH),
@@ -285,7 +309,7 @@ public class DateTimePickerRow extends Row {
         }
 
         private void saveValue(TimePicker timePicker, String DATE_FORMAT, DatePicker datePicker,
-                TextView textView, BaseValue value) {
+                               TextView textView, BaseValue value) {
             String newValue = getFormattedValue(timePicker, DATE_FORMAT, datePicker);
             String textValue = getValueToRender(newValue);
 
@@ -300,7 +324,7 @@ public class DateTimePickerRow extends Row {
         }
 
         private String getFormattedValue(TimePicker timePicker, String DATE_FORMAT,
-                DatePicker datePicker) {
+                                         DatePicker datePicker) {
             return String.format(DATE_FORMAT,
                     datePicker.getYear(), getFixedString(datePicker.getMonth() + 1), getFixedString(
                             datePicker.getDayOfMonth()),
@@ -316,7 +340,7 @@ public class DateTimePickerRow extends Row {
         BaseValue baseValue;
 
         public OnEditTextClickListener(AlertDialog alertDialog, boolean allowDatesInFuture,
-                TextView pickerInvoker, BaseValue baseValue) {
+                                       TextView pickerInvoker, BaseValue baseValue) {
             this.mAlertDialog = alertDialog;
             this.allowDatesInFuture = allowDatesInFuture;
             this.pickerInvoker = pickerInvoker;
