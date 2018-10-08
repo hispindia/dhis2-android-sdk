@@ -10,15 +10,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.R;
+import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.persistence.models.BaseValue;
+import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
 
 public class ShortTextEditTextRow extends TextRow {
     private static String rowTypeTemp;
-
+    private static final String VI_LANG= "vi";
+    private static final String TZ_LANG= "sw";
+    private static final String IN_LANG= "in";
     public ShortTextEditTextRow(String label, boolean mandatory, String warning,
-            BaseValue baseValue,
-            DataEntryRowTypes rowType) {
+                                BaseValue baseValue,
+                                DataEntryRowTypes rowType) {
         mLabel = label;
         mMandatory = mandatory;
         mWarning = warning;
@@ -38,7 +42,7 @@ public class ShortTextEditTextRow extends TextRow {
 
     @Override
     public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-            View convertView, ViewGroup container) {
+                        View convertView, ViewGroup container) {
         View view;
         final ValueEntryHolder holder;
 
@@ -54,9 +58,33 @@ public class ShortTextEditTextRow extends TextRow {
             TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
             EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
 //            detailedInfoButton = root.findViewById(R.id.detailed_info_button_layout);
+            final UserAccount uslocal= MetaDataController.getUserLocalLang();
+            String user_locallang=uslocal.getUserSettings().toString();
 
+            String localdblang=user_locallang;
             editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-            editText.setHint(R.string.enter_text);
+            if(localdblang.equals(VI_LANG))
+            {
+                editText.setHint(R.string.enter_text_vi);
+            }
+            else if(localdblang.equals(TZ_LANG))
+            {
+                editText.setHint("Ingiza Maandishi");
+            }
+            else if(localdblang.equals(IN_LANG))
+            {
+                editText.setHint("Masukkan teks");
+            }
+            else if(localdblang.equals("my"))
+            {
+                editText.setHint("စာထည့္႐ိုက္ျခင္း");
+            }
+            else
+            {
+                editText.setHint(R.string.enter_text);
+            }
+
+
             editText.setSingleLine(true);
 
             OnTextChangeListener listener = new OnTextChangeListener();
@@ -93,7 +121,9 @@ public class ShortTextEditTextRow extends TextRow {
 //        else {
 //            holder.detailedInfoButton.setVisibility(View.VISIBLE);
 //        }
-
+        if (isShouldNeverBeEdited()) {
+            holder.editText.setEnabled(false);
+        }
         if (mWarning == null) {
             holder.warningLabel.setVisibility(View.GONE);
         } else {
